@@ -86,7 +86,7 @@ export default function PricingPage() {
             </div>
 
             <a
-              href={billingCycle === 'annual' ? "https://www.paypal.com/ncp/payment/R9P86UDB374JE" : "#"}
+              href={billingCycle === 'annual' ? "https://www.paypal.com/ncp/payment/R9P86UDB374JE" : "https://www.paypal.com/ncp/payment/DZJRLLWB2Z48Q"}
               target="_blank"
               rel="noopener noreferrer"
               className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-bold py-4 px-6 rounded-xl transition shadow-lg shadow-purple-500/25 text-center block cursor-pointer"
@@ -135,7 +135,7 @@ export default function PricingPage() {
             </div>
 
             <a
-              href={billingCycle === 'annual' ? "https://www.paypal.com/ncp/payment/MJRFZ76NLQUVY" : "#"}
+              href={billingCycle === 'annual' ? "https://www.paypal.com/ncp/payment/MJRFZ76NLQUVY" : "https://www.paypal.com/ncp/payment/YRAPF7XPJNL2Q"}
               target="_blank"
               rel="noopener noreferrer"
               className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-bold py-4 px-6 rounded-xl transition shadow-lg shadow-blue-500/25 text-center block cursor-pointer"
