@@ -48,9 +48,8 @@ export default function AuthPage() {
         
         {/* PANEL IZQUIERDO: Descripciones y Tarjeta compacta */}
         <div className="flex flex-col space-y-6 text-center lg:text-left">
-          
           <div className="bg-[#1A1F2E] rounded-2xl border border-gray-800 p-8 shadow-2xl space-y-4">
-            <div className="w-14 h-14 bg-violet-600/20 border border-violet-500/30 rounded-xl mx-lg:mx-auto flex items-center justify-center text-3xl">
+            <div className="w-14 h-14 bg-violet-600/20 border border-violet-500/30 rounded-xl mx-auto lg:mx-0 flex items-center justify-center text-3xl">
               🎬
             </div>
             <h1 className="text-3xl lg:text-4xl font-extrabold leading-tight">
@@ -121,6 +120,7 @@ export default function AuthPage() {
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors focus:outline-none p-1"
+                    title={showPassword ? "Ocultar contraseña" : "Ver contraseña"}
                   >
                     {showPassword ? (
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
