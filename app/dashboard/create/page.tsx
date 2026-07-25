@@ -1,113 +1,170 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { Video, Smartphone, MonitorPlay, Loader2, Coins } from "lucide-react";
+import { useState } from 'react';
+import Link from 'next/link';
 
-export default function CreateVideoPage() {
-  const [prompt, setPrompt] = useState("");
-  const [format, setFormat] = useState("vertical");
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [credits, setCredits] = useState(30);
+export default function CreateDashboardPage() {
+  const [activeTab, setActiveTab] = useState<'youtube' | 'text' | 'upload'>('youtube');
+  const [contentInput, setContentInput] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [resultClips, setResultClips] = useState<any[] | null>(null);
 
-  const handleGenerate = async () => {
-    if (!prompt) return;
-    setIsGenerating(true);
-    
-    // Aquí conectaremos la IA en el futuro, por ahora simulamos la carga
-    setTimeout(() => {
-      setIsGenerating(false);
-      setCredits(credits - 1);
-      alert("¡Video generado con éxito! (Simulación)");
-    }, 3000);
+  const handleGenerate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setResultClips(null);
+
+    try {
+      const res = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: activeTab, content: contentInput }),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        setResultClips(data.clips);
+      } else {
+        alert('Hubo un error al generar los clips.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error de conexión.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6 md:p-12">
-      <div className="max-w-3xl mx-auto space-y-8">
+    <div className="min-h-screen bg-slate-950 text-slate-100 py-10 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      {/* Luces de fondo */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-purple-600/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div className="max-w-4xl mx-auto relative z-10">
         
-        {/* Encabezado con Créditos */}
-        <div className="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-          <h1 className="text-xl md:text-2xl font-bold text-gray-800 flex items-center gap-2">
-            <Video className="text-blue-600" />
-            ClipStream AI
+        {/* Barra superior */}
+        <div className="flex justify-between items-center mb-8">
+          <Link href="/" className="text-sm font-semibold text-purple-400 hover:text-purple-300 transition">
+            ← Volver al inicio
+          </Link>
+          <h1 className="text-2xl font-extrabold text-white">
+            ClipStream <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">AI Studio</span>
           </h1>
-          <div className="flex items-center gap-2 bg-blue-50 text-blue-700 px-3 py-1.5 md:px-4 md:py-2 rounded-full font-semibold text-sm md:text-base">
-            <Coins size={18} />
-            <span>{credits} Créditos</span>
-          </div>
         </div>
 
-        {/* Área de Trabajo Principal */}
-        <div className="bg-white p-6 md:p-8 rounded-xl shadow-sm border border-gray-100 space-y-6">
+        {/* Panel Principal */}
+        <div className="bg-slate-900/80 backdrop-blur-xl border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl">
           
-          {/* Caja de Texto para el Prompt */}
-          <div className="space-y-3">
-            <label className="block text-sm font-semibold text-gray-700">
-              ¿De qué trata tu video? Escribe el guion o la idea principal
-            </label>
-            <textarea
-              className="w-full h-40 p-4 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none text-gray-700"
-              placeholder="Ejemplo: Crea un video sobre los 3 beneficios de usar inteligencia artificial en el marketing..."
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-            ></textarea>
+          <h2 className="text-xl font-bold text-white mb-4">¿Qué deseas transformar hoy?</h2>
+          
+          {/* Pestañas de selección */}
+          <div className="grid grid-cols-3 gap-2 bg-slate-950 p-1.5 rounded-2xl border border-slate-800 mb-6">
+            <button
+              type="button"
+              onClick={() => { setActiveTab('youtube'); setContentInput(''); }}
+              className={`py-2.5 rounded-xl text-sm font-semibold transition cursor-pointer ${activeTab === 'youtube' ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
+            >
+              🔗 Enlace YouTube
+            </button>
+            <button
+              type="button"
+              onClick={() => { setActiveTab('text'); setContentInput(''); }}
+              className={`py-2.5 rounded-xl text-sm font-semibold transition cursor-pointer ${activeTab === 'text' ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
+            >
+              ✍️ Texto / Idea
+            </button>
+            <button
+              type="button"
+              onClick={() => { setActiveTab('upload'); setContentInput(''); }}
+              className={`py-2.5 rounded-xl text-sm font-semibold transition cursor-pointer ${activeTab === 'upload' ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
+            >
+              📁 Subir Archivo
+            </button>
           </div>
 
-          {/* Selector de Formato */}
-          <div className="space-y-3">
-            <label className="block text-sm font-semibold text-gray-700">
-              Formato del Video
-            </label>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <button
-                onClick={() => setFormat("vertical")}
-                className={`flex flex-col items-center justify-center p-4 rounded-lg border-2 transition-all ${
-                  format === "vertical"
-                    ? "border-blue-600 bg-blue-50 text-blue-700"
-                    : "border-gray-200 hover:border-blue-300 text-gray-500"
-                }`}
-              >
-                <Smartphone size={32} className="mb-2" />
-                <span className="font-semibold">Vertical (9:16)</span>
-                <span className="text-xs mt-1 text-center">TikTok, Reels, Shorts</span>
-              </button>
-
-              <button
-                onClick={() => setFormat("horizontal")}
-                className={`flex flex-col items-center justify-center p-4 rounded-lg border-2 transition-all ${
-                  format === "horizontal"
-                    ? "border-blue-600 bg-blue-50 text-blue-700"
-                    : "border-gray-200 hover:border-blue-300 text-gray-500"
-                }`}
-              >
-                <MonitorPlay size={32} className="mb-2" />
-                <span className="font-semibold">Horizontal (16:9)</span>
-                <span className="text-xs mt-1 text-center">YouTube, VSL, Web</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Botón Generar */}
-          <button
-            onClick={handleGenerate}
-            disabled={isGenerating || !prompt}
-            className={`w-full py-4 rounded-lg text-lg font-bold text-white flex items-center justify-center gap-2 transition-all shadow-lg ${
-              isGenerating || !prompt
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-blue-600 hover:bg-blue-700 hover:shadow-blue-500/30"
-            }`}
-          >
-            {isGenerating ? (
-              <>
-                <Loader2 className="animate-spin" size={24} />
-                Generando Video con IA...
-              </>
-            ) : (
-              <>
-                Generar Video
-              </>
+          {/* Formulario Dinámico */}
+          <form onSubmit={handleGenerate} className="space-y-6">
+            {activeTab === 'youtube' && (
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Pega el enlace del video de YouTube</label>
+                <input
+                  type="url"
+                  required
+                  placeholder="https://www.youtube.com/watch?v=..."
+                  value={contentInput}
+                  onChange={(e) => setContentInput(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition"
+                />
+              </div>
             )}
-          </button>
+
+            {activeTab === 'text' && (
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Escribe tu idea o guion para que la IA cree el video</label>
+                <textarea
+                  required
+                  rows={4}
+                  placeholder="Ej: Crea un video dinámico sobre 3 consejos para mejorar la productividad digital..."
+                  value={contentInput}
+                  onChange={(e) => setContentInput(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl p-4 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition"
+                />
+              </div>
+            )}
+
+            {activeTab === 'upload' && (
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Sube tu archivo de video o audio</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Nombre o ruta del archivo de video (ej: video_clase.mp4)"
+                  value={contentInput}
+                  onChange={(e) => setContentInput(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition"
+                />
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-bold py-4 px-6 rounded-xl transition shadow-lg shadow-purple-500/25 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+            >
+              {loading ? (
+                <>
+                  <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                  </svg>
+                  <span>La IA está procesando y creando tus clips...</span>
+                </>
+              ) : (
+                <>🚀 Generar Clips Virales con IA</>
+              )}
+            </button>
+          </form>
+
+          {/* Resultados Generados */}
+          {resultClips && (
+            <div className="mt-8 pt-6 border-t border-slate-800">
+              <h3 className="text-lg font-bold text-white mb-4">🎉 ¡Clips Generados Exitosamente!</h3>
+              <div className="space-y-3">
+                {resultClips.map((clip) => (
+                  <div key={clip.id} className="bg-slate-950 border border-slate-800 p-4 rounded-xl flex items-center justify-between">
+                    <div>
+                      <p className="font-semibold text-white text-sm">{clip.title}</p>
+                      <span className="text-xs text-purple-400">Duración: {clip.duration} • Listo para TikTok / Reels</span>
+                    </div>
+                    <button type="button" className="bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 text-xs font-bold px-3 py-2 rounded-lg border border-purple-500/30 transition cursor-pointer">
+                      ⬇️ Descargar Clip
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
         </div>
       </div>
     </div>
