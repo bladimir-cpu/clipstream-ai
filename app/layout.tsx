@@ -1,33 +1,20 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import type { Metadata } from "import";
 import "./globals.css";
-import Navbar from "@/app/components/Navbar";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
-  title: "ClipStream AI",
-  description: "Crea videos profesionales con Inteligencia Artificial",
+  title: "ClipStream AI - Generador de Videos con IA",
+  description: "Transforma tus ideas en clips virales",
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
-    <html lang="es">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-50`}>
-        <Navbar />
-        <main>{children}</main>
+    <html lang="es" className="dark">
+      <body className="bg-slate-950 text-slate-100 min-h-screen antialiased selection:bg-purple-600 selection:text-white">
+        {children}
       </body>
     </html>
   );
