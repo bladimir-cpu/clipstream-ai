@@ -44,22 +44,30 @@ export default function AuthPage() {
 
   return (
     <div className="min-h-screen bg-[#0B0F19] flex items-center justify-center p-4 lg:p-8 text-white font-sans">
-      <div className="max-w-6xl w-full grid lg:grid-cols-2 gap-8 items-center">
+      {/* Contenedor principal en Grid de 2 columnas lado a lado */}
+      <div className="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
         
-        {/* PANEL IZQUIERDO: Descripciones y Tarjeta compacta */}
+        {/* PANEL IZQUIERDO: Ilustración y Textos explicativos */}
         <div className="flex flex-col space-y-6 text-center lg:text-left">
-          <div className="bg-[#1A1F2E] rounded-2xl border border-gray-800 p-8 shadow-2xl space-y-4">
-            <div className="w-14 h-14 bg-violet-600/20 border border-violet-500/30 rounded-xl mx-auto lg:mx-0 flex items-center justify-center text-3xl">
-              🎬
+          <div className="bg-[#1A1F2E] rounded-2xl border border-gray-800 p-6 lg:p-8 shadow-2xl space-y-4">
+            <div className="aspect-[16/9] bg-[#0B0F19] rounded-xl border border-gray-800 flex flex-col items-center justify-center p-4 text-center group hover:border-violet-500/50 transition-colors">
+              <span className="text-4xl mb-2">🎬✨</span>
+              <span className="text-gray-400 text-sm font-medium">
+                [Espacio para la ilustración aprobada]
+              </span>
+              <p className="text-gray-600 text-xs mt-1">
+                (Aquí puedes colocar tu imagen más adelante)
+              </p>
             </div>
-            <h1 className="text-3xl lg:text-4xl font-extrabold leading-tight">
+            
+            <h1 className="text-2xl lg:text-3xl font-extrabold leading-tight">
               ¡Maximiza tu Contenido!
             </h1>
-            <h2 className="text-xl lg:text-2xl font-bold text-violet-400">
+            <h2 className="text-lg lg:text-xl font-bold text-violet-400">
               La forma más inteligente de crear clips virales
             </h2>
-            <p className="text-gray-400 text-base leading-relaxed">
-              ClipStream AI utiliza tecnología de vanguardia para analizar tus vídeos largos, extraer automáticamente los momentos más impactantes y convertirlos en clips cortos y dinámicos para redes sociales. Ahorra horas de edición y aumenta tu alcance orgánico.
+            <p className="text-gray-400 text-sm leading-relaxed">
+              ClipStream AI utiliza tecnología de vanguardia para analizar tus vídeos largos, extraer automáticamente los momentos más impactantes y convertirlos en clips cortos y dinámicos para redes sociales.
             </p>
           </div>
         </div>
@@ -68,7 +76,10 @@ export default function AuthPage() {
         <div className="flex justify-center">
           <div className="max-w-md w-full bg-[#1A1F2E] rounded-2xl shadow-2xl p-8 border border-gray-800">
             
-            <div className="text-center mb-8">
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 bg-gradient-to-br from-violet-600 to-blue-600 rounded-2xl mx-auto flex items-center justify-center mb-4 shadow-lg shadow-violet-500/30">
+                <span className="text-3xl">🎬</span>
+              </div>
               <h2 className="text-2xl font-extrabold text-white mb-1">
                 ClipStream <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-blue-400">AI</span>
               </h2>
@@ -160,7 +171,7 @@ export default function AuthPage() {
             
           </div>
         </div>
-        
+
       </div>
     </div>
   );
