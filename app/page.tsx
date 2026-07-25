@@ -2,13 +2,9 @@
 import React, { useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
-
-// Esto nos avisa si falta alguna llave en Vercel
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.error("Faltan las variables de entorno de Supabase en Vercel.");
-}
+// Colocamos las credenciales directamente para evitar problemas de lectura en Vercel
+const supabaseUrl = 'https://TU-SUPABASE-URL.supabase.co';
+const supabaseAnonKey = 'TU-SUPABASE-ANON-KEY';
 
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
@@ -37,7 +33,6 @@ export default function AuthPage() {
         setSuccessMessage('¡Cuenta creada con éxito! Ya puedes iniciar sesión.');
       }
     } catch (err: any) {
-      console.error("Error detallado de Supabase:", err);
       setErrorMessage(err.message || 'Error de conexión con el servidor.');
     } finally {
       setLoading(false);
