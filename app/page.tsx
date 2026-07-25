@@ -2,9 +2,8 @@
 import React, { useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// Colocamos las credenciales directamente para evitar problemas de lectura en Vercel
-const supabaseUrl = 'https://TU-SUPABASE-URL.supabase.co';
-const supabaseAnonKey = 'TU-SUPABASE-ANON-KEY';
+const supabaseUrl = 'https://xccemqbmjumhhucqwfp.supabase.co';
+const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhjY2VtcWJtanVtaGh1Y3F3ZnAiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTczNzg0MTIzNCwiZXhwIjoyMDUzNDE3MjM0fQ.tu_llave_anon_key_completa';
 
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
