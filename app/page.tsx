@@ -4,6 +4,12 @@ import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+
+// Esto nos avisa si falta alguna llave en Vercel
+if (!supabaseUrl || !supabaseAnonKey) {
+  console.error("Faltan las variables de entorno de Supabase en Vercel.");
+}
+
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export default function AuthPage() {
@@ -31,7 +37,8 @@ export default function AuthPage() {
         setSuccessMessage('¡Cuenta creada con éxito! Ya puedes iniciar sesión.');
       }
     } catch (err: any) {
-      setErrorMessage(err.message || 'Ocurrió un error al conectar con Supabase.');
+      console.error("Error detallado de Supabase:", err);
+      setErrorMessage(err.message || 'Error de conexión con el servidor.');
     } finally {
       setLoading(false);
     }
@@ -41,17 +48,14 @@ export default function AuthPage() {
     <div className="min-h-screen bg-[#0B0F19] text-white flex flex-col items-center justify-start p-4 md:p-8">
       <div className="max-w-6xl w-full flex flex-col items-center space-y-8">
         
-        {/* Banner Superior Optimizado */}
         <div className="w-full bg-[#161D2E] border border-gray-800 rounded-3xl overflow-hidden shadow-2xl p-4 flex justify-center items-center">
           <div className="w-full rounded-2xl bg-[#0B0F19] border border-gray-800 p-6 text-center text-purple-400 font-bold text-lg md:text-xl tracking-wide shadow-inner">
             🚀 ClipStream AI — Automatización Inteligente de Clips Virales
           </div>
         </div>
 
-        {/* Sección Inferior: Contenido y Formulario */}
         <div className="grid md:grid-cols-3 gap-8 w-full items-start">
           
-          {/* Títulos y Descripción */}
           <div className="md:col-span-2 space-y-4 pt-4">
             <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight">
               ¡Maximiza tu Contenido!
@@ -64,7 +68,6 @@ export default function AuthPage() {
             </p>
           </div>
 
-          {/* Tarjeta de Autenticación */}
           <div className="bg-[#161D2E] border border-gray-800 rounded-3xl p-6 shadow-xl w-full">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-10 h-10 bg-purple-600 rounded-xl flex items-center justify-center font-bold text-xl shadow-lg">
@@ -139,4 +142,3 @@ export default function AuthPage() {
     </div>
   );
 }
- 
