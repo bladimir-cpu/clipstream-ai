@@ -10,7 +10,6 @@ export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
@@ -29,10 +28,10 @@ export default function AuthPage() {
       } else {
         const { error } = await supabase.auth.signUp({ email, password });
         if (error) throw error;
-        setSuccessMessage('¡Cuenta creada con éxito! Revisa tu correo o inicia sesión.');
+        setSuccessMessage('¡Cuenta creada con éxito! Ya puedes iniciar sesión.');
       }
     } catch (err: any) {
-      setErrorMessage(err.message || 'Ocurrió un error inesperado.');
+      setErrorMessage(err.message || 'Ocurrió un error al conectar con Supabase.');
     } finally {
       setLoading(false);
     }
@@ -42,13 +41,11 @@ export default function AuthPage() {
     <div className="min-h-screen bg-[#0B0F19] text-white flex flex-col items-center justify-start p-4 md:p-8">
       <div className="max-w-6xl w-full flex flex-col items-center space-y-8">
         
-        {/* Banner Superior Ajustado sin Espacios Vacíos */}
-        <div className="w-full bg-[#161D2E] border border-gray-800 rounded-3xl overflow-hidden shadow-2xl flex justify-center items-center">
-          <img 
-            src="https://googleusercontent.com/image_generation_content/415" 
-            alt="ClipStream AI Dashboard Preview" 
-            className="w-full h-auto object-cover block"
-          />
+        {/* Banner Superior Optimizado */}
+        <div className="w-full bg-[#161D2E] border border-gray-800 rounded-3xl overflow-hidden shadow-2xl p-4 flex justify-center items-center">
+          <div className="w-full rounded-2xl bg-[#0B0F19] border border-gray-800 p-6 text-center text-purple-400 font-bold text-lg md:text-xl tracking-wide shadow-inner">
+            🚀 ClipStream AI — Automatización Inteligente de Clips Virales
+          </div>
         </div>
 
         {/* Sección Inferior: Contenido y Formulario */}
