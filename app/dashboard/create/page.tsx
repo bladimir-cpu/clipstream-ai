@@ -156,9 +156,22 @@ export default function CreateDashboardPage() {
                       <p className="font-semibold text-white text-sm">{clip.title}</p>
                       <span className="text-xs text-purple-400">Duración: {clip.duration} • Listo para TikTok / Reels</span>
                     </div>
-                    <button type="button" className="bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 text-xs font-bold px-3 py-2 rounded-lg border border-purple-500/30 transition cursor-pointer">
+                    {/* Botón convertido en enlace de descarga funcional */}
+                    <a
+                      href={clip.url || '#'}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      download
+                      className="bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 text-xs font-bold px-3 py-2 rounded-lg border border-purple-500/30 transition cursor-pointer flex items-center gap-1"
+                      onClick={(e) => {
+                        if (!clip.url) {
+                          e.preventDefault();
+                          alert('El archivo multimedia se está preparando. Inténtalo de nuevo en unos segundos.');
+                        }
+                      }}
+                    >
                       ⬇️ Descargar Clip
-                    </button>
+                    </a>
                   </div>
                 ))}
               </div>
