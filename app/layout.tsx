@@ -1,9 +1,8 @@
-import type { Metadata } from "import";
-import "./globals.css";
+import './globals.css';
 
-export const metadata: Metadata = {
-  title: "ClipStream AI - Generador de Videos con IA",
-  description: "Transforma tus ideas en clips virales",
+export const metadata = {
+  title: 'ClipStream AI - Generador de Videos con IA',
+  description: 'Transforma tus ideas en clips virales',
 };
 
 export default function RootLayout({
