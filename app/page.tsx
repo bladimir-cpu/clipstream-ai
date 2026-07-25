@@ -2,7 +2,6 @@
 import React, { useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// Inicializamos Supabase usando las variables de entorno públicas que ya tienes en tu proyecto
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
@@ -24,30 +23,17 @@ export default function AuthPage() {
 
     try {
       if (isLogin) {
-        // --- INICIAR SESIÓN ---
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-
         setSuccessMessage('¡Inicio de sesión exitoso! Redirigiendo...');
         setTimeout(() => {
           window.location.href = '/dashboard/create';
         }, 1200);
-
       } else {
-        // --- CREAR CUENTA ---
-        const { data, error } = await supabase.auth.signUp({
-          email,
-          password,
-        });
-
+        const { data, error } = await supabase.auth.signUp({ email, password });
         if (error) throw error;
-
         setSuccessMessage('¡Cuenta creada con éxito! Ya puedes iniciar sesión.');
-        setIsLogin(true); // Cambiamos a la vista de login para que ingrese
+        setIsLogin(true);
       }
     } catch (error: any) {
       setErrorMessage(error.message || 'Ocurrió un error inesperado. Inténtalo de nuevo.');
@@ -57,70 +43,55 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0B0F19] flex items-center justify-center p-4 md:p-10 text-white font-sans">
-      <div className="max-w-7xl w-full grid md:grid-cols-[1.5fr,1fr] gap-12 items-center">
+    <div className="min-h-screen bg-[#0B0F19] flex items-center justify-center p-4 lg:p-8 text-white font-sans">
+      <div className="max-w-6xl w-full grid lg:grid-cols-2 gap-8 items-center">
         
-        {/* PANEL IZQUIERDO: Descripciones e Ilustración */}
-        <div className="flex flex-col space-y-8 text-center md:text-left">
+        {/* PANEL IZQUIERDO: Descripciones y Tarjeta compacta */}
+        <div className="flex flex-col space-y-6 text-center lg:text-left">
           
-          <div className="aspect-[16/10] bg-[#1A1F2E] rounded-2xl border border-gray-800 flex flex-col items-center justify-center p-6 shadow-2xl mb-8 group hover:border-violet-500/50 transition-colors relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-tr from-violet-600/10 to-blue-600/15 pointer-events-none"></div>
-            <div className="text-center z-10 space-y-3">
-              <span className="text-5xl">🎬✨</span>
-              <h3 className="text-xl font-bold text-violet-300">ClipStream AI Editor</h3>
-              <p className="text-gray-400 text-sm max-w-md mx-auto">
-                Tu estudio automatizado de edición vertical con Inteligencia Artificial.
-              </p>
+          <div className="bg-[#1A1F2E] rounded-2xl border border-gray-800 p-8 shadow-2xl space-y-4">
+            <div className="w-14 h-14 bg-violet-600/20 border border-violet-500/30 rounded-xl mx-lg:mx-auto flex items-center justify-center text-3xl">
+              🎬
             </div>
-          </div>
-
-          <div className="space-y-4">
-            <h1 className="text-4xl md:text-5xl font-extrabold leading-tight">
+            <h1 className="text-3xl lg:text-4xl font-extrabold leading-tight">
               ¡Maximiza tu Contenido!
             </h1>
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-300">
+            <h2 className="text-xl lg:text-2xl font-bold text-violet-400">
               La forma más inteligente de crear clips virales
             </h2>
+            <p className="text-gray-400 text-base leading-relaxed">
+              ClipStream AI utiliza tecnología de vanguardia para analizar tus vídeos largos, extraer automáticamente los momentos más impactantes y convertirlos en clips cortos y dinámicos para redes sociales. Ahorra horas de edición y aumenta tu alcance orgánico.
+            </p>
           </div>
-
-          <p className="text-gray-400 text-lg max-w-3xl leading-relaxed">
-            ClipStream AI utiliza tecnología de vanguardia para analizar tus vídeos largos, extraer automáticamente los momentos más impactantes y convertirlos en clips cortos y dinámicos para redes sociales. Con subtítulos automáticos y formatos adaptables, ahorra horas de edición y aumenta tu alcance orgánico.
-          </p>
         </div>
 
-        {/* PANEL DERECHO: Formulario de Login/Registro conectado */}
-        <div className="flex justify-center md:justify-end">
-          <div className="max-w-md w-full bg-[#1A1F2E] rounded-2xl shadow-2xl p-10 border border-gray-800">
+        {/* PANEL DERECHO: Formulario de Login/Registro */}
+        <div className="flex justify-center">
+          <div className="max-w-md w-full bg-[#1A1F2E] rounded-2xl shadow-2xl p-8 border border-gray-800">
             
-            {/* Logo / Cabecera */}
-            <div className="text-center mb-10">
-              <div className="w-20 h-20 bg-gradient-to-br from-violet-600 to-blue-600 rounded-2xl mx-auto flex items-center justify-center mb-6 shadow-xl shadow-violet-500/30">
-                <span className="text-4xl">🎬</span>
-              </div>
-              <h2 className="text-3xl font-extrabold text-white mb-2">
+            <div className="text-center mb-8">
+              <h2 className="text-2xl font-extrabold text-white mb-1">
                 ClipStream <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-blue-400">AI</span>
               </h2>
-              <p className="text-gray-400">
+              <p className="text-gray-400 text-sm">
                 {isLogin ? 'Te damos la bienvenida de nuevo' : 'Crea tu cuenta para empezar'}
               </p>
             </div>
 
-            {/* Mensajes de Alerta */}
             {errorMessage && (
-              <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400 text-sm text-center">
+              <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400 text-sm text-center">
                 {errorMessage}
               </div>
             )}
             {successMessage && (
-              <div className="mb-6 p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-emerald-400 text-sm text-center">
+              <div className="mb-4 p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-emerald-400 text-sm text-center">
                 {successMessage}
               </div>
             )}
 
-            {/* Formulario */}
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-gray-300 mb-1.5">
                   Correo Electrónico
                 </label>
                 <input
@@ -128,14 +99,13 @@ export default function AuthPage() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-3.5 bg-[#0B0F19] border border-gray-700 rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent text-white placeholder-gray-500 transition-colors"
+                  className="w-full px-4 py-3 bg-[#0B0F19] border border-gray-700 rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent text-white placeholder-gray-500 text-sm transition-colors"
                   placeholder="tu@correo.com"
                 />
               </div>
 
-              {/* Campo de Contraseña con el Botón del Ojito */}
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-gray-300 mb-1.5">
                   Contraseña
                 </label>
                 <div className="relative">
@@ -144,14 +114,13 @@ export default function AuthPage() {
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full px-4 py-3.5 bg-[#0B0F19] border border-gray-700 rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent text-white placeholder-gray-500 transition-colors pr-12"
+                    className="w-full px-4 py-3 bg-[#0B0F19] border border-gray-700 rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent text-white placeholder-gray-500 text-sm transition-colors pr-12"
                     placeholder="••••••••"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors focus:outline-none p-1"
-                    title={showPassword ? "Ocultar contraseña" : "Ver contraseña"}
                   >
                     {showPassword ? (
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
@@ -170,14 +139,13 @@ export default function AuthPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3.5 px-6 bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-500 hover:to-blue-500 text-white font-bold rounded-xl shadow-lg transform transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full py-3.5 px-6 bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-500 hover:to-blue-500 text-white font-bold rounded-xl shadow-lg transform transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-50 text-sm mt-2"
               >
                 {loading ? 'Procesando...' : (isLogin ? 'Ingresar a mi cuenta' : 'Registrarme ahora')}
               </button>
             </form>
 
-            {/* Alternador de Vistas */}
-            <div className="mt-8 text-center border-t border-gray-800 pt-6">
+            <div className="mt-6 text-center border-t border-gray-800 pt-4">
               <p className="text-gray-400 text-sm">
                 {isLogin ? '¿Aún no tienes acceso?' : '¿Ya tienes una cuenta?'}
                 <button
