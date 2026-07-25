@@ -43,14 +43,14 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0B0F19] flex items-center justify-center p-4 lg:p-8 text-white font-sans">
-      {/* Contenedor principal en Grid de 2 columnas lado a lado */}
-      <div className="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+    <div className="min-h-screen bg-[#0B0F19] flex items-center justify-center p-4 lg:p-6 text-white font-sans">
+      {/* Contenedor principal en Grid de 2 columnas lado a lado riguroso */}
+      <div className="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
         
-        {/* PANEL IZQUIERDO: Ilustración y Textos explicativos */}
-        <div className="flex flex-col space-y-6 text-center lg:text-left">
+        {/* PANEL IZQUIERDO (Ocupa 7 columnas en pantallas grandes) */}
+        <div className="lg:col-span-7 flex flex-col space-y-6 text-center lg:text-left">
           <div className="bg-[#1A1F2E] rounded-2xl border border-gray-800 p-6 lg:p-8 shadow-2xl space-y-4">
-            <div className="aspect-[16/9] bg-[#0B0F19] rounded-xl border border-gray-800 flex flex-col items-center justify-center p-4 text-center group hover:border-violet-500/50 transition-colors">
+            <div className="aspect-[16/9] bg-[#0B0F19] rounded-xl border border-gray-800 flex flex-col items-center justify-center p-4 text-center">
               <span className="text-4xl mb-2">🎬✨</span>
               <span className="text-gray-400 text-sm font-medium">
                 [Espacio para la ilustración aprobada]
@@ -72,13 +72,13 @@ export default function AuthPage() {
           </div>
         </div>
 
-        {/* PANEL DERECHO: Formulario de Login/Registro */}
-        <div className="flex justify-center">
-          <div className="max-w-md w-full bg-[#1A1F2E] rounded-2xl shadow-2xl p-8 border border-gray-800">
+        {/* PANEL DERECHO (Ocupa 5 columnas en pantallas grandes) */}
+        <div className="lg:col-span-5 flex justify-center">
+          <div className="max-w-md w-full bg-[#1A1F2E] rounded-2xl shadow-2xl p-6 lg:p-8 border border-gray-800">
             
             <div className="text-center mb-6">
-              <div className="w-16 h-16 bg-gradient-to-br from-violet-600 to-blue-600 rounded-2xl mx-auto flex items-center justify-center mb-4 shadow-lg shadow-violet-500/30">
-                <span className="text-3xl">🎬</span>
+              <div className="w-14 h-14 bg-gradient-to-br from-violet-600 to-blue-600 rounded-2xl mx-auto flex items-center justify-center mb-3 shadow-lg shadow-violet-500/30">
+                <span className="text-2xl">🎬</span>
               </div>
               <h2 className="text-2xl font-extrabold text-white mb-1">
                 ClipStream <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-blue-400">AI</span>
@@ -131,7 +131,6 @@ export default function AuthPage() {
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors focus:outline-none p-1"
-                    title={showPassword ? "Ocultar contraseña" : "Ver contraseña"}
                   >
                     {showPassword ? (
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
@@ -175,4 +174,4 @@ export default function AuthPage() {
       </div>
     </div>
   );
-} 
+}
