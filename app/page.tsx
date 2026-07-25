@@ -23,154 +23,121 @@ export default function AuthPage() {
 
     try {
       if (isLogin) {
-        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        setSuccessMessage('¡Inicio de sesión exitoso! Redirigiendo...');
-        setTimeout(() => {
-          window.location.href = '/dashboard/create';
-        }, 1200);
+        window.location.href = '/dashboard/create';
       } else {
-        const { data, error } = await supabase.auth.signUp({ email, password });
+        const { error } = await supabase.auth.signUp({ email, password });
         if (error) throw error;
-        setSuccessMessage('¡Cuenta creada con éxito! Ya puedes iniciar sesión.');
-        setIsLogin(true);
+        setSuccessMessage('¡Cuenta creada con éxito! Revisa tu correo o inicia sesión.');
       }
-    } catch (error: any) {
-      setErrorMessage(error.message || 'Ocurrió un error inesperado. Inténtalo de nuevo.');
+    } catch (err: any) {
+      setErrorMessage(err.message || 'Ocurrió un error inesperado.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#0B0F19] flex items-center justify-center p-4 lg:p-6 text-white font-sans">
-      {/* Contenedor principal en Grid de 2 columnas lado a lado riguroso */}
-      <div className="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+    <div className="min-h-screen bg-[#0B0F19] text-white flex flex-col items-center justify-start p-4 md:p-8">
+      <div className="max-w-6xl w-full flex flex-col items-center space-y-8">
         
-        {/* PANEL IZQUIERDO (Ocupa 7 columnas en pantallas grandes) */}
-        <div className="lg:col-span-7 flex flex-col space-y-6 text-center lg:text-left">
-          <div className="bg-[#1A1F2E] rounded-2xl border border-gray-800 p-6 lg:p-8 shadow-2xl space-y-4">
-            <div className="aspect-[16/9] bg-[#0B0F19] rounded-xl border border-gray-800 flex flex-col items-center justify-center p-4 text-center">
-              <span className="text-4xl mb-2">🎬✨</span>
-              <span className="text-gray-400 text-sm font-medium">
-                [Espacio para la ilustración aprobada]
-              </span>
-              <p className="text-gray-600 text-xs mt-1">
-                (Aquí puedes colocar tu imagen más adelante)
-              </p>
-            </div>
-            
-            <h1 className="text-2xl lg:text-3xl font-extrabold leading-tight">
-              ¡Maximiza tu Contenido!
-            </h1>
-            <h2 className="text-lg lg:text-xl font-bold text-violet-400">
-              La forma más inteligente de crear clips virales
-            </h2>
-            <p className="text-gray-400 text-sm leading-relaxed">
-              ClipStream AI utiliza tecnología de vanguardia para analizar tus vídeos largos, extraer automáticamente los momentos más impactantes y convertirlos en clips cortos y dinámicos para redes sociales.
-            </p>
-          </div>
+        {/* Banner Superior Ajustado sin Espacios Vacíos */}
+        <div className="w-full bg-[#161D2E] border border-gray-800 rounded-3xl overflow-hidden shadow-2xl flex justify-center items-center">
+          <img 
+            src="https://googleusercontent.com/image_generation_content/415" 
+            alt="ClipStream AI Dashboard Preview" 
+            className="w-full h-auto object-cover block"
+          />
         </div>
 
-        {/* PANEL DERECHO (Ocupa 5 columnas en pantallas grandes) */}
-        <div className="lg:col-span-5 flex justify-center">
-          <div className="max-w-md w-full bg-[#1A1F2E] rounded-2xl shadow-2xl p-6 lg:p-8 border border-gray-800">
-            
-            <div className="text-center mb-6">
-              <div className="w-14 h-14 bg-gradient-to-br from-violet-600 to-blue-600 rounded-2xl mx-auto flex items-center justify-center mb-3 shadow-lg shadow-violet-500/30">
-                <span className="text-2xl">🎬</span>
+        {/* Sección Inferior: Contenido y Formulario */}
+        <div className="grid md:grid-cols-3 gap-8 w-full items-start">
+          
+          {/* Títulos y Descripción */}
+          <div className="md:col-span-2 space-y-4 pt-4">
+            <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight">
+              ¡Maximiza tu Contenido!
+            </h1>
+            <p className="text-xl font-medium text-purple-400">
+              La forma más inteligente de crear clips virales
+            </p>
+            <p className="text-gray-400 text-sm md:text-base leading-relaxed">
+              ClipStream AI utiliza tecnología de vanguardia para analizar tus vídeos largos, extraer automáticamente los momentos más impactantes y convertirlos en clips cortos y dinámicos para redes sociales. Con subtítulos automáticos y formatos adaptables, ahorra horas de edición y aumenta tu alcance orgánico.
+            </p>
+          </div>
+
+          {/* Tarjeta de Autenticación */}
+          <div className="bg-[#161D2E] border border-gray-800 rounded-3xl p-6 shadow-xl w-full">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 bg-purple-600 rounded-xl flex items-center justify-center font-bold text-xl shadow-lg">
+                🎥
               </div>
-              <h2 className="text-2xl font-extrabold text-white mb-1">
-                ClipStream <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-blue-400">AI</span>
-              </h2>
-              <p className="text-gray-400 text-sm">
-                {isLogin ? 'Te damos la bienvenida de nuevo' : 'Crea tu cuenta para empezar'}
-              </p>
+              <div>
+                <h2 className="text-xl font-bold">ClipStream AI</h2>
+                <p className="text-xs text-gray-400">Te damos la bienvenida</p>
+              </div>
             </div>
 
             {errorMessage && (
-              <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400 text-sm text-center">
+              <div className="mb-4 p-3 bg-red-900/50 border border-red-700 text-red-200 text-xs rounded-xl">
                 {errorMessage}
               </div>
             )}
+
             {successMessage && (
-              <div className="mb-4 p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-emerald-400 text-sm text-center">
+              <div className="mb-4 p-3 bg-green-900/50 border border-green-700 text-green-200 text-xs rounded-xl">
                 {successMessage}
               </div>
             )}
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1.5">
-                  Correo Electrónico
-                </label>
-                <input
-                  type="email"
-                  required
+                <label className="block text-xs text-gray-400 mb-1">Correo Electrónico</label>
+                <input 
+                  type="email" 
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-3 bg-[#0B0F19] border border-gray-700 rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent text-white placeholder-gray-500 text-sm transition-colors"
-                  placeholder="tu@correo.com"
+                  placeholder="tu@correo.com" 
+                  required
+                  className="w-full p-3 rounded-xl bg-[#0B0F19] border border-gray-700 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-purple-500"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1.5">
-                  Contraseña
-                </label>
-                <div className="relative">
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full px-4 py-3 bg-[#0B0F19] border border-gray-700 rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent text-white placeholder-gray-500 text-sm transition-colors pr-12"
-                    placeholder="••••••••"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors focus:outline-none p-1"
-                  >
-                    {showPassword ? (
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.243 4.243L9.88 9.88" />
-                      </svg>
-                    ) : (
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                      </svg>
-                    )}
-                  </button>
-                </div>
+                <label className="block text-xs text-gray-400 mb-1">Contraseña</label>
+                <input 
+                  type="password" 
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••" 
+                  required
+                  className="w-full p-3 rounded-xl bg-[#0B0F19] border border-gray-700 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-purple-500"
+                />
               </div>
 
-              <button
-                type="submit"
+              <button 
+                type="submit" 
                 disabled={loading}
-                className="w-full py-3.5 px-6 bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-500 hover:to-blue-500 text-white font-bold rounded-xl shadow-lg transform transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-50 text-sm mt-2"
+                className="w-full py-3 px-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold rounded-xl text-sm transition shadow-lg disabled:opacity-50"
               >
-                {loading ? 'Procesando...' : (isLogin ? 'Ingresar a mi cuenta' : 'Registrarme ahora')}
+                {loading ? 'Procesando...' : (isLogin ? 'Ingresar a mi cuenta' : 'Registrarse')}
               </button>
-            </form>
 
-            <div className="mt-6 text-center border-t border-gray-800 pt-4">
-              <p className="text-gray-400 text-sm">
-                {isLogin ? '¿Aún no tienes acceso?' : '¿Ya tienes una cuenta?'}
-                <button
-                  type="button"
-                  onClick={() => setIsLogin(!isLogin)}
-                  className="ml-2 text-violet-400 hover:text-violet-300 font-semibold transition-colors"
+              <div className="text-center text-xs text-gray-400 pt-2">
+                {isLogin ? '¿Aún no tienes acceso?' : '¿Ya tienes una cuenta?'}{' '}
+                <button 
+                  type="button" 
+                  onClick={() => setIsLogin(!isLogin)} 
+                  className="text-purple-400 hover:underline font-medium ml-1"
                 >
-                  {isLogin ? 'Crear cuenta' : 'Iniciar sesión'}
+                  {isLogin ? 'Crear cuenta' : 'Ingresa aquí'}
                 </button>
-              </p>
-            </div>
-            
+              </div>
+            </form>
           </div>
-        </div>
 
+        </div>
       </div>
     </div>
   );
