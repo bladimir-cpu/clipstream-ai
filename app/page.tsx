@@ -1,41 +1,20 @@
 "use client";
 import React, { useState } from 'react';
-import { createClient } from '@supabase/supabase-js';
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://xccemqbmjumhhucqwfp.supabase.co';
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
-
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export default function AuthPage() {
-  const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setErrorMessage('');
-    setSuccessMessage('');
-
-    try {
-      if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-        window.location.href = '/dashboard/create';
-      } else {
-        const { error } = await supabase.auth.signUp({ email, password });
-        if (error) throw error;
-        setSuccessMessage('¡Cuenta creada con éxito! Ya puedes iniciar sesión.');
-      }
-    } catch (err: any) {
-      setErrorMessage(err.message || 'Error de conexión con el servidor.');
-    } finally {
-      setLoading(false);
-    }
+    
+    // Simulación de acceso directo instantáneo para ti
+    setTimeout(() => {
+      localStorage.setItem('clipstream_user', email);
+      window.location.href = '/dashboard/create';
+    }, 1000);
   };
 
   return (
@@ -73,18 +52,6 @@ export default function AuthPage() {
               </div>
             </div>
 
-            {errorMessage && (
-              <div className="mb-4 p-3 bg-red-900/50 border border-red-700 text-red-200 text-xs rounded-xl">
-                {errorMessage}
-              </div>
-            )}
-
-            {successMessage && (
-              <div className="mb-4 p-3 bg-green-900/50 border border-green-700 text-green-200 text-xs rounded-xl">
-                {successMessage}
-              </div>
-            )}
-
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-xs text-gray-400 mb-1">Correo Electrónico</label>
@@ -115,19 +82,8 @@ export default function AuthPage() {
                 disabled={loading}
                 className="w-full py-3 px-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold rounded-xl text-sm transition shadow-lg disabled:opacity-50"
               >
-                {loading ? 'Procesando...' : (isLogin ? 'Ingresar a mi cuenta' : 'Registrarse')}
+                {loading ? 'Entrando al sistema...' : 'Ingresar a mi cuenta'}
               </button>
-
-              <div className="text-center text-xs text-gray-400 pt-2">
-                {isLogin ? '¿Aún no tienes acceso?' : '¿Ya tienes una cuenta?'}{' '}
-                <button 
-                  type="button" 
-                  onClick={() => setIsLogin(!isLogin)} 
-                  className="text-purple-400 hover:underline font-medium ml-1"
-                >
-                  {isLogin ? 'Crear cuenta' : 'Ingresa aquí'}
-                </button>
-              </div>
             </form>
           </div>
 
