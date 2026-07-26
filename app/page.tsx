@@ -5,16 +5,26 @@ export default function AuthPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    
-    // Simulación de acceso directo instantáneo para ti
+    setErrorMessage('');
+
+    // Tus credenciales de acceso exclusivo
+    const tuCorreoSecreto = 'wladyreyes@gmail.com'; 
+    const tuPasswordSecreto = 'Seguridad123';
+
     setTimeout(() => {
-      localStorage.setItem('clipstream_user', email);
-      window.location.href = '/dashboard/create';
-    }, 1000);
+      if (email.trim().toLowerCase() === tuCorreoSecreto && password === tuPasswordSecreto) {
+        localStorage.setItem('clipstream_user', email);
+        window.location.href = '/dashboard/create';
+      } else {
+        setErrorMessage('Correo o contraseña incorrectos. Solo acceso autorizado.');
+        setLoading(false);
+      }
+    }, 800);
   };
 
   return (
@@ -48,9 +58,15 @@ export default function AuthPage() {
               </div>
               <div>
                 <h2 className="text-xl font-bold">ClipStream AI</h2>
-                <p className="text-xs text-gray-400">Te damos la bienvenida</p>
+                <p className="text-xs text-gray-400">Panel de Acceso Privado</p>
               </div>
             </div>
+
+            {errorMessage && (
+              <div className="mb-4 p-3 bg-red-900/50 border border-red-700 text-red-200 text-xs rounded-xl">
+                {errorMessage}
+              </div>
+            )}
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
@@ -82,7 +98,7 @@ export default function AuthPage() {
                 disabled={loading}
                 className="w-full py-3 px-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold rounded-xl text-sm transition shadow-lg disabled:opacity-50"
               >
-                {loading ? 'Entrando al sistema...' : 'Ingresar a mi cuenta'}
+                {loading ? 'Verificando acceso...' : 'Ingresar al Estudio'}
               </button>
             </form>
           </div>
