@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 
 export default function CreateStudio() {
-  const [activeTab, setActiveTab] = useState<'youtube' | 'text' | 'file'>('text');
+  const [activeTab, setActiveTab] = useState<'youtube' | 'text' | 'file' | 'images'>('text');
   const [inputText, setInputText] = useState('');
   const [loading, setLoading] = useState(false);
   const [generated, setGenerated] = useState(false);
@@ -15,24 +15,23 @@ export default function CreateStudio() {
     setTimeout(() => {
       setLoading(false);
       setGenerated(true);
-    }, 1500);
+    }, 1800);
   };
 
   const handleDownload = (clipNumber: number) => {
     setDownloadingId(clipNumber);
     setTimeout(() => {
-      // Simula la descarga exitosa de un archivo MP4 real para el cliente
+      // Enlace a un archivo de video MP4 real de muestra público y compatible con cualquier reproductor
+      const videoUrl = "https://www.w3schools.com/html/mov_bbb.mp4";
       const element = document.createElement("a");
-      const file = new Blob([
-        "Simulacion de archivo de video MP4 - ClipStream AI Studio. Formato optimizado 9:16 para TikTok y Reels."
-      ], { type: 'video/mp4' });
-      element.href = URL.createObjectURL(file);
+      element.href = videoUrl;
       element.download = `ClipStream_Viral_Extracto_${clipNumber}.mp4`;
+      element.target = "_blank";
       document.body.appendChild(element);
       element.click();
       document.body.removeChild(element);
       setDownloadingId(null);
-    }, 1200);
+    }, 1500);
   };
 
   return (
@@ -51,24 +50,30 @@ export default function CreateStudio() {
         <div className="bg-[#161D2E] border border-gray-800 rounded-3xl p-6 shadow-2xl space-y-6">
           <h2 className="text-2xl font-bold">¿Qué deseas transformar hoy?</h2>
 
-          <div className="flex gap-2 bg-[#0B0F19] p-1.5 rounded-2xl border border-gray-800">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 bg-[#0B0F19] p-1.5 rounded-2xl border border-gray-800">
             <button 
               onClick={() => setActiveTab('youtube')}
-              className={`flex-1 py-3 px-4 rounded-xl text-sm font-semibold transition ${activeTab === 'youtube' ? 'bg-purple-600 text-white shadow-lg' : 'text-gray-400 hover:text-white'}`}
+              className={`py-3 px-2 rounded-xl text-xs md:text-sm font-semibold transition ${activeTab === 'youtube' ? 'bg-purple-600 text-white shadow-lg' : 'text-gray-400 hover:text-white'}`}
             >
-              🔗 Enlace YouTube
+              🔗 YouTube
             </button>
             <button 
               onClick={() => setActiveTab('text')}
-              className={`flex-1 py-3 px-4 rounded-xl text-sm font-semibold transition ${activeTab === 'text' ? 'bg-purple-600 text-white shadow-lg' : 'text-gray-400 hover:text-white'}`}
+              className={`py-3 px-2 rounded-xl text-xs md:text-sm font-semibold transition ${activeTab === 'text' ? 'bg-purple-600 text-white shadow-lg' : 'text-gray-400 hover:text-white'}`}
             >
               ✍️ Texto / Idea
             </button>
             <button 
               onClick={() => setActiveTab('file')}
-              className={`flex-1 py-3 px-4 rounded-xl text-sm font-semibold transition ${activeTab === 'file' ? 'bg-purple-600 text-white shadow-lg' : 'text-gray-400 hover:text-white'}`}
+              className={`py-3 px-2 rounded-xl text-xs md:text-sm font-semibold transition ${activeTab === 'file' ? 'bg-purple-600 text-white shadow-lg' : 'text-gray-400 hover:text-white'}`}
             >
-              📁 Subir Archivo
+              📁 Video / Audio
+            </button>
+            <button 
+              onClick={() => setActiveTab('images')}
+              className={`py-3 px-2 rounded-xl text-xs md:text-sm font-semibold transition ${activeTab === 'images' ? 'bg-purple-600 text-white shadow-lg' : 'text-gray-400 hover:text-white'}`}
+            >
+              🖼️ Subir Imágenes
             </button>
           </div>
 
@@ -106,12 +111,28 @@ export default function CreateStudio() {
               </div>
             )}
 
+            {activeTab === 'images' && (
+              <div className="border-2 border-dashed border-purple-500/50 rounded-2xl p-6 text-center bg-[#0B0F19] space-y-3">
+                <div className="text-3xl">🖼️</div>
+                <div>
+                  <p className="text-sm font-medium text-purple-300">Sube tus imágenes para generar el video con IA</p>
+                  <p className="text-xs text-gray-400 mt-1">Puedes seleccionar varias fotos (JPG, PNG)</p>
+                </div>
+                <input 
+                  type="file" 
+                  multiple 
+                  accept="image/*"
+                  className="text-xs text-gray-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-700 cursor-pointer mx-auto block"
+                />
+              </div>
+            )}
+
             <button 
               type="submit" 
               disabled={loading}
               className="w-full py-4 px-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold rounded-xl text-base transition shadow-xl disabled:opacity-50"
             >
-              {loading ? '🚀 La IA está procesando y renderizando clips...' : '🚀 Generar Clips Virales con IA'}
+              {loading ? '🚀 La IA está procesando y renderizando tu vídeo...' : '🚀 Generar Clips Virales con IA'}
             </button>
           </form>
 
