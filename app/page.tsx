@@ -63,7 +63,7 @@ export default function HomePage() {
 
       <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-12 items-center my-auto">
         
-        {/* Columna Izquierda: Textos e Imagen Comercial Mejorada */}
+        {/* Columna Izquierda: Textos e Imagen Comercial Tecnológica */}
         <div className="space-y-6">
           <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight">
             ¡Maximiza tu <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">Contenido!</span>
@@ -73,12 +73,12 @@ export default function HomePage() {
             ClipStream AI utiliza tecnología de vanguardia para analizar tus vídeos largos, extraer automáticamente los momentos más impactantes y convertirlos en clips cortos y dinámicos para redes sociales. Con subtítulos automáticos y formatos adaptables, ahorra horas de edición y aumenta tu alcance orgánico.
           </p>
           
-          {/* Imagen ilustrativa optimizada para alta conversión */}
+          {/* Imagen de tecnología, computadoras y analítica de datos */}
           <div className="mt-8 rounded-2xl overflow-hidden border border-purple-500/30 shadow-2xl relative group">
             <img 
-              src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1000&auto=format&fit=crop" 
-              alt="Inteligencia Artificial ClipStream" 
-              className="w-full h-auto opacity-80 group-hover:opacity-100 transition duration-500"
+              src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1000&auto=format&fit=crop" 
+              alt="Tecnología e Inteligencia Artificial ClipStream" 
+              className="w-full h-auto opacity-80 group-hover:opacity-100 transition duration-500 rounded-xl"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#0B0F19] via-transparent to-transparent opacity-60"></div>
           </div>
