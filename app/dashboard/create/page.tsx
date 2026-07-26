@@ -1,20 +1,52 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function CreateStudio() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<'youtube' | 'text' | 'file' | 'images'>('text');
   const [inputText, setInputText] = useState('');
   const [loading, setLoading] = useState(false);
   const [generated, setGenerated] = useState(false);
   const [downloadingId, setDownloadingId] = useState<number | null>(null);
+  const [credits, setCredits] = useState<number>(100);
+
+  // Cargamos los créditos del usuario desde la sesión local al abrir el estudio
+  useEffect(() => {
+    const sessionStr = localStorage.getItem('clipstream_session');
+    if (sessionStr) {
+      const session = JSON.parse(sessionStr);
+      setCredits(session.credits !== undefined ? session.credits : 100);
+    }
+  }, []);
 
   const handleGenerate = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Verificamos si tiene créditos disponibles
+    if (credits <= 0) {
+      alert("¡Te has quedado sin créditos! Por favor recarga para seguir creando clips virales.");
+      router.push('/pricing'); // O la ruta donde tengas tus planes
+      return;
+    }
+
     setLoading(true);
     setGenerated(false);
+
     setTimeout(() => {
       setLoading(false);
       setGenerated(true);
+      
+      // Restamos 1 crédito por cada generación exitosa
+      const newCredits = credits - 1;
+      setCredits(newCredits);
+
+      const sessionStr = localStorage.getItem('clipstream_session');
+      if (sessionStr) {
+        const session = JSON.parse(sessionStr);
+        session.credits = newCredits;
+        localStorage.setItem('clipstream_session', JSON.stringify(session));
+      }
     }, 1800);
   };
 
@@ -37,13 +69,23 @@ export default function CreateStudio() {
     <div className="min-h-screen bg-[#0B0F19] text-white p-4 md:p-8">
       <div className="max-w-4xl mx-auto space-y-6">
         
-        <div className="flex justify-between items-center">
+        {/* Barra superior con indicador de créditos y botón de recarga */}
+        <div className="flex justify-between items-center bg-[#161D2E] border border-gray-800 p-4 rounded-2xl">
           <a href="/" className="text-purple-400 hover:text-purple-300 text-sm font-medium">
             ← Volver al inicio
           </a>
-          <h1 className="text-xl font-bold tracking-wide">
-            ClipStream <span className="text-purple-400">AI Studio</span>
-          </h1>
+          
+          <div className="flex items-center gap-4">
+            <div className="text-xs bg-purple-600/20 border border-purple-500/30 px-3 py-1.5 rounded-xl font-medium text-purple-300">
+              ⚡ Créditos disponibles: <strong className="text-white">{credits}</strong>
+            </div>
+            <button 
+              onClick={() => router.push('/pricing')}
+              className="px-3 py-1.5 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white text-xs font-bold rounded-xl transition shadow-md"
+            >
+              💎 Recargar Créditos
+            </button>
+          </div>
         </div>
 
         <div className="bg-[#161D2E] border border-gray-800 rounded-3xl p-6 shadow-2xl space-y-6">
@@ -133,9 +175,9 @@ export default function CreateStudio() {
             <button 
               type="submit" 
               disabled={loading}
-              className="w-full py-4 px-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold rounded-xl text-base transition shadow-xl disabled:opacity-50"
+              className="w-full py-4 px-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold rounded-xl text-base transition shadow-xl disabled:opacity-50 cursor-pointer"
             >
-              {loading ? '🚀 La IA está procesando y renderizando tu vídeo...' : '🚀 Generar Clips Virales con IA'}
+              {loading ? '🚀 La IA está procesando y renderizando tu vídeo...' : '🚀 Generar Clips Virales con IA (-1 Crédito)'}
             </button>
           </form>
 
@@ -157,7 +199,7 @@ export default function CreateStudio() {
                     type="button"
                     onClick={() => handleDownload(clip.id)}
                     disabled={downloadingId === clip.id}
-                    className="py-2 px-4 bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold rounded-xl transition shadow-md disabled:opacity-50"
+                    className="py-2 px-4 bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold rounded-xl transition shadow-md disabled:opacity-50 cursor-pointer"
                   >
                     {downloadingId === clip.id ? 'Descargando MP4...' : '⬇️ Descargar MP4'}
                   </button>
