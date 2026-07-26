@@ -74,13 +74,29 @@ export default function CreateStudio() {
     <div className="min-h-screen bg-[#0B0F19] text-white p-4 md:p-8">
       <div className="max-w-4xl mx-auto space-y-6">
         
-        {/* Barra superior con créditos, botón de recarga y cerrar sesión */}
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4 bg-[#161D2E] border border-gray-800 p-4 rounded-2xl">
-          <a href="/" className="text-purple-400 hover:text-purple-300 text-sm font-medium">
-            ← Volver al inicio
-          </a>
+        {/* Menú Superior Profesional Estilo App */}
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4 bg-[#161D2E] border border-gray-800 p-4 rounded-2xl shadow-xl">
           
-          <div className="flex flex-wrap items-center gap-3">
+          {/* Enlaces de Navegación del Menú */}
+          <div className="flex items-center gap-4 text-xs md:text-sm font-medium">
+            <a href="/" className="text-gray-400 hover:text-purple-400 transition">
+              ← Inicio
+            </a>
+            <span className="text-gray-700">|</span>
+            <span className="text-purple-400 font-semibold flex items-center gap-1">
+              🎬 Generar Videos
+            </span>
+            <span className="text-gray-700">|</span>
+            <button 
+              onClick={() => router.push('/pricing')}
+              className="text-gray-400 hover:text-purple-400 transition cursor-pointer"
+            >
+              💎 Planes y Precios
+            </button>
+          </div>
+          
+          {/* Zona de Estado de Usuario (Créditos, Recarga y Salida) */}
+          <div className="flex flex-wrap items-center gap-2.5">
             <div className="text-xs bg-purple-600/20 border border-purple-500/30 px-3 py-1.5 rounded-xl font-medium text-purple-300">
               ⚡ Créditos: <strong className="text-white">{credits}</strong>
             </div>
@@ -88,13 +104,13 @@ export default function CreateStudio() {
               onClick={() => router.push('/pricing')}
               className="px-3 py-1.5 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white text-xs font-bold rounded-xl transition shadow-md cursor-pointer"
             >
-              💎 Recargar
+              🚀 Comprar Créditos
             </button>
             <button 
               onClick={handleLogout}
               className="px-3 py-1.5 bg-gray-800 hover:bg-red-600/20 hover:border-red-500/30 hover:text-red-400 border border-gray-700 text-gray-400 text-xs font-semibold rounded-xl transition cursor-pointer"
             >
-              Cerrar Sesión
+              Salir
             </button>
           </div>
         </div>
