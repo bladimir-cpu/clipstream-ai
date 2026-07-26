@@ -10,6 +10,7 @@ export default function CreateStudio() {
   const [generated, setGenerated] = useState(false);
   const [downloadingId, setDownloadingId] = useState<number | null>(null);
   const [credits, setCredits] = useState<number>(100);
+  const [generatedClips, setGeneratedClips] = useState<Array<{ id: number; title: string; duration: string; url: string }>>([]);
 
   // Cargamos los créditos del usuario desde la sesión local al abrir el estudio
   useEffect(() => {
@@ -33,9 +34,18 @@ export default function CreateStudio() {
     setLoading(true);
     setGenerated(false);
 
+    // Simulamos el motor de IA procesando la solicitud real del usuario basada en su texto/idea
     setTimeout(() => {
       setLoading(false);
       setGenerated(true);
+
+      // Creamos clips dinámicos basados en lo que escribió el usuario
+      const promptQuery = inputText ? inputText.trim() : "Clip Viral de IA";
+      setGeneratedClips([
+        { id: 1, title: `Momento Clave: ${promptQuery} (Hook)`, duration: '45s', url: 'https://www.w3schools.com/html/mov_bbb.mp4' },
+        { id: 2, title: `Extracto de Alto Impacto (${promptQuery})`, duration: '30s', url: 'https://www.w3schools.com/html/mov_bbb.mp4' },
+        { id: 3, title: `Conclusión Dinámica y CTA (${promptQuery})`, duration: '55s', url: 'https://www.w3schools.com/html/mov_bbb.mp4' }
+      ]);
       
       // Restamos 1 crédito por cada generación exitosa
       const newCredits = credits - 1;
@@ -47,16 +57,15 @@ export default function CreateStudio() {
         session.credits = newCredits;
         localStorage.setItem('clipstream_session', JSON.stringify(session));
       }
-    }, 1800);
+    }, 2000);
   };
 
-  const handleDownload = (clipNumber: number) => {
-    setDownloadingId(clipNumber);
+  const handleDownload = (clipId: number, videoUrl: string, clipTitle: string) => {
+    setDownloadingId(clipId);
     setTimeout(() => {
-      const videoUrl = "https://www.w3schools.com/html/mov_bbb.mp4";
       const element = document.createElement("a");
       element.href = videoUrl;
-      element.download = `ClipStream_Viral_Extracto_${clipNumber}.mp4`;
+      element.download = `ClipStream_${clipTitle.replace(/[^a-zA-Z0-9]/g, '_')}.mp4`;
       element.target = "_blank";
       document.body.appendChild(element);
       element.click();
@@ -76,15 +85,13 @@ export default function CreateStudio() {
         
         {/* Menú Superior Profesional Estilo App */}
         <div className="flex flex-col md:flex-row justify-between items-center gap-4 bg-[#161D2E] border border-gray-800 p-4 rounded-2xl shadow-xl">
-          
-          {/* Enlaces de Navegación del Menú */}
           <div className="flex items-center gap-4 text-xs md:text-sm font-medium">
             <a href="/" className="text-gray-400 hover:text-purple-400 transition">
               ← Inicio
             </a>
             <span className="text-gray-700">|</span>
             <span className="text-purple-400 font-semibold flex items-center gap-1">
-              🎬 Generar Videos
+              🎬 Generar Videos con IA
             </span>
             <span className="text-gray-700">|</span>
             <button 
@@ -95,7 +102,6 @@ export default function CreateStudio() {
             </button>
           </div>
           
-          {/* Zona de Estado de Usuario (Créditos, Recarga y Salida) */}
           <div className="flex flex-wrap items-center gap-2.5">
             <div className="text-xs bg-purple-600/20 border border-purple-500/30 px-3 py-1.5 rounded-xl font-medium text-purple-300">
               ⚡ Créditos: <strong className="text-white">{credits}</strong>
@@ -116,7 +122,7 @@ export default function CreateStudio() {
         </div>
 
         <div className="bg-[#161D2E] border border-gray-800 rounded-3xl p-6 shadow-2xl space-y-6">
-          <h2 className="text-2xl font-bold">¿Qué deseas transformar hoy?</h2>
+          <h2 className="text-2xl font-bold">¿Qué deseas transformar hoy con IA?</h2>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2 bg-[#0B0F19] p-1.5 rounded-2xl border border-gray-800">
             <button 
@@ -155,6 +161,8 @@ export default function CreateStudio() {
                 <label className="block text-xs text-gray-400 mb-1">Pega el enlace del video de YouTube</label>
                 <input 
                   type="url" 
+                  value={inputText}
+                  onChange={(e) => setInputText(e.target.value)}
                   placeholder="https://www.youtube.com/watch?v=..." 
                   required
                   className="w-full p-3.5 rounded-xl bg-[#0B0F19] border border-gray-700 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-purple-500"
@@ -169,7 +177,7 @@ export default function CreateStudio() {
                   rows={4}
                   value={inputText}
                   onChange={(e) => setInputText(e.target.value)}
-                  placeholder="Ej: Crea un video sobre hábitos matutinos para emprendedores..."
+                  placeholder="Ej: Crea un video con niños jugando en el parque..."
                   required
                   className="w-full p-3.5 rounded-xl bg-[#0B0F19] border border-gray-700 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-purple-500"
                 />
@@ -204,29 +212,25 @@ export default function CreateStudio() {
               disabled={loading}
               className="w-full py-4 px-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold rounded-xl text-base transition shadow-xl disabled:opacity-50 cursor-pointer"
             >
-              {loading ? '🚀 La IA está procesando y renderizando tu vídeo...' : '🚀 Generar Clips Virales con IA (-1 Crédito)'}
+              {loading ? '🚀 La IA está analizando tu contenido y renderizando clips...' : '🚀 Generar Clips Virales con IA (-1 Crédito)'}
             </button>
           </form>
 
           {generated && (
             <div className="mt-8 space-y-4 pt-4 border-t border-gray-800">
-              <h3 className="text-lg font-bold text-purple-400">🎉 ¡Clips Generados Exitosamente!</h3>
+              <h3 className="text-lg font-bold text-purple-400">🎉 ¡Clips Generados Exitosamente para tu Solicitud!</h3>
               
-              {[
-                { id: 1, title: 'Momento Clave #1 (Viral Hook)', duration: '45s' },
-                { id: 2, title: 'Extracto de Alto Impacto #2', duration: '30s' },
-                { id: 3, title: 'Conclusión y Llamado a la Acción', duration: '55s' }
-              ].map((clip) => (
-                <div key={clip.id} className="bg-[#0B0F19] border border-gray-800 p-4 rounded-2xl flex justify-between items-center">
+              {generatedClips.map((clip) => (
+                <div key={clip.id} className="bg-[#0B0F19] border border-gray-800 p-4 rounded-2xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                   <div>
-                    <h4 className="font-semibold text-sm">{clip.title}</h4>
-                    <p className="text-xs text-gray-400">Duración: {clip.duration} • Formato óptimo 9:16 (TikTok / Reels)</p>
+                    <h4 className="font-semibold text-sm text-white">{clip.title}</h4>
+                    <p className="text-xs text-gray-400 mt-1">Duración: {clip.duration} • Formato óptimo 9:16 (TikTok / Reels / Shorts)</p>
                   </div>
                   <button 
                     type="button"
-                    onClick={() => handleDownload(clip.id)}
+                    onClick={() => handleDownload(clip.id, clip.url, clip.title)}
                     disabled={downloadingId === clip.id}
-                    className="py-2 px-4 bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold rounded-xl transition shadow-md disabled:opacity-50 cursor-pointer"
+                    className="py-2 px-4 bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold rounded-xl transition shadow-md disabled:opacity-50 cursor-pointer whitespace-nowrap"
                   >
                     {downloadingId === clip.id ? 'Descargando MP4...' : '⬇️ Descargar MP4'}
                   </button>
