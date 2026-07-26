@@ -21,7 +21,6 @@ export default function CreateStudio() {
   const handleDownload = (clipNumber: number) => {
     setDownloadingId(clipNumber);
     setTimeout(() => {
-      // Enlace a un archivo de video MP4 real de muestra público y compatible con cualquier reproductor
       const videoUrl = "https://www.w3schools.com/html/mov_bbb.mp4";
       const element = document.createElement("a");
       element.href = videoUrl;
@@ -52,24 +51,28 @@ export default function CreateStudio() {
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2 bg-[#0B0F19] p-1.5 rounded-2xl border border-gray-800">
             <button 
+              type="button"
               onClick={() => setActiveTab('youtube')}
               className={`py-3 px-2 rounded-xl text-xs md:text-sm font-semibold transition ${activeTab === 'youtube' ? 'bg-purple-600 text-white shadow-lg' : 'text-gray-400 hover:text-white'}`}
             >
               🔗 YouTube
             </button>
             <button 
+              type="button"
               onClick={() => setActiveTab('text')}
               className={`py-3 px-2 rounded-xl text-xs md:text-sm font-semibold transition ${activeTab === 'text' ? 'bg-purple-600 text-white shadow-lg' : 'text-gray-400 hover:text-white'}`}
             >
               ✍️ Texto / Idea
             </button>
             <button 
+              type="button"
               onClick={() => setActiveTab('file')}
               className={`py-3 px-2 rounded-xl text-xs md:text-sm font-semibold transition ${activeTab === 'file' ? 'bg-purple-600 text-white shadow-lg' : 'text-gray-400 hover:text-white'}`}
             >
               📁 Video / Audio
             </button>
             <button 
+              type="button"
               onClick={() => setActiveTab('images')}
               className={`py-3 px-2 rounded-xl text-xs md:text-sm font-semibold transition ${activeTab === 'images' ? 'bg-purple-600 text-white shadow-lg' : 'text-gray-400 hover:text-white'}`}
             >
@@ -151,6 +154,7 @@ export default function CreateStudio() {
                     <p className="text-xs text-gray-400">Duración: {clip.duration} • Formato óptimo 9:16 (TikTok / Reels)</p>
                   </div>
                   <button 
+                    type="button"
                     onClick={() => handleDownload(clip.id)}
                     disabled={downloadingId === clip.id}
                     className="py-2 px-4 bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold rounded-xl transition shadow-md disabled:opacity-50"
