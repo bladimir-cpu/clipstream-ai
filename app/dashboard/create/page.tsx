@@ -26,7 +26,7 @@ export default function CreateStudio() {
     // Verificamos si tiene créditos disponibles
     if (credits <= 0) {
       alert("¡Te has quedado sin créditos! Por favor recarga para seguir creando clips virales.");
-      router.push('/pricing'); // O la ruta donde tengas tus planes
+      router.push('/pricing');
       return;
     }
 
@@ -65,25 +65,36 @@ export default function CreateStudio() {
     }, 1500);
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('clipstream_session');
+    router.push('/');
+  };
+
   return (
     <div className="min-h-screen bg-[#0B0F19] text-white p-4 md:p-8">
       <div className="max-w-4xl mx-auto space-y-6">
         
-        {/* Barra superior con indicador de créditos y botón de recarga */}
-        <div className="flex justify-between items-center bg-[#161D2E] border border-gray-800 p-4 rounded-2xl">
+        {/* Barra superior con créditos, botón de recarga y cerrar sesión */}
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4 bg-[#161D2E] border border-gray-800 p-4 rounded-2xl">
           <a href="/" className="text-purple-400 hover:text-purple-300 text-sm font-medium">
             ← Volver al inicio
           </a>
           
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center gap-3">
             <div className="text-xs bg-purple-600/20 border border-purple-500/30 px-3 py-1.5 rounded-xl font-medium text-purple-300">
-              ⚡ Créditos disponibles: <strong className="text-white">{credits}</strong>
+              ⚡ Créditos: <strong className="text-white">{credits}</strong>
             </div>
             <button 
               onClick={() => router.push('/pricing')}
-              className="px-3 py-1.5 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white text-xs font-bold rounded-xl transition shadow-md"
+              className="px-3 py-1.5 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white text-xs font-bold rounded-xl transition shadow-md cursor-pointer"
             >
-              💎 Recargar Créditos
+              💎 Recargar
+            </button>
+            <button 
+              onClick={handleLogout}
+              className="px-3 py-1.5 bg-gray-800 hover:bg-red-600/20 hover:border-red-500/30 hover:text-red-400 border border-gray-700 text-gray-400 text-xs font-semibold rounded-xl transition cursor-pointer"
+            >
+              Cerrar Sesión
             </button>
           </div>
         </div>
@@ -95,28 +106,28 @@ export default function CreateStudio() {
             <button 
               type="button"
               onClick={() => setActiveTab('youtube')}
-              className={`py-3 px-2 rounded-xl text-xs md:text-sm font-semibold transition ${activeTab === 'youtube' ? 'bg-purple-600 text-white shadow-lg' : 'text-gray-400 hover:text-white'}`}
+              className={`py-3 px-2 rounded-xl text-xs md:text-sm font-semibold transition cursor-pointer ${activeTab === 'youtube' ? 'bg-purple-600 text-white shadow-lg' : 'text-gray-400 hover:text-white'}`}
             >
               🔗 YouTube
             </button>
             <button 
               type="button"
               onClick={() => setActiveTab('text')}
-              className={`py-3 px-2 rounded-xl text-xs md:text-sm font-semibold transition ${activeTab === 'text' ? 'bg-purple-600 text-white shadow-lg' : 'text-gray-400 hover:text-white'}`}
+              className={`py-3 px-2 rounded-xl text-xs md:text-sm font-semibold transition cursor-pointer ${activeTab === 'text' ? 'bg-purple-600 text-white shadow-lg' : 'text-gray-400 hover:text-white'}`}
             >
               ✍️ Texto / Idea
             </button>
             <button 
               type="button"
               onClick={() => setActiveTab('file')}
-              className={`py-3 px-2 rounded-xl text-xs md:text-sm font-semibold transition ${activeTab === 'file' ? 'bg-purple-600 text-white shadow-lg' : 'text-gray-400 hover:text-white'}`}
+              className={`py-3 px-2 rounded-xl text-xs md:text-sm font-semibold transition cursor-pointer ${activeTab === 'file' ? 'bg-purple-600 text-white shadow-lg' : 'text-gray-400 hover:text-white'}`}
             >
               📁 Video / Audio
             </button>
             <button 
               type="button"
               onClick={() => setActiveTab('images')}
-              className={`py-3 px-2 rounded-xl text-xs md:text-sm font-semibold transition ${activeTab === 'images' ? 'bg-purple-600 text-white shadow-lg' : 'text-gray-400 hover:text-white'}`}
+              className={`py-3 px-2 rounded-xl text-xs md:text-sm font-semibold transition cursor-pointer ${activeTab === 'images' ? 'bg-purple-600 text-white shadow-lg' : 'text-gray-400 hover:text-white'}`}
             >
               🖼️ Subir Imágenes
             </button>
