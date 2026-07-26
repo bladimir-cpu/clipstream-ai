@@ -2,8 +2,8 @@
 import React, { useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = 'https://xccemqbmjumhhucqwfp.supabase.co';
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhjY2VtcWJtanVtaGh1Y3F3ZnAiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTczNzg0MTIzNCwiZXhwIjoyMDUzNDE3MjM0fQ.tu_llave_anon_key_completa';
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://xccemqbmjumhhucqwfp.supabase.co';
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
