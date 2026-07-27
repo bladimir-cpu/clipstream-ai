@@ -17,30 +17,30 @@ export default function CreateStudio() {
   const [credits, setCredits] = useState<number>(100);
   const [generatedClips, setGeneratedClips] = useState<Array<{ id: number; title: string; duration: string; url: string; previewText: string }>>([]);
 
-  // Base de datos inteligente súper depurada y 100% limpia por categorías
+  // Base de datos de videos ultra-estables y abiertos (sin errores de permisos)
   const intelligentDatabase: { keywords: string[]; titleTag: string; videos: string[] }[] = [
     {
       keywords: ['niño', 'niños', 'hijo', 'hijos', 'familia', 'padres', 'parque', 'juego', 'bebe', 'felices', 'felicidad', 'sonrisa'],
       titleTag: 'Momento Familiar y Niños Felices',
       videos: [
-        'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
-        'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4'
+        'https://www.w3schools.com/html/mov_bbb.mp4',
+        'https://www.w3schools.com/html/movie.mp4'
       ]
     },
     {
       keywords: ['dinero', 'rico', 'finanzas', 'negocio', 'empresa', 'venta', 'marketing', 'dolares', 'inversion', 'trabajo'],
       titleTag: 'Éxito Financiero y Negocios',
       videos: [
-        'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',
-        'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4'
+        'https://www.w3schools.com/html/mov_bbb.mp4',
+        'https://www.w3schools.com/html/movie.mp4'
       ]
     },
     {
       keywords: ['tecnologia', 'ia', 'codigo', 'software', 'computadora', 'app', 'programacion', 'robot', 'inteligencia'],
       titleTag: 'Innovación y Tecnología AI',
       videos: [
-        'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackSeeTheWorld.mp4',
-        'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4'
+        'https://www.w3schools.com/html/movie.mp4',
+        'https://www.w3schools.com/html/mov_bbb.mp4'
       ]
     }
   ];
@@ -80,13 +80,12 @@ export default function CreateStudio() {
     setLoading(true);
     setGenerated(false);
 
-    // Motor IA ultra-afinado analizando el texto del usuario
     setTimeout(() => {
       setLoading(false);
       setGenerated(true);
 
       const lowerQuery = queryPrompt.toLowerCase();
-      let matchedCategory = intelligentDatabase[0]; // Categoría por defecto (familia/niños)
+      let matchedCategory = intelligentDatabase[0];
 
       for (const cat of intelligentDatabase) {
         if (cat.keywords.some(keyword => lowerQuery.includes(keyword))) {
@@ -99,7 +98,7 @@ export default function CreateStudio() {
       
       setGeneratedClips([
         { id: 1, title: `Hook Viral (${matchedCategory.titleTag})`, duration: '35s', url: matchedCategory.videos[0], previewText: shortTitle },
-        { id: 2, title: `Desarrollo de Alto Impacto`, duration: '45s', url: matchedCategory.videos[1] || matchedCategory.videos[0], previewText: shortTitle },
+        { id: 2, title: `Desarrollo de Alto Impacto`, duration: '45s', url: matchedCategory.videos[1], previewText: shortTitle },
         { id: 3, title: `Cierre Viral y CTA`, duration: '30s', url: matchedCategory.videos[0], previewText: shortTitle }
       ]);
       
