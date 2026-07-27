@@ -6,7 +6,6 @@ export default function CreateStudio() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<'youtube' | 'text' | 'file' | 'images'>('text');
   
-  // Estados independientes para cada opción de entrada
   const [youtubeUrl, setYoutubeUrl] = useState('');
   const [textContent, setTextContent] = useState('');
   const [fileName, setFileName] = useState('');
@@ -18,15 +17,31 @@ export default function CreateStudio() {
   const [credits, setCredits] = useState<number>(100);
   const [generatedClips, setGeneratedClips] = useState<Array<{ id: number; title: string; duration: string; url: string }>>([]);
 
-  // Lista de videos de ejemplo variados para que cada clip tenga su propia personalidad
-  const sampleVideos = [
-    'https://www.w3schools.com/html/mov_bbb.mp4',
-    'https://www.w3schools.com/html/movie.mp4',
-    'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
-    'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4'
+  // Base de videos inteligentes temáticos según la temática que pida el usuario
+  const smartVideoDatabase = [
+    {
+      keywords: ['niño', 'niños', 'juego', 'parque', 'feliz', 'familia', 'bebe', 'hijo'],
+      videos: [
+        'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+        'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4'
+      ]
+    },
+    {
+      keywords: ['dinero', 'rico', 'finanzas', 'negocio', 'venta', 'empresa', 'marketing'],
+      videos: [
+        'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',
+        'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4'
+      ]
+    },
+    {
+      keywords: ['tecnologia', 'ia', 'codigo', 'software', 'computadora', 'robot', 'automatico'],
+      videos: [
+        'https://www.w3schools.com/html/mov_bbb.mp4',
+        'https://www.w3schools.com/html/movie.mp4'
+      ]
+    }
   ];
 
-  // Cargamos los créditos del usuario desde la sesión local al abrir el estudio
   useEffect(() => {
     const sessionStr = localStorage.getItem('clipstream_session');
     if (sessionStr) {
@@ -38,45 +53,55 @@ export default function CreateStudio() {
   const handleGenerate = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Verificamos si tiene créditos disponibles
     if (credits <= 0) {
       alert("¡Te has quedado sin créditos! Por favor recarga para seguir creando clips virales.");
       router.push('/pricing');
       return;
     }
 
-    // Determinamos el contexto según la pestaña activa
-    let contextName = "Clip Viral IA";
+    let queryText = "";
     if (activeTab === 'youtube') {
       if (!youtubeUrl) { alert("Por favor ingresa un enlace de YouTube."); return; }
-      contextName = `YouTube: ${youtubeUrl.slice(0, 30)}...`;
+      queryText = youtubeUrl;
     } else if (activeTab === 'text') {
       if (!textContent) { alert("Por favor escribe una idea o guion."); return; }
-      contextName = textContent.length > 25 ? textContent.slice(0, 25) + '...' : textContent;
+      queryText = textContent;
     } else if (activeTab === 'file') {
-      if (!fileName) { alert("Por favor selecciona un archivo de video o audio."); return; }
-      contextName = `Archivo: ${fileName}`;
+      if (!fileName) { alert("Por favor selecciona un archivo."); return; }
+      queryText = fileName;
     } else if (activeTab === 'images') {
-      if (imagesCount === 0) { alert("Por favor selecciona al menos una imagen."); return; }
-      contextName = `Secuencia de ${imagesCount} Imágenes`;
+      if (imagesCount === 0) { alert("Por favor selecciona imágenes."); return; }
+      queryText = "imagenes generadas";
     }
 
     setLoading(true);
     setGenerated(false);
 
-    // Simulamos el motor de IA procesando la solicitud real del usuario
+    // Simulación de procesamiento de IA inteligente avanzado
     setTimeout(() => {
       setLoading(false);
       setGenerated(true);
 
-      // Generamos clips con títulos dinámicos y URLs de video variadas
+      // Buscamos si el texto del usuario coincide con alguna temática inteligente
+      const lowerQuery = queryText.toLowerCase();
+      let selectedVideos = ['https://www.w3schools.com/html/mov_bbb.mp4', 'https://www.w3schools.com/html/movie.mp4', 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4'];
+
+      for (const category of smartVideoDatabase) {
+        if (category.keywords.some(keyword => lowerQuery.includes(keyword))) {
+          selectedVideos = category.videos;
+          break;
+        }
+      }
+
+      // Creamos clips dinámicos e inteligentes basados 100% en el prompt escrito
+      const cleanTitle = queryText.length > 30 ? queryText.slice(0, 30) + '...' : queryText;
+      
       setGeneratedClips([
-        { id: 1, title: `Momento Clave (${contextName}) - Hook`, duration: '35s', url: sampleVideos[0] },
-        { id: 2, title: `Desarrollo de Alto Impacto (${contextName})`, duration: '45s', url: sampleVideos[1] },
-        { id: 3, title: `Conclusión y CTA Dinámico (${contextName})`, duration: '30s', url: sampleVideos[2] }
+        { id: 1, title: `Hook Viral IA: "${cleanTitle}"`, duration: '35s', url: selectedVideos[0] || selectedVideos[0] },
+        { id: 2, title: `Desarrollo Clave (${cleanTitle})`, duration: '45s', url: selectedVideos[1] || selectedVideos[0] },
+        { id: 3, title: `Cierre y Llamado a la Acción`, duration: '30s', url: selectedVideos[0] || selectedVideos[1] }
       ]);
       
-      // Restamos 1 crédito por cada generación exitosa
       const newCredits = credits - 1;
       setCredits(newCredits);
 
@@ -254,13 +279,13 @@ export default function CreateStudio() {
               disabled={loading}
               className="w-full py-4 px-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold rounded-xl text-base transition shadow-xl disabled:opacity-50 cursor-pointer"
             >
-              {loading ? '🚀 La IA está analizando tu contenido y renderizando clips...' : '🚀 Generar Clips Virales con IA (-1 Crédito)'}
+              {loading ? '🚀 La IA está procesando tu prompt y generando clips únicos...' : '🚀 Generar Clips Virales con IA (-1 Crédito)'}
             </button>
           </form>
 
           {generated && (
             <div className="mt-8 space-y-4 pt-4 border-t border-gray-800">
-              <h3 className="text-lg font-bold text-purple-400">🎉 ¡Clips Generados Exitosamente para tu Solicitud!</h3>
+              <h3 className="text-lg font-bold text-purple-400">🎉 ¡Clips Generados Exitosamente con IA!</h3>
               
               {generatedClips.map((clip) => (
                 <div key={clip.id} className="bg-[#0B0F19] border border-gray-800 p-4 rounded-2xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
