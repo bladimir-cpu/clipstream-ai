@@ -13,6 +13,7 @@ export default function CreateStudio() {
 
   const [loading, setLoading] = useState(false);
   const [generated, setGenerated] = useState(false);
+  const [downloadingId, setDownloadingId] = useState<number | null>(null);
   const [credits, setCredits] = useState<number>(100);
   const [generatedClips, setGeneratedClips] = useState<Array<{ id: number; title: string; duration: string; prompt: string }>>([]);
 
@@ -73,6 +74,26 @@ export default function CreateStudio() {
         localStorage.setItem('clipstream_session', JSON.stringify(session));
       }
     }, 1500);
+  };
+
+  const handleDownload = (clipId: number, clipTitle: string) => {
+    setDownloadingId(clipId);
+    setTimeout(() => {
+      // Generamos un archivo MP4 simulado descargable directo al equipo sin errores
+      const blobContent = `ClipStream AI Generated Video\nTítulo: ${clipTitle}\nFormato: 9:16 Optimizado para TikTok / Reels / Shorts`;
+      const blob = new Blob([blobContent], { type: 'video/mp4' });
+      const url = URL.createObjectURL(blob);
+      
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `ClipStream_${clipTitle.replace(/[^a-zA-Z0-9]/g, '_')}.mp4`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      setDownloadingId(null);
+    }, 1000);
   };
 
   const handleLogout = () => {
@@ -246,10 +267,11 @@ export default function CreateStudio() {
                   <div className="flex items-center gap-2">
                     <button 
                       type="button"
-                      onClick={() => alert(`¡Clip "${clip.title}" listo para exportar a tu dispositivo!`)}
-                      className="py-2.5 px-4 bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold rounded-xl transition shadow-md cursor-pointer whitespace-nowrap"
+                      onClick={() => handleDownload(clip.id, clip.title)}
+                      disabled={downloadingId === clip.id}
+                      className="py-2.5 px-4 bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold rounded-xl transition shadow-md disabled:opacity-50 cursor-pointer whitespace-nowrap"
                     >
-                      ⬇️ Descargar MP4
+                      {downloadingId === clip.id ? 'Descargando MP4...' : '⬇️ Descargar MP4'}
                     </button>
                   </div>
                 </div>
