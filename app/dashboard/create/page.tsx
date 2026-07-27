@@ -76,12 +76,11 @@ export default function CreateStudio() {
     }, 1500);
   };
 
-  const handleDownload = (clipId: number, clipTitle: string) => {
+  const handleDownload = async (clipId: number, clipTitle: string) => {
     setDownloadingId(clipId);
-    setTimeout(() => {
-      // Generamos un archivo MP4 simulado descargable directo al equipo sin errores
-      const blobContent = `ClipStream AI Generated Video\nTítulo: ${clipTitle}\nFormato: 9:16 Optimizado para TikTok / Reels / Shorts`;
-      const blob = new Blob([blobContent], { type: 'video/mp4' });
+    try {
+      const response = await fetch('https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4');
+      const blob = await response.blob();
       const url = URL.createObjectURL(blob);
       
       const a = document.createElement('a');
@@ -91,9 +90,11 @@ export default function CreateStudio() {
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-      
+    } catch (error) {
+      alert("Hubo un error al descargar el clip.");
+    } finally {
       setDownloadingId(null);
-    }, 1000);
+    }
   };
 
   const handleLogout = () => {
