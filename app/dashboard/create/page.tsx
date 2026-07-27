@@ -5,12 +5,26 @@ import { useRouter } from 'next/navigation';
 export default function CreateStudio() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<'youtube' | 'text' | 'file' | 'images'>('text');
-  const [inputText, setInputText] = useState('');
+  
+  // Estados independientes para cada opción de entrada
+  const [youtubeUrl, setYoutubeUrl] = useState('');
+  const [textContent, setTextContent] = useState('');
+  const [fileName, setFileName] = useState('');
+  const [imagesCount, setImagesCount] = useState(0);
+
   const [loading, setLoading] = useState(false);
   const [generated, setGenerated] = useState(false);
   const [downloadingId, setDownloadingId] = useState<number | null>(null);
   const [credits, setCredits] = useState<number>(100);
   const [generatedClips, setGeneratedClips] = useState<Array<{ id: number; title: string; duration: string; url: string }>>([]);
+
+  // Lista de videos de ejemplo variados para que cada clip tenga su propia personalidad
+  const sampleVideos = [
+    'https://www.w3schools.com/html/mov_bbb.mp4',
+    'https://www.w3schools.com/html/movie.mp4',
+    'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+    'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4'
+  ];
 
   // Cargamos los créditos del usuario desde la sesión local al abrir el estudio
   useEffect(() => {
@@ -31,20 +45,35 @@ export default function CreateStudio() {
       return;
     }
 
+    // Determinamos el contexto según la pestaña activa
+    let contextName = "Clip Viral IA";
+    if (activeTab === 'youtube') {
+      if (!youtubeUrl) { alert("Por favor ingresa un enlace de YouTube."); return; }
+      contextName = `YouTube: ${youtubeUrl.slice(0, 30)}...`;
+    } else if (activeTab === 'text') {
+      if (!textContent) { alert("Por favor escribe una idea o guion."); return; }
+      contextName = textContent.length > 25 ? textContent.slice(0, 25) + '...' : textContent;
+    } else if (activeTab === 'file') {
+      if (!fileName) { alert("Por favor selecciona un archivo de video o audio."); return; }
+      contextName = `Archivo: ${fileName}`;
+    } else if (activeTab === 'images') {
+      if (imagesCount === 0) { alert("Por favor selecciona al menos una imagen."); return; }
+      contextName = `Secuencia de ${imagesCount} Imágenes`;
+    }
+
     setLoading(true);
     setGenerated(false);
 
-    // Simulamos el motor de IA procesando la solicitud real del usuario basada en su texto/idea
+    // Simulamos el motor de IA procesando la solicitud real del usuario
     setTimeout(() => {
       setLoading(false);
       setGenerated(true);
 
-      // Creamos clips dinámicos basados en lo que escribió el usuario
-      const promptQuery = inputText ? inputText.trim() : "Clip Viral de IA";
+      // Generamos clips con títulos dinámicos y URLs de video variadas
       setGeneratedClips([
-        { id: 1, title: `Momento Clave: ${promptQuery} (Hook)`, duration: '45s', url: 'https://www.w3schools.com/html/mov_bbb.mp4' },
-        { id: 2, title: `Extracto de Alto Impacto (${promptQuery})`, duration: '30s', url: 'https://www.w3schools.com/html/mov_bbb.mp4' },
-        { id: 3, title: `Conclusión Dinámica y CTA (${promptQuery})`, duration: '55s', url: 'https://www.w3schools.com/html/mov_bbb.mp4' }
+        { id: 1, title: `Momento Clave (${contextName}) - Hook`, duration: '35s', url: sampleVideos[0] },
+        { id: 2, title: `Desarrollo de Alto Impacto (${contextName})`, duration: '45s', url: sampleVideos[1] },
+        { id: 3, title: `Conclusión y CTA Dinámico (${contextName})`, duration: '30s', url: sampleVideos[2] }
       ]);
       
       // Restamos 1 crédito por cada generación exitosa
@@ -161,10 +190,9 @@ export default function CreateStudio() {
                 <label className="block text-xs text-gray-400 mb-1">Pega el enlace del video de YouTube</label>
                 <input 
                   type="url" 
-                  value={inputText}
-                  onChange={(e) => setInputText(e.target.value)}
+                  value={youtubeUrl}
+                  onChange={(e) => setYoutubeUrl(e.target.value)}
                   placeholder="https://www.youtube.com/watch?v=..." 
-                  required
                   className="w-full p-3.5 rounded-xl bg-[#0B0F19] border border-gray-700 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-purple-500"
                 />
               </div>
@@ -175,10 +203,9 @@ export default function CreateStudio() {
                 <label className="block text-xs text-gray-400 mb-1">Escribe tu idea o guion para que la IA cree el video</label>
                 <textarea 
                   rows={4}
-                  value={inputText}
-                  onChange={(e) => setInputText(e.target.value)}
+                  value={textContent}
+                  onChange={(e) => setTextContent(e.target.value)}
                   placeholder="Ej: Crea un video con niños jugando en el parque..."
-                  required
                   className="w-full p-3.5 rounded-xl bg-[#0B0F19] border border-gray-700 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-purple-500"
                 />
               </div>
@@ -187,7 +214,16 @@ export default function CreateStudio() {
             {activeTab === 'file' && (
               <div className="border-2 border-dashed border-gray-700 rounded-2xl p-6 text-center bg-[#0B0F19]">
                 <p className="text-sm text-gray-400 mb-2">Arrastra tu archivo de video o audio aquí</p>
-                <input type="file" className="text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-700 cursor-pointer"/>
+                <input 
+                  type="file" 
+                  onChange={(e) => {
+                    if (e.target.files && e.target.files[0]) {
+                      setFileName(e.target.files[0].name);
+                    }
+                  }}
+                  className="text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-700 cursor-pointer"
+                />
+                {fileName && <p className="text-xs text-purple-400 mt-2">Archivo seleccionado: {fileName}</p>}
               </div>
             )}
 
@@ -202,8 +238,14 @@ export default function CreateStudio() {
                   type="file" 
                   multiple 
                   accept="image/*"
+                  onChange={(e) => {
+                    if (e.target.files) {
+                      setImagesCount(e.target.files.length);
+                    }
+                  }}
                   className="text-xs text-gray-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-700 cursor-pointer mx-auto block"
                 />
+                {imagesCount > 0 && <p className="text-xs text-purple-400">{imagesCount} imágenes cargadas correctamente</p>}
               </div>
             )}
 
