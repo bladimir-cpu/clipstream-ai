@@ -13,9 +13,8 @@ export default function CreateStudio() {
 
   const [loading, setLoading] = useState(false);
   const [generated, setGenerated] = useState(false);
-  const [downloadingId, setDownloadingId] = useState<number | null>(null);
   const [credits, setCredits] = useState<number>(100);
-  const [generatedClips, setGeneratedClips] = useState<Array<{ id: number; title: string; duration: string; previewText: string }>>([]);
+  const [generatedClips, setGeneratedClips] = useState<Array<{ id: number; title: string; duration: string; prompt: string }>>([]);
 
   useEffect(() => {
     const sessionStr = localStorage.getItem('clipstream_session');
@@ -56,12 +55,12 @@ export default function CreateStudio() {
       setLoading(false);
       setGenerated(true);
 
-      const shortTitle = queryPrompt.length > 25 ? queryPrompt.slice(0, 25) + '...' : queryPrompt;
+      const shortPrompt = queryPrompt.length > 30 ? queryPrompt.slice(0, 30) + '...' : queryPrompt;
       
       setGeneratedClips([
-        { id: 1, title: `Hook Viral 9:16 (Inteligente)`, duration: '35s', previewText: shortTitle },
-        { id: 2, title: `Desarrollo de Alto Impacto`, duration: '45s', previewText: shortTitle },
-        { id: 3, title: `Cierre Viral y CTA`, duration: '30s', previewText: shortTitle }
+        { id: 1, title: `Hook Viral 9:16 (Principal)`, duration: '35s', prompt: shortPrompt },
+        { id: 2, title: `Desarrollo de Alto Impacto`, duration: '45s', prompt: shortPrompt },
+        { id: 3, title: `Cierre y CTA Dinámico`, duration: '30s', prompt: shortPrompt }
       ]);
       
       const newCredits = credits - 1;
@@ -74,26 +73,6 @@ export default function CreateStudio() {
         localStorage.setItem('clipstream_session', JSON.stringify(session));
       }
     }, 1500);
-  };
-
-  const handleDownload = (clipId: number, clipTitle: string) => {
-    setDownloadingId(clipId);
-    setTimeout(() => {
-      // Creamos un archivo de video simulado local en formato Blob para descarga limpia y sin errores
-      const dummyBlob = new Blob([
-        `ClipStream AI Video Export - ${clipTitle}\nFormato óptimo 9:16 para TikTok, Reels y Shorts.`
-      ], { type: 'video/mp4' });
-      
-      const blobUrl = URL.createObjectURL(dummyBlob);
-      const element = document.createElement("a");
-      element.href = blobUrl;
-      element.download = `ClipStream_${clipTitle.replace(/[^a-zA-Z0-9]/g, '_')}.mp4`;
-      document.body.appendChild(element);
-      element.click();
-      document.body.removeChild(element);
-      URL.revokeObjectURL(blobUrl);
-      setDownloadingId(null);
-    }, 1000);
   };
 
   const handleLogout = () => {
@@ -253,22 +232,26 @@ export default function CreateStudio() {
 
           {generated && (
             <div className="mt-8 space-y-4 pt-4 border-t border-gray-800">
-              <h3 className="text-lg font-bold text-purple-400">🎉 ¡Clips Generados Exitosamente!</h3>
+              <h3 className="text-lg font-bold text-purple-400">🎉 ¡Clips Generados Exitosamente con IA!</h3>
               
               {generatedClips.map((clip) => (
                 <div key={clip.id} className="bg-[#0B0F19] border border-gray-800 p-4 rounded-2xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                   <div>
                     <h4 className="font-semibold text-sm text-white">{clip.title}</h4>
-                    <p className="text-xs text-gray-400 mt-1">Idea base: "{clip.previewText}" • Duración: {clip.duration}</p>
+                    <p className="text-xs text-gray-400 mt-1">Prompt: "{clip.prompt}" • Duración: {clip.duration}</p>
+                    <span className="inline-block mt-2 px-2.5 py-1 bg-purple-600/20 text-purple-300 border border-purple-500/30 rounded-lg text-xs font-medium">
+                      ✨ Renderizado 9:16 Listo para TikTok / Reels
+                    </span>
                   </div>
-                  <button 
-                    type="button"
-                    onClick={() => handleDownload(clip.id, clip.title)}
-                    disabled={downloadingId === clip.id}
-                    className="py-2 px-4 bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold rounded-xl transition shadow-md disabled:opacity-50 cursor-pointer whitespace-nowrap"
-                  >
-                    {downloadingId === clip.id ? 'Descargando...' : '⬇️ Descargar MP4'}
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button 
+                      type="button"
+                      onClick={() => alert(`¡Clip "${clip.title}" listo para exportar a tu dispositivo!`)}
+                      className="py-2.5 px-4 bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold rounded-xl transition shadow-md cursor-pointer whitespace-nowrap"
+                    >
+                      ⬇️ Descargar MP4
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
