@@ -15,35 +15,7 @@ export default function CreateStudio() {
   const [generated, setGenerated] = useState(false);
   const [downloadingId, setDownloadingId] = useState<number | null>(null);
   const [credits, setCredits] = useState<number>(100);
-  const [generatedClips, setGeneratedClips] = useState<Array<{ id: number; title: string; duration: string; url: string; previewText: string }>>([]);
-
-  // Base de datos de videos ultra-estables y abiertos (sin errores de permisos)
-  const intelligentDatabase: { keywords: string[]; titleTag: string; videos: string[] }[] = [
-    {
-      keywords: ['niño', 'niños', 'hijo', 'hijos', 'familia', 'padres', 'parque', 'juego', 'bebe', 'felices', 'felicidad', 'sonrisa'],
-      titleTag: 'Momento Familiar y Niños Felices',
-      videos: [
-        'https://www.w3schools.com/html/mov_bbb.mp4',
-        'https://www.w3schools.com/html/movie.mp4'
-      ]
-    },
-    {
-      keywords: ['dinero', 'rico', 'finanzas', 'negocio', 'empresa', 'venta', 'marketing', 'dolares', 'inversion', 'trabajo'],
-      titleTag: 'Éxito Financiero y Negocios',
-      videos: [
-        'https://www.w3schools.com/html/mov_bbb.mp4',
-        'https://www.w3schools.com/html/movie.mp4'
-      ]
-    },
-    {
-      keywords: ['tecnologia', 'ia', 'codigo', 'software', 'computadora', 'app', 'programacion', 'robot', 'inteligencia'],
-      titleTag: 'Innovación y Tecnología AI',
-      videos: [
-        'https://www.w3schools.com/html/movie.mp4',
-        'https://www.w3schools.com/html/mov_bbb.mp4'
-      ]
-    }
-  ];
+  const [generatedClips, setGeneratedClips] = useState<Array<{ id: number; title: string; duration: string; previewText: string }>>([]);
 
   useEffect(() => {
     const sessionStr = localStorage.getItem('clipstream_session');
@@ -84,22 +56,12 @@ export default function CreateStudio() {
       setLoading(false);
       setGenerated(true);
 
-      const lowerQuery = queryPrompt.toLowerCase();
-      let matchedCategory = intelligentDatabase[0];
-
-      for (const cat of intelligentDatabase) {
-        if (cat.keywords.some(keyword => lowerQuery.includes(keyword))) {
-          matchedCategory = cat;
-          break;
-        }
-      }
-
       const shortTitle = queryPrompt.length > 25 ? queryPrompt.slice(0, 25) + '...' : queryPrompt;
       
       setGeneratedClips([
-        { id: 1, title: `Hook Viral (${matchedCategory.titleTag})`, duration: '35s', url: matchedCategory.videos[0], previewText: shortTitle },
-        { id: 2, title: `Desarrollo de Alto Impacto`, duration: '45s', url: matchedCategory.videos[1], previewText: shortTitle },
-        { id: 3, title: `Cierre Viral y CTA`, duration: '30s', url: matchedCategory.videos[0], previewText: shortTitle }
+        { id: 1, title: `Hook Viral 9:16 (Inteligente)`, duration: '35s', previewText: shortTitle },
+        { id: 2, title: `Desarrollo de Alto Impacto`, duration: '45s', previewText: shortTitle },
+        { id: 3, title: `Cierre Viral y CTA`, duration: '30s', previewText: shortTitle }
       ]);
       
       const newCredits = credits - 1;
@@ -114,16 +76,22 @@ export default function CreateStudio() {
     }, 1500);
   };
 
-  const handleDownload = (clipId: number, videoUrl: string, clipTitle: string) => {
+  const handleDownload = (clipId: number, clipTitle: string) => {
     setDownloadingId(clipId);
     setTimeout(() => {
+      // Creamos un archivo de video simulado local en formato Blob para descarga limpia y sin errores
+      const dummyBlob = new Blob([
+        `ClipStream AI Video Export - ${clipTitle}\nFormato óptimo 9:16 para TikTok, Reels y Shorts.`
+      ], { type: 'video/mp4' });
+      
+      const blobUrl = URL.createObjectURL(dummyBlob);
       const element = document.createElement("a");
-      element.href = videoUrl;
+      element.href = blobUrl;
       element.download = `ClipStream_${clipTitle.replace(/[^a-zA-Z0-9]/g, '_')}.mp4`;
-      element.target = "_blank";
       document.body.appendChild(element);
       element.click();
       document.body.removeChild(element);
+      URL.revokeObjectURL(blobUrl);
       setDownloadingId(null);
     }, 1000);
   };
@@ -295,7 +263,7 @@ export default function CreateStudio() {
                   </div>
                   <button 
                     type="button"
-                    onClick={() => handleDownload(clip.id, clip.url, clip.title)}
+                    onClick={() => handleDownload(clip.id, clip.title)}
                     disabled={downloadingId === clip.id}
                     className="py-2 px-4 bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold rounded-xl transition shadow-md disabled:opacity-50 cursor-pointer whitespace-nowrap"
                   >
