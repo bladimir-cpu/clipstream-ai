@@ -57,7 +57,7 @@ export default function CreateStudio() {
 
       const shortPrompt = queryPrompt.length > 30 ? queryPrompt.slice(0, 30) + '...' : queryPrompt;
       
-      // Enlaces de video limpios y estables de muestra libre para reproductor web
+      // Enlaces de video ultra-estables con formato vertical simulado y listos para reproducir
       setGeneratedClips([
         { id: 1, title: `Hook_Viral_Principal`, duration: '35s', prompt: shortPrompt, videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4' },
         { id: 2, title: `Desarrollo_Impacto`, duration: '45s', prompt: shortPrompt, videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4' },
@@ -256,13 +256,17 @@ export default function CreateStudio() {
                     </a>
                   </div>
 
-                  {/* Reproductor de video integrado para ver el resultado en vivo */}
+                  {/* Reproductor de video optimizado con precarga */}
                   <div className="w-full max-w-xs mx-auto bg-black rounded-xl overflow-hidden border border-gray-800 shadow-inner">
                     <video 
                       src={clip.videoUrl} 
                       controls 
+                      preload="metadata"
+                      playsInline
                       className="w-full h-auto max-h-48 object-cover"
-                    />
+                    >
+                      Tu navegador no soporta la reproducción de video.
+                    </video>
                   </div>
                 </div>
               ))}
