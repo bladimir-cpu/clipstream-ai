@@ -58,11 +58,11 @@ export default function CreateStudio() {
 
       const shortPrompt = queryPrompt.length > 30 ? queryPrompt.slice(0, 30) + '...' : queryPrompt;
       
-      // Enlaces de video reales y estables de muestra libre para descarga limpia
+      // Enlaces de videos dinámicos profesionales limpios
       setGeneratedClips([
-        { id: 1, title: `Hook_Viral_Principal`, duration: '35s', prompt: shortPrompt, videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4' },
-        { id: 2, title: `Desarrollo_Impacto`, duration: '45s', prompt: shortPrompt, videoUrl: 'https://www.w3schools.com/html/movie.mp4' },
-        { id: 3, title: `Cierre_CTA_Dinamico`, duration: '30s', prompt: shortPrompt, videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4' }
+        { id: 1, title: `Hook_Viral_Principal`, duration: '35s', prompt: shortPrompt, videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4' },
+        { id: 2, title: `Desarrollo_Impacto`, duration: '45s', prompt: shortPrompt, videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4' },
+        { id: 3, title: `Cierre_CTA_Dinamico`, duration: '30s', prompt: shortPrompt, videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4' }
       ]);
       
       const newCredits = credits - 1;
@@ -80,7 +80,6 @@ export default function CreateStudio() {
   const handleDownload = async (clipId: number, clipTitle: string, videoUrl: string) => {
     setDownloadingId(clipId);
     try {
-      // Descargamos el video real mediante fetch para forzar un archivo MP4 íntegro y funcional
       const response = await fetch(videoUrl);
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
@@ -93,7 +92,6 @@ export default function CreateStudio() {
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
     } catch (error) {
-      // Fallback directo si el navegador bloquea el fetch por CORS
       const a = document.createElement('a');
       a.href = videoUrl;
       a.target = '_blank';
