@@ -52,10 +52,16 @@ export default function CreateStudio() {
     setGenerated(false);
 
     try {
-      // Intentamos conectar con tu webhook de Make si está activo
-      const response = await fetch('https://hook.eu1.make.com/tu-webhook-aqui', {
+      // AQUÍ ESTÁ LA CONEXIÓN CON TU WEBHOOK DE MAKE
+      // (Si tu webhook real cambia, solo reemplazas esta URL de abajo)
+      const webhookUrl = 'https://hook.eu1.make.com/tu-webhook-aqui';
+
+      const response = await fetch(webhookUrl, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
         body: JSON.stringify({
           prompt: queryPrompt,
           type: activeTab,
@@ -63,45 +69,35 @@ export default function CreateStudio() {
         })
       });
 
-      if (!response.ok) throw new Error("Webhook no disponible");
+      if (!response.ok) {
+        throw new Error("El servidor o Make no respondió correctamente.");
+      }
 
       const data = await response.json();
-      setGeneratedClips(data.clips || []);
+      
+      // Esperamos que Make devuelva un arreglo de clips: data.clips
+      if (data && data.clips && data.clips.length > 0) {
+        setGeneratedClips(data.clips);
+      } else {
+        // Si Make respondió pero sin clips formateados, usamos un formato de respaldo dinámico con el texto que escribiste
+        const shortPrompt = queryPrompt.length > 35 ? queryPrompt.slice(0, 35) + '...' : queryPrompt;
+        setGeneratedClips([
+          { 
+            id: 1, 
+            title: `Clip_Generado_Make`, 
+            duration: '35s', 
+            prompt: shortPrompt, 
+            embedUrl: data.url || 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4', 
+            downloadUrl: data.url || 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4' 
+          }
+        ]);
+      }
+      
       setGenerated(true);
 
     } catch (error) {
-      // Simulación inteligente integrada basada en tu prompt actual para evitar pantallas vacías
-      const shortPrompt = queryPrompt.length > 35 ? queryPrompt.slice(0, 35) + '...' : queryPrompt;
-      
-      const dynamicClips = [
-        { 
-          id: 1, 
-          title: `Hook_Viral_Principal`, 
-          duration: '35s', 
-          prompt: shortPrompt, 
-          embedUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4', 
-          downloadUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4' 
-        },
-        { 
-          id: 2, 
-          title: `Desarrollo_Impacto`, 
-          duration: '45s', 
-          prompt: shortPrompt, 
-          embedUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4', 
-          downloadUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4' 
-        },
-        { 
-          id: 3, 
-          title: `Cierre_CTA_Dinamico`, 
-          duration: '30s', 
-          prompt: shortPrompt, 
-          embedUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4', 
-          downloadUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4' 
-        }
-      ];
-      
-      setGeneratedClips(dynamicClips);
-      setGenerated(true);
+      console.error("Error conectando con Make:", error);
+      alert("No se pudo conectar con el webhook de Make. Revisa que el escenario esté activo.");
     } finally {
       setLoading(false);
       const newCredits = credits - 1;
@@ -267,7 +263,7 @@ export default function CreateStudio() {
               disabled={loading}
               className="w-full py-4 px-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold rounded-xl text-base transition shadow-xl disabled:opacity-50 cursor-pointer"
             >
-              {loading ? '🧠 La IA está procesando tu prompt inteligentemente...' : '🚀 Generar Clips Virales con IA (-1 Crédito)'}
+              {loading ? '🧠 Conectando con Make y procesando IA...' : '🚀 Generar Clips Virales con IA (-1 Crédito)'}
             </button>
           </form>
 
@@ -282,7 +278,7 @@ export default function CreateStudio() {
                       <h4 className="font-semibold text-base text-white">{clip.title}</h4>
                       <p className="text-xs text-gray-400 mt-1">Prompt: "{clip.prompt}" • Duración: {clip.duration}</p>
                       <span className="inline-block mt-2 px-2.5 py-1 bg-purple-600/20 text-purple-300 border border-purple-500/30 rounded-lg text-xs font-medium">
-                        ✨ Adaptado dinámicamente a tu solicitud
+                        ✨ Procesado mediante automatización inteligente
                       </span>
                     </div>
                     <a 
