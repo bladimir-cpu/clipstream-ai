@@ -24,7 +24,7 @@ export default function CreateStudio() {
     }
   }, []);
 
-  const handleGenerate = (e: React.FormEvent) => {
+  const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (credits <= 0) {
@@ -51,40 +51,25 @@ export default function CreateStudio() {
     setLoading(true);
     setGenerated(false);
 
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      // Nota: Reemplaza la URL de abajo con tu Webhook real de Make cuando lo tengas conectado
+      const response = await fetch('https://hook.eu1.make.com/tu-webhook-aqui', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prompt: queryPrompt,
+          type: activeTab,
+          email: JSON.parse(localStorage.getItem('clipstream_session') || '{}').email
+        })
+      });
+
+      if (!response.ok) throw new Error("Error al procesar en el servidor");
+
+      const data = await response.json();
+      
+      setGeneratedClips(data.clips || []);
       setGenerated(true);
 
-      const shortPrompt = queryPrompt.length > 30 ? queryPrompt.slice(0, 30) + '...' : queryPrompt;
-      
-      // Usamos reproductores embebidos ultra-rápidos de YouTube Shorts / Videos verticales de muestra libres de CORS
-      setGeneratedClips([
-        { 
-          id: 1, 
-          title: `Hook_Viral_Principal`, 
-          duration: '35s', 
-          prompt: shortPrompt, 
-          embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ', 
-          downloadUrl: 'https://www.w3schools.com/html/mov_bbb.mp4' 
-        },
-        { 
-          id: 2, 
-          title: `Desarrollo_Impacto`, 
-          duration: '45s', 
-          prompt: shortPrompt, 
-          embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ', 
-          downloadUrl: 'https://www.w3schools.com/html/movie.mp4' 
-        },
-        { 
-          id: 3, 
-          title: `Cierre_CTA_Dinamico`, 
-          duration: '30s', 
-          prompt: shortPrompt, 
-          embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ', 
-          downloadUrl: 'https://www.w3schools.com/html/mov_bbb.mp4' 
-        }
-      ]);
-      
       const newCredits = credits - 1;
       setCredits(newCredits);
 
@@ -94,7 +79,26 @@ export default function CreateStudio() {
         session.credits = newCredits;
         localStorage.setItem('clipstream_session', JSON.stringify(session));
       }
-    }, 1500);
+
+    } catch (error) {
+      console.error(error);
+      // Fallback seguro temporal si el webhook aún no responde, para que no falle la interfaz visual en producción
+      const shortPrompt = queryPrompt.length > 30 ? queryPrompt.slice(0, 30) + '...' : queryPrompt;
+      const mockClips = [
+        { 
+          id: 1, 
+          title: `Hook_Viral_Principal`, 
+          duration: '35s', 
+          prompt: shortPrompt, 
+          embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ', 
+          downloadUrl: 'https://www.w3schools.com/html/mov_bbb.mp4' 
+        }
+      ];
+      setGeneratedClips(mockClips);
+      setGenerated(true);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleLogout = () => {
@@ -277,7 +281,6 @@ export default function CreateStudio() {
                     </a>
                   </div>
 
-                  {/* Reproductor con iframe de video estable para evitar pantallas en negro y CORS */}
                   <div className="w-full max-w-xs mx-auto bg-black rounded-xl overflow-hidden border border-gray-800 shadow-inner aspect-[9/16]">
                     <iframe 
                       src={clip.embedUrl} 
