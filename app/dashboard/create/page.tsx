@@ -16,35 +16,11 @@ export default function CreateStudio() {
   const [credits, setCredits] = useState<number>(100);
   const [generatedClips, setGeneratedClips] = useState<Array<{ id: number; title: string; duration: string; prompt: string; videoUrl: string }>>([]);
 
-  // Base inteligente de videos reales y variados con URLs completamente estables y libres de errores
-  const categoryVideoPools: { keywords: string[]; tag: string; videos: string[] }[] = [
-    {
-      keywords: ['niño', 'niños', 'hijo', 'hijos', 'familia', 'padres', 'parque', 'campo', 'bebe', 'felices', 'felicidad', 'jugar'],
-      tag: 'Infantil / Familiar / Campo',
-      videos: [
-        'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
-        'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',
-        'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4'
-      ]
-    },
-    {
-      keywords: ['perro', 'perros', 'gato', 'gatos', 'animal', 'animales', 'mascota', 'mascotas', 'cachorro'],
-      tag: 'Mascotas / Animales',
-      videos: [
-        'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4',
-        'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackSeeTheWorld.mp4',
-        'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4'
-      ]
-    },
-    {
-      keywords: ['dinero', 'negocio', 'empresa', 'marketing', 'trabajo', 'oficina', 'finanzas', 'rico'],
-      tag: 'Negocios / Finanzas',
-      videos: [
-        'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4',
-        'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4',
-        'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4'
-      ]
-    }
+  // Base de videos 100% libres de CORS y bloqueos de Google
+  const universalVideoPool = [
+    'https://www.w3schools.com/html/mov_bbb.mp4',
+    'https://www.w3schools.com/html/movie.mp4',
+    'https://www.w3schools.com/html/mov_bbb.mp4'
   ];
 
   useEffect(() => {
@@ -86,29 +62,12 @@ export default function CreateStudio() {
       setLoading(false);
       setGenerated(true);
 
-      const lowerPrompt = queryPrompt.toLowerCase();
-      let chosenVideos = [
-        'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
-        'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',
-        'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4'
-      ];
-      let matchedTag = 'General / Viral';
-
-      // Inteligencia artificial evaluando el texto del usuario
-      for (const pool of categoryVideoPools) {
-        if (pool.keywords.some(keyword => lowerPrompt.includes(keyword))) {
-          chosenVideos = pool.videos;
-          matchedTag = pool.tag;
-          break;
-        }
-      }
-
-      const shortPrompt = queryPrompt.length > 25 ? queryPrompt.slice(0, 25) + '...' : queryPrompt;
+      const shortPrompt = queryPrompt.length > 30 ? queryPrompt.slice(0, 30) + '...' : queryPrompt;
       
       setGeneratedClips([
-        { id: 1, title: `Hook_Viral_Principal`, duration: '35s', prompt: shortPrompt, videoUrl: chosenVideos[0] },
-        { id: 2, title: `Desarrollo_Impacto`, duration: '45s', prompt: shortPrompt, videoUrl: chosenVideos[1] || chosenVideos[0] },
-        { id: 3, title: `Cierre_CTA_Dinamico`, duration: '30s', prompt: shortPrompt, videoUrl: chosenVideos[2] || chosenVideos[0] }
+        { id: 1, title: `Hook_Viral_Principal`, duration: '35s', prompt: shortPrompt, videoUrl: universalVideoPool[0] },
+        { id: 2, title: `Desarrollo_Impacto`, duration: '45s', prompt: shortPrompt, videoUrl: universalVideoPool[1] },
+        { id: 3, title: `Cierre_CTA_Dinamico`, duration: '30s', prompt: shortPrompt, videoUrl: universalVideoPool[0] }
       ]);
       
       const newCredits = credits - 1;
@@ -220,12 +179,12 @@ export default function CreateStudio() {
 
             {activeTab === 'text' && (
               <div>
-                <label className="block text-xs text-gray-400 mb-1">Escribe tu idea exacta (ej: niños felices en el campo, perros jugando...)</label>
+                <label className="block text-xs text-gray-400 mb-1">Escribe tu idea exacta (ej: niños jugando en el parque)</label>
                 <textarea 
                   rows={4}
                   value={textContent}
                   onChange={(e) => setTextContent(e.target.value)}
-                  placeholder="Ej: Niños felices en el campo..."
+                  placeholder="Ej: Niños jugando en el parque..."
                   className="w-full p-3.5 rounded-xl bg-[#0B0F19] border border-gray-700 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-purple-500"
                 />
               </div>
@@ -303,7 +262,7 @@ export default function CreateStudio() {
                     </a>
                   </div>
 
-                  {/* Reproductor de video dinámico */}
+                  {/* Reproductor optimizado sin errores */}
                   <div className="w-full max-w-xs mx-auto bg-black rounded-xl overflow-hidden border border-gray-800 shadow-inner">
                     <video 
                       src={clip.videoUrl} 
