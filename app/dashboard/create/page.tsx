@@ -57,11 +57,11 @@ export default function CreateStudio() {
 
       const shortPrompt = queryPrompt.length > 30 ? queryPrompt.slice(0, 30) + '...' : queryPrompt;
       
-      // Enlaces de video ultra-estables con formato vertical simulado y listos para reproducir
+      // Enlaces 100% abiertos y estables que nunca dan AccessDenied
       setGeneratedClips([
-        { id: 1, title: `Hook_Viral_Principal`, duration: '35s', prompt: shortPrompt, videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4' },
-        { id: 2, title: `Desarrollo_Impacto`, duration: '45s', prompt: shortPrompt, videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4' },
-        { id: 3, title: `Cierre_CTA_Dinamico`, duration: '30s', prompt: shortPrompt, videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4' }
+        { id: 1, title: `Hook_Viral_Principal`, duration: '35s', prompt: shortPrompt, videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4' },
+        { id: 2, title: `Desarrollo_Impacto`, duration: '45s', prompt: shortPrompt, videoUrl: 'https://www.w3schools.com/html/movie.mp4' },
+        { id: 3, title: `Cierre_CTA_Dinamico`, duration: '30s', prompt: shortPrompt, videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4' }
       ]);
       
       const newCredits = credits - 1;
@@ -173,12 +173,12 @@ export default function CreateStudio() {
 
             {activeTab === 'text' && (
               <div>
-                <label className="block text-xs text-gray-400 mb-1">Escribe tu idea exacta (ej: niños felices jugando en el parque)</label>
+                <label className="block text-xs text-gray-400 mb-1">Escribe tu idea exacta (ej: perros felices jugando)</label>
                 <textarea 
                   rows={4}
                   value={textContent}
                   onChange={(e) => setTextContent(e.target.value)}
-                  placeholder="Ej: Niños felices jugando en el parque..."
+                  placeholder="Ej: Perros felices jugando..."
                   className="w-full p-3.5 rounded-xl bg-[#0B0F19] border border-gray-700 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-purple-500"
                 />
               </div>
@@ -256,12 +256,12 @@ export default function CreateStudio() {
                     </a>
                   </div>
 
-                  {/* Reproductor de video optimizado con precarga */}
+                  {/* Reproductor optimizado con enlace directo libre de errores */}
                   <div className="w-full max-w-xs mx-auto bg-black rounded-xl overflow-hidden border border-gray-800 shadow-inner">
                     <video 
                       src={clip.videoUrl} 
                       controls 
-                      preload="metadata"
+                      preload="auto"
                       playsInline
                       className="w-full h-auto max-h-48 object-cover"
                     >
