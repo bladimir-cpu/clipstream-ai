@@ -15,7 +15,7 @@ export default function CreateStudio() {
   const [generated, setGenerated] = useState(false);
   const [downloadingId, setDownloadingId] = useState<number | null>(null);
   const [credits, setCredits] = useState<number>(100);
-  const [generatedClips, setGeneratedClips] = useState<Array<{ id: number; title: string; duration: string; prompt: string }>>([]);
+  const [generatedClips, setGeneratedClips] = useState<Array<{ id: number; title: string; duration: string; prompt: string; videoUrl: string }>>([]);
 
   useEffect(() => {
     const sessionStr = localStorage.getItem('clipstream_session');
@@ -58,10 +58,11 @@ export default function CreateStudio() {
 
       const shortPrompt = queryPrompt.length > 30 ? queryPrompt.slice(0, 30) + '...' : queryPrompt;
       
+      // Enlaces de video reales y estables de muestra libre para descarga limpia
       setGeneratedClips([
-        { id: 1, title: `Hook Viral 9:16 (Principal)`, duration: '35s', prompt: shortPrompt },
-        { id: 2, title: `Desarrollo de Alto Impacto`, duration: '45s', prompt: shortPrompt },
-        { id: 3, title: `Cierre y CTA Dinámico`, duration: '30s', prompt: shortPrompt }
+        { id: 1, title: `Hook_Viral_Principal`, duration: '35s', prompt: shortPrompt, videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4' },
+        { id: 2, title: `Desarrollo_Impacto`, duration: '45s', prompt: shortPrompt, videoUrl: 'https://www.w3schools.com/html/movie.mp4' },
+        { id: 3, title: `Cierre_CTA_Dinamico`, duration: '30s', prompt: shortPrompt, videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4' }
       ]);
       
       const newCredits = credits - 1;
@@ -76,22 +77,30 @@ export default function CreateStudio() {
     }, 1500);
   };
 
-  const handleDownload = async (clipId: number, clipTitle: string) => {
+  const handleDownload = async (clipId: number, clipTitle: string, videoUrl: string) => {
     setDownloadingId(clipId);
     try {
-      const response = await fetch('https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4');
+      // Descargamos el video real mediante fetch para forzar un archivo MP4 íntegro y funcional
+      const response = await fetch(videoUrl);
       const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
+      const url = window.URL.createObjectURL(blob);
       
       const a = document.createElement('a');
       a.href = url;
-      a.download = `ClipStream_${clipTitle.replace(/[^a-zA-Z0-9]/g, '_')}.mp4`;
+      a.download = `ClipStream_${clipTitle}.mp4`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      window.URL.revokeObjectURL(url);
     } catch (error) {
-      alert("Hubo un error al descargar el clip.");
+      // Fallback directo si el navegador bloquea el fetch por CORS
+      const a = document.createElement('a');
+      a.href = videoUrl;
+      a.target = '_blank';
+      a.download = `ClipStream_${clipTitle}.mp4`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
     } finally {
       setDownloadingId(null);
     }
@@ -268,7 +277,7 @@ export default function CreateStudio() {
                   <div className="flex items-center gap-2">
                     <button 
                       type="button"
-                      onClick={() => handleDownload(clip.id, clip.title)}
+                      onClick={() => handleDownload(clip.id, clip.title, clip.videoUrl)}
                       disabled={downloadingId === clip.id}
                       className="py-2.5 px-4 bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold rounded-xl transition shadow-md disabled:opacity-50 cursor-pointer whitespace-nowrap"
                     >
