@@ -14,35 +14,7 @@ export default function CreateStudio() {
   const [loading, setLoading] = useState(false);
   const [generated, setGenerated] = useState(false);
   const [credits, setCredits] = useState<number>(100);
-  const [generatedClips, setGeneratedClips] = useState<Array<{ id: number; title: string; duration: string; prompt: string; videoUrl: string }>>([]);
-
-  // Diccionario inteligente con categorías temáticas reales y precisas
-  const smartCategories = [
-    {
-      keywords: ['niño', 'niños', 'hijo', 'hijos', 'familia', 'padres', 'parque', 'piscina', 'escuela', 'jugar', 'jugando', 'campo', 'agua'],
-      videos: [
-        'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',
-        'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
-        'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4'
-      ]
-    },
-    {
-      keywords: ['perro', 'perros', 'gato', 'gatos', 'animal', 'animales', 'mascota', 'cachorro'],
-      videos: [
-        'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4',
-        'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackSeeTheWorld.mp4',
-        'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4'
-      ]
-    },
-    {
-      keywords: ['dinero', 'negocio', 'empresa', 'marketing', 'trabajo', 'finanzas', 'rico', 'ventas'],
-      videos: [
-        'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4',
-        'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4',
-        'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4'
-      ]
-    }
-  ];
+  const [generatedClips, setGeneratedClips] = useState<Array<{ id: number; title: string; duration: string; prompt: string; embedUrl: string; downloadUrl: string }>>([]);
 
   useEffect(() => {
     const sessionStr = localStorage.getItem('clipstream_session');
@@ -83,27 +55,34 @@ export default function CreateStudio() {
       setLoading(false);
       setGenerated(true);
 
-      const lowerPrompt = queryPrompt.toLowerCase();
-      let selectedVideos = [
-        'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',
-        'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
-        'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4'
-      ]; // Por defecto usa videos dinámicos generales
-
-      // Buscamos coincidencia exacta con lo que escribió el usuario
-      for (const cat of smartCategories) {
-        if (cat.keywords.some(kw => lowerPrompt.includes(kw))) {
-          selectedVideos = cat.videos;
-          break;
-        }
-      }
-
       const shortPrompt = queryPrompt.length > 30 ? queryPrompt.slice(0, 30) + '...' : queryPrompt;
       
+      // Usamos reproductores embebidos ultra-rápidos de YouTube Shorts / Videos verticales de muestra libres de CORS
       setGeneratedClips([
-        { id: 1, title: `Hook_Viral_Principal`, duration: '35s', prompt: shortPrompt, videoUrl: selectedVideos[0] },
-        { id: 2, title: `Desarrollo_Impacto`, duration: '45s', prompt: shortPrompt, videoUrl: selectedVideos[1] || selectedVideos[0] },
-        { id: 3, title: `Cierre_CTA_Dinamico`, duration: '30s', prompt: shortPrompt, videoUrl: selectedVideos[2] || selectedVideos[0] }
+        { 
+          id: 1, 
+          title: `Hook_Viral_Principal`, 
+          duration: '35s', 
+          prompt: shortPrompt, 
+          embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ', 
+          downloadUrl: 'https://www.w3schools.com/html/mov_bbb.mp4' 
+        },
+        { 
+          id: 2, 
+          title: `Desarrollo_Impacto`, 
+          duration: '45s', 
+          prompt: shortPrompt, 
+          embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ', 
+          downloadUrl: 'https://www.w3schools.com/html/movie.mp4' 
+        },
+        { 
+          id: 3, 
+          title: `Cierre_CTA_Dinamico`, 
+          duration: '30s', 
+          prompt: shortPrompt, 
+          embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ', 
+          downloadUrl: 'https://www.w3schools.com/html/mov_bbb.mp4' 
+        }
       ]);
       
       const newCredits = credits - 1;
@@ -215,12 +194,12 @@ export default function CreateStudio() {
 
             {activeTab === 'text' && (
               <div>
-                <label className="block text-xs text-gray-400 mb-1">Escribe tu idea exacta (ej: niños jugando en el parque)</label>
+                <label className="block text-xs text-gray-400 mb-1">Escribe tu idea exacta (ej: Niños con uniformes deportivos)</label>
                 <textarea 
                   rows={4}
                   value={textContent}
                   onChange={(e) => setTextContent(e.target.value)}
-                  placeholder="Ej: Niños jugando en el parque..."
+                  placeholder="Ej: Niños con uniformes deportivos..."
                   className="w-full p-3.5 rounded-xl bg-[#0B0F19] border border-gray-700 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-purple-500"
                 />
               </div>
@@ -288,7 +267,7 @@ export default function CreateStudio() {
                       </span>
                     </div>
                     <a 
-                      href={clip.videoUrl}
+                      href={clip.downloadUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       download={`ClipStream_${clip.title}.mp4`}
@@ -298,17 +277,15 @@ export default function CreateStudio() {
                     </a>
                   </div>
 
-                  {/* Reproductor optimizado sin sorpresas */}
-                  <div className="w-full max-w-xs mx-auto bg-black rounded-xl overflow-hidden border border-gray-800 shadow-inner">
-                    <video 
-                      src={clip.videoUrl} 
-                      controls 
-                      preload="auto"
-                      playsInline
-                      className="w-full h-auto max-h-48 object-cover"
-                    >
-                      Tu navegador no soporta la reproducción de video.
-                    </video>
+                  {/* Reproductor con iframe de video estable para evitar pantallas en negro y CORS */}
+                  <div className="w-full max-w-xs mx-auto bg-black rounded-xl overflow-hidden border border-gray-800 shadow-inner aspect-[9/16]">
+                    <iframe 
+                      src={clip.embedUrl} 
+                      title={clip.title}
+                      className="w-full h-full border-0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    ></iframe>
                   </div>
                 </div>
               ))}
