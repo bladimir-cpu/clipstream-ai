@@ -12,44 +12,36 @@ export async function POST(request: Request) {
     const currentCredits = userCredits !== undefined ? userCredits : 30;
 
     if (currentCredits <= 0) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Has agotado tus créditos gratuitos.' 
-      }, { status: 403 });
+      return NextResponse.json({ success: false, error: 'Créditos agotados' }, { status: 403 });
     }
 
     const webhookUrl = process.env.MAKE_WEBHOOK_URL;
-
     if (!webhookUrl) {
-      return NextResponse.json({ success: false, error: 'Falta configurar la URL del Webhook' }, { status: 500 });
+      return NextResponse.json({ success: false, error: 'Falta configurar webhook' }, { status: 500 });
     }
 
-    // Le enviamos a Make tanto el "type" (texto, youtube, imagen) como el "content"
+    // Enviamos una estructura clara con el prompt listo para OpenAI
     const makeResponse = await fetch(webhookUrl, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ type, content }),
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        type: type || 'text',
+        prompt: content,
+      }),
     });
 
-    // Si Make rechaza la petición, capturamos el motivo exacto
     if (!makeResponse.ok) {
       const errorText = await makeResponse.text();
-      throw new Error(`Make rechazó la conexión (Status ${makeResponse.status}): ${errorText}`);
+      throw new Error(`Make rechazó la conexión: ${errorText}`);
     }
-
-    const remainingCredits = currentCredits - 1;
 
     return NextResponse.json({
       success: true,
-      message: '¡Datos atrapados por Make con éxito!',
-      remainingCredits: remainingCredits,
+      message: '¡Enviado a Make con éxito!',
+      remainingCredits: currentCredits - 1,
     });
 
   } catch (error: any) {
-    console.error(error);
-    // Ahora sí mostraremos el error real en la pantalla para cazar el problema
-    return NextResponse.json({ success: false, error: `Fallo de conexión: ${error.message}` }, { status: 500 });
+    return NextResponse.json({ success: false, error: `Fallo: ${error.message}` }, { status: 500 });
   }
 }
