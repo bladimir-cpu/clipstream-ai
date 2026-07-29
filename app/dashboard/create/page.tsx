@@ -7,6 +7,7 @@ export default function CreatePage() {
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<string | null>(null);
+  const [isVideo, setIsVideo] = useState(false);
   const [credits, setCredits] = useState(80);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -15,6 +16,7 @@ export default function CreatePage() {
 
     setLoading(true);
     setResult(null);
+    setIsVideo(false);
 
     try {
       const response = await fetch('/api/generate', {
@@ -35,6 +37,11 @@ export default function CreatePage() {
 
       setCredits(data.remainingCredits);
       setResult(data.output || data.message || '¡Contenido generado con éxito!');
+      
+      // Si el output de Make viene con una URL de video o termina en mp4
+      if (data.output && (data.output.startsWith('http') || data.output.includes('.mp4'))) {
+        setIsVideo(true);
+      }
     } catch (error: any) {
       alert(`Fallo: ${error.message}`);
     } finally {
@@ -45,14 +52,13 @@ export default function CreatePage() {
   return (
     <div className="max-w-4xl mx-auto p-6">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-white">Generador Conectado - ClipStream AI</h1>
+        <h1 className="text-2xl font-bold text-white">ClipStream AI - Generador de Videos</h1>
         <div className="bg-purple-900 border border-purple-500 px-4 py-2 rounded-lg text-white font-semibold">
           ⚡ Créditos: {credits}
         </div>
       </div>
       
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Tus botones de selección originales */}
         <div>
           <label className="block text-sm font-medium text-gray-300 mb-2">Selecciona el tipo de entrada</label>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -81,7 +87,7 @@ export default function CreatePage() {
         <textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          placeholder="Ej: Generame un video motivacional sobre emprendimiento..."
+          placeholder="Ej: Niños jugando en la escuela de forma alegre..."
           className="w-full h-32 p-3 border rounded-lg bg-gray-900 text-white focus:outline-none focus:border-purple-500"
           rows={4}
         />
@@ -91,16 +97,38 @@ export default function CreatePage() {
           disabled={loading}
           className="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-lg transition disabled:opacity-50"
         >
-          {loading ? 'Generando contenido con IA...' : '🚀 Enviar a Make y Generar (-1 Crédito)'}
+          {loading ? '🎬 Generando video con IA (esto puede tomar unos segundos)...' : '🚀 Generar Video (-1 Crédito)'}
         </button>
       </form>
 
+      {/* Pantalla donde el cliente ve el resultado final (Video o Texto) */}
       {result && (
         <div className="mt-8 p-6 bg-gray-800 border border-purple-500 rounded-lg text-white shadow-lg">
-          <h3 className="text-lg font-semibold text-purple-400 mb-2">✨ Resultado Generado:</h3>
-          <div className="whitespace-pre-wrap bg-gray-900 p-4 rounded border border-gray-700 text-gray-200">
-            {result}
-          </div>
+          <h3 className="text-lg font-semibold text-purple-400 mb-4">✨ Resultado de tu Video:</h3>
+          
+          {isVideo ? (
+            <div className="space-y-4 text-center">
+              <video 
+                src={result} 
+                controls 
+                autoPlay 
+                className="w-full max-h-[450px] rounded-lg border border-gray-700 mx-auto bg-black"
+              />
+              <a 
+                href={result} 
+                download="video_generado.mp4" 
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg transition shadow"
+              >
+                📥 Descargar Video MP4
+              </a>
+            </div>
+          ) : (
+            <div className="whitespace-pre-wrap bg-gray-900 p-4 rounded border border-gray-700 text-gray-200">
+              {result}
+            </div>
+          )}
         </div>
       )}
     </div>
