@@ -20,7 +20,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: 'Falta configurar webhook' }, { status: 500 });
     }
 
-    // Enviamos una estructura clara con el prompt listo para OpenAI
     const makeResponse = await fetch(webhookUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -35,9 +34,19 @@ export async function POST(request: Request) {
       throw new Error(`Make rechazó la conexión: ${errorText}`);
     }
 
+    // Intentamos leer la respuesta que manda Make/OpenAI
+    let makeData: any = {};
+    try {
+      makeData = await makeResponse.json();
+    } catch (e) {
+      // Si Make solo devuelve texto plano
+      makeData.output = await makeResponse.text();
+    }
+
     return NextResponse.json({
       success: true,
-      message: '¡Enviado a Make con éxito!',
+      message: '¡Generado con éxito!',
+      output: makeData.output || makeData.message || 'Contenido procesado correctamente por ClipStream AI',
       remainingCredits: currentCredits - 1,
     });
 
