@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { content, userCredits } = body;
+    const { type, content, userCredits } = body;
 
     if (!content) {
       return NextResponse.json({ success: false, error: 'Contenido requerido' }, { status: 400 });
@@ -14,40 +14,42 @@ export async function POST(request: Request) {
     if (currentCredits <= 0) {
       return NextResponse.json({ 
         success: false, 
-        error: 'Has agotado tus 30 créditos gratuitos. ¡Adquiere un plan Pro o Agencia para continuar generando contenido viral ilimitado!' 
+        error: 'Has agotado tus créditos gratuitos.' 
       }, { status: 403 });
     }
 
-    // Obtenemos la URL del webhook desde las variables de entorno de Vercel
     const webhookUrl = process.env.MAKE_WEBHOOK_URL;
 
     if (!webhookUrl) {
-      return NextResponse.json({ success: false, error: 'Falta configurar la URL del Webhook de Make en el servidor' }, { status: 500 });
+      return NextResponse.json({ success: false, error: 'Falta configurar la URL del Webhook' }, { status: 500 });
     }
 
-    // Enviamos los datos del usuario de forma segura desde el backend hacia Make (Adiós CORS)
+    // Le enviamos a Make tanto el "type" (texto, youtube, imagen) como el "content"
     const makeResponse = await fetch(webhookUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ content }),
+      body: JSON.stringify({ type, content }),
     });
 
+    // Si Make rechaza la petición, capturamos el motivo exacto
     if (!makeResponse.ok) {
-      throw new Error('Error al comunicarse con el Webhook de Make');
+      const errorText = await makeResponse.text();
+      throw new Error(`Make rechazó la conexión (Status ${makeResponse.status}): ${errorText}`);
     }
 
     const remainingCredits = currentCredits - 1;
 
     return NextResponse.json({
       success: true,
-      message: '¡Solicitud enviada a Make con éxito!',
+      message: '¡Datos atrapados por Make con éxito!',
       remainingCredits: remainingCredits,
     });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error(error);
-    return NextResponse.json({ success: false, error: 'Error interno en el servidor de IA' }, { status: 500 });
+    // Ahora sí mostraremos el error real en la pantalla para cazar el problema
+    return NextResponse.json({ success: false, error: `Fallo de conexión: ${error.message}` }, { status: 500 });
   }
 }
