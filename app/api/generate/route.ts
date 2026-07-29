@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
   try {
-    // Leemos el JSON una sola vez de forma limpia
     const body = await request.json();
     const { type, content, userCredits } = body;
 
@@ -35,7 +34,6 @@ export async function POST(request: Request) {
       throw new Error(`Make rechazó la conexión: ${errorText}`);
     }
 
-    // Leemos la respuesta de Make de forma segura una sola vez
     const responseText = await makeResponse.text();
     let makeData: any = {};
     try {
@@ -47,7 +45,7 @@ export async function POST(request: Request) {
     return NextResponse.json({
       success: true,
       message: '¡Generado con éxito!',
-      output: makeData.output || makeData.message || responseText || 'Contenido procesado correctamente por ClipStream AI',
+      output: makeData.output || makeData.url || makeData.message || responseText || 'Video procesado correctamente',
       remainingCredits: currentCredits - 1,
     });
 
