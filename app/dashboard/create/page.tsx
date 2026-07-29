@@ -3,6 +3,7 @@
 import { useState } from 'react';
 
 export default function CreatePage() {
+  const [contentType, setContentType] = useState('text');
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<string | null>(null);
@@ -20,7 +21,7 @@ export default function CreatePage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          type: 'text',
+          type: contentType,
           content: content,
           userCredits: credits,
         }),
@@ -50,7 +51,33 @@ export default function CreatePage() {
         </div>
       </div>
       
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Tus botones de selección originales */}
+        <div>
+          <label className="block text-sm font-medium text-gray-300 mb-2">Selecciona el tipo de entrada</label>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {[
+              { id: 'text', label: '📄 Texto / Idea' },
+              { id: 'youtube', label: '📺 URL de YouTube' },
+              { id: 'image', label: '🖼️ Imagen (URL)' },
+              { id: 'prompt', label: '✨ Prompt IA' },
+            ].map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => setContentType(item.id)}
+                className={`py-3 px-4 rounded-lg font-medium border transition ${
+                  contentType === item.id
+                    ? 'bg-purple-600 border-purple-400 text-white shadow-lg'
+                    : 'bg-gray-900 border-gray-700 text-gray-400 hover:bg-gray-800'
+                }`}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
         <textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
@@ -64,7 +91,7 @@ export default function CreatePage() {
           disabled={loading}
           className="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-lg transition disabled:opacity-50"
         >
-          {loading ? 'Generando contenido con IA...' : '🚀 Generar y Mostrar Resultado (-1 Crédito)'}
+          {loading ? 'Generando contenido con IA...' : '🚀 Enviar a Make y Generar (-1 Crédito)'}
         </button>
       </form>
 
