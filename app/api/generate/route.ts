@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
   try {
+    // Leemos el JSON una sola vez de forma limpia
     const body = await request.json();
     const { type, content, userCredits } = body;
 
@@ -34,19 +35,19 @@ export async function POST(request: Request) {
       throw new Error(`Make rechazó la conexión: ${errorText}`);
     }
 
-    // Intentamos leer la respuesta que manda Make/OpenAI
+    // Leemos la respuesta de Make de forma segura una sola vez
+    const responseText = await makeResponse.text();
     let makeData: any = {};
     try {
-      makeData = await makeResponse.json();
+      makeData = JSON.parse(responseText);
     } catch (e) {
-      // Si Make solo devuelve texto plano
-      makeData.output = await makeResponse.text();
+      makeData.output = responseText;
     }
 
     return NextResponse.json({
       success: true,
       message: '¡Generado con éxito!',
-      output: makeData.output || makeData.message || 'Contenido procesado correctamente por ClipStream AI',
+      output: makeData.output || makeData.message || responseText || 'Contenido procesado correctamente por ClipStream AI',
       remainingCredits: currentCredits - 1,
     });
 
