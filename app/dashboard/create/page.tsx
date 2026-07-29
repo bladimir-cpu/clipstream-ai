@@ -1,4 +1,3 @@
-'app/dashboard/create/page.tsx'
 'use client';
 
 import { useState } from 'react';
@@ -9,8 +8,7 @@ export default function CreatePage() {
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<string | null>(null);
-  const [isVideo, setIsVideo] = useState(false);
-  const [credits, setCredits] = useState(79);
+  const [credits, setCredits] = useState(100);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,7 +16,6 @@ export default function CreatePage() {
 
     setLoading(true);
     setResult(null);
-    setIsVideo(false);
 
     try {
       const response = await fetch('/api/generate', {
@@ -34,18 +31,13 @@ export default function CreatePage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Error al procesar la solicitud');
+        throw new Error(data.error || 'Error al conectar con Make');
       }
 
-      setCredits(data.remainingCredits);
-      const outputText = data.output || data.message || '';
-      setResult(outputText);
-      
-      if (outputText.startsWith('http') || outputText.includes('.mp4') || outputText.includes('w3schools.com')) {
-        setIsVideo(true);
-      }
+      setCredits(data.remainingCredits ?? credits - 1);
+      setResult(data.output || data.message || 'Procesado con éxito');
     } catch (error: any) {
-      alert(`Fallo: ${error.message}`);
+      alert('No se pudo conectar con el Webhook de Make. Asegúrate de que el escenario esté activo y dale a "Run once" en Make.');
     } finally {
       setLoading(false);
     }
@@ -53,7 +45,7 @@ export default function CreatePage() {
 
   return (
     <div className="min-h-screen bg-gray-950 text-white">
-      {/* Menú de Navegación Superior Completo */}
+      {/* Menú de Navegación Superior */}
       <nav className="bg-gray-900 border-b border-purple-500/30 px-6 py-4 flex flex-wrap justify-between items-center gap-4 shadow-md">
         <div className="flex items-center gap-3">
           <span className="text-xl font-black text-purple-400">⚡ ClipStream AI</span>
@@ -72,11 +64,12 @@ export default function CreatePage() {
       {/* Contenido Principal */}
       <div className="max-w-4xl mx-auto p-6 mt-6">
         <div className="text-center mb-6">
-          <h1 className="text-2xl font-bold text-white">Generador de Videos con Inteligencia Artificial</h1>
-          <p className="text-gray-400 text-sm mt-1">Escribe tu idea o prompt y deja que la IA cree el contenido por ti.</p>
+          <h1 className="text-2xl font-bold text-white">Estudio ClipStream - Generador con IA</h1>
+          <p className="text-gray-400 text-sm mt-1">Selecciona tu formato, escribe tu idea y conéctala con Make.</p>
         </div>
         
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit/handleSubmit className="space-y-6" onSubmit={handleSubmit}>
+          {/* Selector de las 4 opciones */}
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">Selecciona el tipo de entrada</label>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -105,7 +98,7 @@ export default function CreatePage() {
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            placeholder="Ej: Genera un video de niños jugando en la calle..."
+            placeholder="Escribe tu idea, enlace o prompt aquí..."
             className="w-full h-32 p-3 border rounded-lg bg-gray-900 text-white focus:outline-none focus:border-purple-500"
             rows={4}
           />
@@ -115,37 +108,16 @@ export default function CreatePage() {
             disabled={loading}
             className="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-lg transition disabled:opacity-50 shadow-lg"
           >
-            {loading ? '🎬 Generando video con IA...' : '🚀 Generar Video (-1 Crédito)'}
+            {loading ? '⏳ Conectando con Make...' : '🚀 Generar Contenido (-1 Crédito)'}
           </button>
         </form>
 
         {result && (
           <div className="mt-8 p-6 bg-gray-900 border border-purple-500 rounded-lg text-white shadow-xl">
-            <h3 className="text-lg font-semibold text-purple-400 mb-4">✨ Resultado de tu Video:</h3>
-            
-            {isVideo ? (
-              <div className="space-y-4 text-center">
-                <video 
-                  src={result} 
-                  controls 
-                  autoPlay 
-                  className="w-full max-h-[450px] rounded-lg border border-gray-700 mx-auto bg-black shadow"
-                />
-                <a 
-                  href={result} 
-                  download="video_generado.mp4" 
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-block px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg transition shadow"
-                >
-                  📥 Descargar Video MP4
-                </a>
-              </div>
-            ) : (
-              <div className="whitespace-pre-wrap bg-gray-950 p-4 rounded border border-gray-800 text-gray-200">
-                {result}
-              </div>
-            )}
+            <h3 className="text-lg font-semibold text-purple-400 mb-4">✨ Resultado de Make:</h3>
+            <div className="whitespace-pre-wrap bg-gray-950 p-4 rounded border border-gray-800 text-gray-200">
+              {result}
+            </div>
           </div>
         )}
       </div>
