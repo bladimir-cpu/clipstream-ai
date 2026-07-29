@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 
 export default function CreatePage() {
   const [contentType, setContentType] = useState('text');
@@ -8,7 +9,7 @@ export default function CreatePage() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<string | null>(null);
   const [isVideo, setIsVideo] = useState(false);
-  const [credits, setCredits] = useState(80);
+  const [credits, setCredits] = useState(79);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,10 +37,11 @@ export default function CreatePage() {
       }
 
       setCredits(data.remainingCredits);
-      setResult(data.output || data.message || '¡Contenido generado con éxito!');
+      const outputText = data.output || data.message || '';
+      setResult(outputText);
       
-      // Si el output de Make viene con una URL de video o termina en mp4
-      if (data.output && (data.output.startsWith('http') || data.output.includes('.mp4'))) {
+      // Forzamos a que si el resultado contiene un enlace de video o termina en mp4, lo pinte como reproductor
+      if (outputText.startsWith('http') || outputText.includes('.mp4') || outputText.includes('w3schools.com')) {
         setIsVideo(true);
       }
     } catch (error: any) {
@@ -51,11 +53,21 @@ export default function CreatePage() {
 
   return (
     <div className="max-w-4xl mx-auto p-6">
+      {/* Botón de retorno al Menú / Inicio */}
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-white">ClipStream AI - Generador de Videos</h1>
-        <div className="bg-purple-900 border border-purple-500 px-4 py-2 rounded-lg text-white font-semibold">
+        <Link 
+          href="/dashboard" 
+          className="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-purple-400 border border-purple-500/50 rounded-lg font-semibold transition flex items-center gap-2 shadow"
+        >
+          ⬅️ Volver al Menú
+        </Link>
+        <div className="bg-purple-900 border border-purple-500 px-4 py-2 rounded-lg text-white font-semibold shadow">
           ⚡ Créditos: {credits}
         </div>
+      </div>
+
+      <div className="text-center mb-6">
+        <h1 className="text-2xl font-bold text-white">ClipStream AI - Generador de Videos</h1>
       </div>
       
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -95,13 +107,12 @@ export default function CreatePage() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-lg transition disabled:opacity-50"
+          className="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-lg transition disabled:opacity-50 shadow-lg"
         >
-          {loading ? '🎬 Generando video con IA (esto puede tomar unos segundos)...' : '🚀 Generar Video (-1 Crédito)'}
+          {loading ? '🎬 Generando video con IA...' : '🚀 Generar Video (-1 Crédito)'}
         </button>
       </form>
 
-      {/* Pantalla donde el cliente ve el resultado final (Video o Texto) */}
       {result && (
         <div className="mt-8 p-6 bg-gray-800 border border-purple-500 rounded-lg text-white shadow-lg">
           <h3 className="text-lg font-semibold text-purple-400 mb-4">✨ Resultado de tu Video:</h3>
@@ -112,7 +123,7 @@ export default function CreatePage() {
                 src={result} 
                 controls 
                 autoPlay 
-                className="w-full max-h-[450px] rounded-lg border border-gray-700 mx-auto bg-black"
+                className="w-full max-h-[450px] rounded-lg border border-gray-700 mx-auto bg-black shadow"
               />
               <a 
                 href={result} 
