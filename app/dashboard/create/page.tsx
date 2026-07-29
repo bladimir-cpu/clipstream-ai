@@ -1,3 +1,4 @@
+'app/dashboard/create/page.tsx'
 'use client';
 
 import { useState } from 'react';
@@ -40,7 +41,6 @@ export default function CreatePage() {
       const outputText = data.output || data.message || '';
       setResult(outputText);
       
-      // Forzamos a que si el resultado contiene un enlace de video o termina en mp4, lo pinte como reproductor
       if (outputText.startsWith('http') || outputText.includes('.mp4') || outputText.includes('w3schools.com')) {
         setIsVideo(true);
       }
@@ -52,96 +52,103 @@ export default function CreatePage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      {/* Botón de retorno al Menú / Inicio */}
-      <div className="flex justify-between items-center mb-6">
-        <Link 
-          href="/dashboard" 
-          className="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-purple-400 border border-purple-500/50 rounded-lg font-semibold transition flex items-center gap-2 shadow"
-        >
-          ⬅️ Volver al Menú
-        </Link>
-        <div className="bg-purple-900 border border-purple-500 px-4 py-2 rounded-lg text-white font-semibold shadow">
+    <div className="min-h-screen bg-gray-950 text-white">
+      {/* Menú de Navegación Superior Completo */}
+      <nav className="bg-gray-900 border-b border-purple-500/30 px-6 py-4 flex flex-wrap justify-between items-center gap-4 shadow-md">
+        <div className="flex items-center gap-3">
+          <span className="text-xl font-black text-purple-400">⚡ ClipStream AI</span>
+        </div>
+        <div className="flex items-center gap-6 font-medium text-sm">
+          <Link href="/dashboard" className="hover:text-purple-400 transition">🏠 Inicio</Link>
+          <Link href="/dashboard/create" className="text-purple-400 font-bold">🎬 Crear</Link>
+          <Link href="/dashboard/planes" className="hover:text-purple-400 transition">💎 Planes</Link>
+          <Link href="/dashboard/creditos" className="hover:text-purple-400 transition">💳 Comprar Créditos</Link>
+        </div>
+        <div className="bg-purple-900/80 border border-purple-500 px-4 py-1.5 rounded-lg text-sm font-bold shadow">
           ⚡ Créditos: {credits}
         </div>
-      </div>
+      </nav>
 
-      <div className="text-center mb-6">
-        <h1 className="text-2xl font-bold text-white">ClipStream AI - Generador de Videos</h1>
-      </div>
-      
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div>
-          <label className="block text-sm font-medium text-gray-300 mb-2">Selecciona el tipo de entrada</label>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            {[
-              { id: 'text', label: '📄 Texto / Idea' },
-              { id: 'youtube', label: '📺 URL de YouTube' },
-              { id: 'image', label: '🖼️ Imagen (URL)' },
-              { id: 'prompt', label: '✨ Prompt IA' },
-            ].map((item) => (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => setContentType(item.id)}
-                className={`py-3 px-4 rounded-lg font-medium border transition ${
-                  contentType === item.id
-                    ? 'bg-purple-600 border-purple-400 text-white shadow-lg'
-                    : 'bg-gray-900 border-gray-700 text-gray-400 hover:bg-gray-800'
-                }`}
-              >
-                {item.label}
-              </button>
-            ))}
-          </div>
+      {/* Contenido Principal */}
+      <div className="max-w-4xl mx-auto p-6 mt-6">
+        <div className="text-center mb-6">
+          <h1 className="text-2xl font-bold text-white">Generador de Videos con Inteligencia Artificial</h1>
+          <p className="text-gray-400 text-sm mt-1">Escribe tu idea o prompt y deja que la IA cree el contenido por ti.</p>
         </div>
-
-        <textarea
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          placeholder="Ej: Niños jugando en la escuela de forma alegre..."
-          className="w-full h-32 p-3 border rounded-lg bg-gray-900 text-white focus:outline-none focus:border-purple-500"
-          rows={4}
-        />
         
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-lg transition disabled:opacity-50 shadow-lg"
-        >
-          {loading ? '🎬 Generando video con IA...' : '🚀 Generar Video (-1 Crédito)'}
-        </button>
-      </form>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">Selecciona el tipo de entrada</label>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {[
+                { id: 'text', label: '📄 Texto / Idea' },
+                { id: 'youtube', label: '📺 URL de YouTube' },
+                { id: 'image', label: '🖼️ Imagen (URL)' },
+                { id: 'prompt', label: '✨ Prompt IA' },
+              ].map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => setContentType(item.id)}
+                  className={`py-3 px-4 rounded-lg font-medium border transition ${
+                    contentType === item.id
+                      ? 'bg-purple-600 border-purple-400 text-white shadow-lg'
+                      : 'bg-gray-900 border-gray-700 text-gray-400 hover:bg-gray-800'
+                  }`}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+          </div>
 
-      {result && (
-        <div className="mt-8 p-6 bg-gray-800 border border-purple-500 rounded-lg text-white shadow-lg">
-          <h3 className="text-lg font-semibold text-purple-400 mb-4">✨ Resultado de tu Video:</h3>
+          <textarea
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            placeholder="Ej: Genera un video de niños jugando en la calle..."
+            className="w-full h-32 p-3 border rounded-lg bg-gray-900 text-white focus:outline-none focus:border-purple-500"
+            rows={4}
+          />
           
-          {isVideo ? (
-            <div className="space-y-4 text-center">
-              <video 
-                src={result} 
-                controls 
-                autoPlay 
-                className="w-full max-h-[450px] rounded-lg border border-gray-700 mx-auto bg-black shadow"
-              />
-              <a 
-                href={result} 
-                download="video_generado.mp4" 
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-block px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg transition shadow"
-              >
-                📥 Descargar Video MP4
-              </a>
-            </div>
-          ) : (
-            <div className="whitespace-pre-wrap bg-gray-900 p-4 rounded border border-gray-700 text-gray-200">
-              {result}
-            </div>
-          )}
-        </div>
-      )}
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-lg transition disabled:opacity-50 shadow-lg"
+          >
+            {loading ? '🎬 Generando video con IA...' : '🚀 Generar Video (-1 Crédito)'}
+          </button>
+        </form>
+
+        {result && (
+          <div className="mt-8 p-6 bg-gray-900 border border-purple-500 rounded-lg text-white shadow-xl">
+            <h3 className="text-lg font-semibold text-purple-400 mb-4">✨ Resultado de tu Video:</h3>
+            
+            {isVideo ? (
+              <div className="space-y-4 text-center">
+                <video 
+                  src={result} 
+                  controls 
+                  autoPlay 
+                  className="w-full max-h-[450px] rounded-lg border border-gray-700 mx-auto bg-black shadow"
+                />
+                <a 
+                  href={result} 
+                  download="video_generado.mp4" 
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg transition shadow"
+                >
+                  📥 Descargar Video MP4
+                </a>
+              </div>
+            ) : (
+              <div className="whitespace-pre-wrap bg-gray-950 p-4 rounded border border-gray-800 text-gray-200">
+                {result}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
