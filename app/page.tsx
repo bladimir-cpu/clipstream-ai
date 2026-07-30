@@ -10,15 +10,15 @@ export default function HomePage() {
 
   const handleAccess = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password) return;
+    if (!email) return;
     
     setLoading(true);
-    // Guardamos la sesión localmente para dar acceso inmediato y seguro al estudio
+    // Guardamos el correo exacto en el navegador para mostrarlo luego en el menú
     localStorage.setItem('clipstream_session', email);
     
     setTimeout(() => {
       router.push('/dashboard/create');
-    }, 500);
+    }, 400);
   };
 
   const handleGoogleAccess = () => {
@@ -29,21 +29,23 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-[#0B0F19] text-white flex flex-col items-center justify-between p-4 md:p-8">
       
-      {/* Menú Superior Original */}
-      <div className="w-full max-w-5xl bg-[#161D2E] border border-gray-800 p-4 rounded-2xl shadow-xl flex justify-between items-center mb-6">
+      {/* Menú Superior Fijo e Intacto */}
+      <div className="w-full max-w-5xl bg-[#161D2E] border border-gray-800 p-4 rounded-2xl shadow-xl flex justify-between items-center mb-6 sticky top-4 z-50">
         <div className="flex items-center gap-2">
           <span className="text-sm font-bold text-purple-300">🚀 ClipStream AI</span>
         </div>
         <div className="flex items-center gap-4 text-sm font-medium">
-          <button onClick={() => router.push('/dashboard/create')} className="text-gray-300 hover:text-purple-400 cursor-pointer">Crear</button>
+          <button onClick={() => router.push('/')} className="text-gray-300 hover:text-purple-400 cursor-pointer">🏠 Inicio</button>
           <span className="text-gray-700">|</span>
-          <button onClick={() => router.push('/pricing')} className="text-purple-400 hover:text-purple-300 font-semibold cursor-pointer">Planes y Precios</button>
+          <button onClick={() => router.push('/dashboard/create')} className="text-gray-300 hover:text-purple-400 cursor-pointer">🎬 Crear</button>
+          <span className="text-gray-700">|</span>
+          <button onClick={() => router.push('/pricing')} className="text-purple-400 hover:text-purple-300 font-semibold cursor-pointer">💎 Planes y Precios</button>
         </div>
       </div>
 
       <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-12 items-center my-auto">
         
-        {/* Columna Izquierda: Presentación intacta */}
+        {/* Columna Izquierda: Presentación e Imagen Original */}
         <div className="space-y-6">
           <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight">
             ¡Maximiza tu <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">Contenido!</span>
@@ -52,6 +54,15 @@ export default function HomePage() {
           <p className="text-gray-400 leading-relaxed text-sm md:text-base">
             ClipStream AI utiliza tecnología de vanguardia para analizar tus vídeos largos, extraer automáticamente los momentos más impactantes y convertirlos en clips cortos y dinámicos para redes sociales. Con subtítulos automáticos y formatos adaptables, ahorra horas de edición y aumenta tu alcance orgánico.
           </p>
+          
+          {/* Imagen de Portada Reintegrada */}
+          <div className="rounded-2xl overflow-hidden border border-purple-500/30 shadow-2xl bg-[#161D2E] p-2">
+            <img 
+              src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1000&auto=format&fit=crop" 
+              alt="ClipStream AI Preview" 
+              className="w-full h-48 object-cover rounded-xl opacity-90 hover:opacity-100 transition"
+            />
+          </div>
         </div>
 
         {/* Columna Derecha: Panel de Acceso Blindado */}
