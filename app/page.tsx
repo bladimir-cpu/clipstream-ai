@@ -20,10 +20,10 @@ export default function HomePage() {
 
   const handleAuth = (e: React.FormEvent) => {
     e.preventDefault();
-    // Simulamos el inicio de sesión o registro y le damos sus 100 créditos gratis iniciales
+    // Simulamos el inicio de sesión o registro y le damos sus 30 créditos gratis iniciales
     localStorage.setItem('clipstream_session', JSON.stringify({ 
       email: email, 
-      credits: 100,
+      credits: 30,
       isPremium: false
     }));
     router.push('/dashboard/create');
@@ -106,7 +106,7 @@ export default function HomePage() {
                 <span className="text-3xl">✅</span>
               </div>
               <h3 className="text-lg font-bold text-white">¡Ya estás dentro!</h3>
-              <p className="text-sm text-gray-400">Tu sesión está activa y tienes 100 créditos gratis disponibles para usar hoy.</p>
+              <p className="text-sm text-gray-400">Tu sesión está activa y tienes 30 créditos gratis disponibles para usar hoy.</p>
               
               <button 
                 onClick={() => router.push('/dashboard/create')}
@@ -166,7 +166,7 @@ export default function HomePage() {
                 type="submit" 
                 className="w-full py-3.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold rounded-xl text-sm transition shadow-lg mt-2 cursor-pointer"
               >
-                {isLoginMode ? 'Ingresar al Estudio' : 'Crear Cuenta (100 Créditos Gratis)'}
+                {isLoginMode ? 'Ingresar al Estudio' : 'Crear Cuenta (30 Créditos Gratis)'}
               </button>
 
               <div className="text-center pt-2">
