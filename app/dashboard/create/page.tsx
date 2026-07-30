@@ -52,15 +52,18 @@ export default function CreatePage() {
 
   return (
     <div className="min-h-screen bg-gray-950 text-white">
-      {/* Menú de Navegación Superior Anclado */}
+      {/* Menú de Navegación Superior Limpio y Directo */}
       <nav className="sticky top-0 z-50 bg-gray-900 border-b border-purple-500/30 px-6 py-4 flex flex-wrap justify-between items-center gap-4 shadow-md">
         <div className="flex items-center gap-3">
           <span className="text-xl font-black text-purple-400">⚡ ClipStream AI</span>
         </div>
+        
         <div className="flex items-center gap-6 font-medium text-sm">
-          <Link href="/" className="hover:text-purple-400 transition">🏠 Inicio</Link>
-          <Link href="/dashboard/create" className="text-purple-400 font-bold">🎬 Crear</Link>
+          <Link href="/" className="hover:text-purple-400 transition flex items-center gap-1">🏠 Inicio</Link>
+          <Link href="/dashboard/create" className="text-purple-400 font-bold flex items-center gap-1">🎬 Crear</Link>
+          <Link href="/pricing" className="hover:text-purple-400 transition flex items-center gap-1">💎 Planes y Precios</Link>
         </div>
+
         <div className="flex items-center gap-4">
           <div className="bg-purple-900/80 border border-purple-500 px-4 py-1.5 rounded-lg text-sm font-bold shadow text-white">
             ⚡ Créditos: {credits}
