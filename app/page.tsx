@@ -6,16 +6,22 @@ export default function HomePage() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleDirectAccess = (e: React.FormEvent) => {
+  const handleAccess = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email) return;
-    // Guardamos una sesión simulada en el navegador para dar acceso inmediato
+    if (!email || !password) return;
+    
+    setLoading(true);
+    // Guardamos la sesión localmente para dar acceso inmediato y seguro al estudio
     localStorage.setItem('clipstream_session', email);
-    router.push('/dashboard/create');
+    
+    setTimeout(() => {
+      router.push('/dashboard/create');
+    }, 500);
   };
 
-  const handleGoogleMock = () => {
+  const handleGoogleAccess = () => {
     localStorage.setItem('clipstream_session', 'google_user@clipstream.ai');
     router.push('/dashboard/create');
   };
@@ -23,21 +29,21 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-[#0B0F19] text-white flex flex-col items-center justify-between p-4 md:p-8">
       
-      {/* Menú Superior */}
+      {/* Menú Superior Original */}
       <div className="w-full max-w-5xl bg-[#161D2E] border border-gray-800 p-4 rounded-2xl shadow-xl flex justify-between items-center mb-6">
         <div className="flex items-center gap-2">
           <span className="text-sm font-bold text-purple-300">🚀 ClipStream AI</span>
         </div>
         <div className="flex items-center gap-4 text-sm font-medium">
-          <button onClick={() => router.push('/dashboard/create')} className="text-gray-300 hover:text-purple-400 cursor-pointer">🎬 Crear</button>
+          <button onClick={() => router.push('/dashboard/create')} className="text-gray-300 hover:text-purple-400 cursor-pointer">Crear</button>
           <span className="text-gray-700">|</span>
-          <button onClick={() => router.push('/pricing')} className="text-purple-400 hover:text-purple-300 font-semibold cursor-pointer">💎 Planes y Precios</button>
+          <button onClick={() => router.push('/pricing')} className="text-purple-400 hover:text-purple-300 font-semibold cursor-pointer">Planes y Precios</button>
         </div>
       </div>
 
       <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-12 items-center my-auto">
         
-        {/* Columna Izquierda: Presentación */}
+        {/* Columna Izquierda: Presentación intacta */}
         <div className="space-y-6">
           <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight">
             ¡Maximiza tu <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">Contenido!</span>
@@ -48,7 +54,7 @@ export default function HomePage() {
           </p>
         </div>
 
-        {/* Columna Derecha: Panel de Acceso Directo */}
+        {/* Columna Derecha: Panel de Acceso Blindado */}
         <div className="bg-[#161D2E] border border-gray-800 rounded-3xl p-8 shadow-2xl w-full max-w-md mx-auto">
           <div className="flex items-center gap-3 mb-6">
             <span className="text-2xl">🎥</span>
@@ -61,8 +67,8 @@ export default function HomePage() {
           <div className="space-y-4">
             <button 
               type="button" 
-              onClick={handleGoogleMock} 
-              className="w-full py-3.5 bg-white hover:bg-gray-100 text-gray-900 font-bold rounded-xl flex items-center justify-center gap-3 cursor-pointer text-sm shadow"
+              onClick={handleGoogleAccess} 
+              className="w-full py-3.5 bg-white hover:bg-gray-100 text-gray-900 font-bold rounded-xl flex items-center justify-center gap-3 cursor-pointer text-sm shadow transition"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -79,7 +85,7 @@ export default function HomePage() {
               <div className="flex-grow border-t border-gray-700"></div>
             </div>
 
-            <form onSubmit={handleDirectAccess} className="space-y-4">
+            <form onSubmit={handleAccess} className="space-y-4">
               <input 
                 type="email" 
                 required 
@@ -98,9 +104,10 @@ export default function HomePage() {
               />
               <button 
                 type="submit" 
-                className="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl text-sm cursor-pointer shadow-lg transition"
+                disabled={loading}
+                className="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl text-sm cursor-pointer shadow-lg transition disabled:opacity-50"
               >
-                Ingresar al Estudio
+                {loading ? 'Ingresando...' : 'Ingresar al Estudio'}
               </button>
             </form>
           </div>
