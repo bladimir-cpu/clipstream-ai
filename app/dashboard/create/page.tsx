@@ -46,21 +46,20 @@ export default function CreatePage() {
   };
 
   const handleLogout = () => {
+    localStorage.removeItem('clipstream_session');
     router.push('/');
   };
 
   return (
     <div className="min-h-screen bg-gray-950 text-white">
-      {/* Menú de Navegación Superior Anclado */}
+      {/* Menú de Navegación Superior Anclado y Corregido */}
       <nav className="sticky top-0 z-50 bg-gray-900 border-b border-purple-500/30 px-6 py-4 flex flex-wrap justify-between items-center gap-4 shadow-md">
         <div className="flex items-center gap-3">
           <span className="text-xl font-black text-purple-400">⚡ ClipStream AI</span>
         </div>
         <div className="flex items-center gap-6 font-medium text-sm">
-          <Link href="/dashboard" className="hover:text-purple-400 transition">🏠 Inicio</Link>
+          <Link href="/" className="hover:text-purple-400 transition">🏠 Inicio</Link>
           <Link href="/dashboard/create" className="text-purple-400 font-bold">🎬 Crear</Link>
-          <Link href="/dashboard/planes" className="hover:text-purple-400 transition">💎 Planes</Link>
-          <Link href="/dashboard/creditos" className="hover:text-purple-400 transition">💳 Comprar Créditos</Link>
         </div>
         <div className="flex items-center gap-4">
           <div className="bg-purple-900/80 border border-purple-500 px-4 py-1.5 rounded-lg text-sm font-bold shadow text-white">
@@ -68,7 +67,7 @@ export default function CreatePage() {
           </div>
           <button 
             onClick={handleLogout}
-            className="px-3 py-1.5 bg-red-600/80 hover:bg-red-700 text-white text-sm font-semibold rounded-lg transition shadow"
+            className="px-3 py-1.5 bg-red-600/80 hover:bg-red-700 text-white text-sm font-semibold rounded-lg transition shadow cursor-pointer"
           >
             🚪 Salir
           </button>
@@ -114,13 +113,14 @@ export default function CreatePage() {
             onChange={(e) => setContent(e.target.value)}
             placeholder="Escribe tu idea, enlace o prompt aquí..."
             className="w-full h-32 p-3 border rounded-lg bg-gray-900 text-white focus:outline-none focus:border-purple-500"
+            rows/={4}
             rows={4}
           />
           
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-lg transition disabled:opacity-50 shadow-lg"
+            className="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-lg transition disabled:opacity-50 shadow-lg cursor-pointer"
           >
             {loading ? '⏳ Conectando con Make...' : '🚀 Generar Contenido (-1 Crédito)'}
           </button>
