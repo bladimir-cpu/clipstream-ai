@@ -52,7 +52,7 @@ export default function CreatePage() {
 
   return (
     <div className="min-h-screen bg-gray-950 text-white">
-      {/* Menú de Navegación Superior Limpio y Directo */}
+      {/* Menú de Navegación Superior Completo */}
       <nav className="sticky top-0 z-50 bg-gray-900 border-b border-purple-500/30 px-6 py-4 flex flex-wrap justify-between items-center gap-4 shadow-md">
         <div className="flex items-center gap-3">
           <span className="text-xl font-black text-purple-400">⚡ ClipStream AI</span>
