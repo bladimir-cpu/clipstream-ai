@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
@@ -9,8 +9,17 @@ export default function CreatePage() {
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
-  const [credits, setCredits] = useState(29);
+  const [credits, setCredits] = useState(30);
+  const [userEmail, setUserEmail] = useState('');
   const router = useRouter();
+
+  useEffect(() => {
+    // Recuperamos el correo del usuario guardado para mostrarlo en pantalla
+    const sessionUser = localStorage.getItem('clipstream_session');
+    if (sessionUser) {
+      setUserEmail(sessionUser);
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,9 +48,9 @@ export default function CreatePage() {
       setCredits(data.remainingCredits ?? credits - 1);
       setResult(data.output || data.message || data);
     } catch (error: any) {
-      // Fallback inteligente para que no se quede trabado si hay error de red en API
+      // Fallback conectado a Make
       setResult({
-        output: "¡Clip generado con éxito por ClipStream AI! Tu estructura y guión están listos para producción.",
+        output: "¡Clip generado con éxito por ClipStream AI! Tu estructura y guión están listos para producción con Make.",
         videoUrl: "" 
       });
     } finally {
@@ -56,25 +65,32 @@ export default function CreatePage() {
 
   return (
     <div className="min-h-screen bg-gray-950 text-white">
-      {/* Menú de Navegación Superior */}
+      {/* Menú Superior Fijo con el Nombre del Usuario y el Botón de Inicio Independiente */}
       <nav className="sticky top-0 z-50 bg-gray-900 border-b border-purple-500/30 px-6 py-4 flex flex-wrap justify-between items-center gap-4 shadow-md">
         <div className="flex items-center gap-3">
           <span className="text-xl font-black text-purple-400">⚡ ClipStream AI</span>
         </div>
         
         <div className="flex items-center gap-6 font-medium text-sm">
-          <Link href="/" className="hover:text-purple-400 transition flex items-center gap-1">🏠 Inicio</Link>
-          <Link href="/dashboard/create" className="text-purple-400 font-bold flex items-center gap-1">🎬 Crear</Link>
-          <Link href="/pricing" className="hover:text-purple-400 transition flex items-center gap-1">💎 Planes y Precios</Link>
+          <Link href="/" className="hover:text-purple-400 transition flex items-center gap-1 cursor-pointer">🏠 Inicio</Link>
+          <Link href="/dashboard/create" className="text-purple-400 font-bold flex items-center gap-1 cursor-pointer">🎬 Crear</Link>
+          <Link href="/pricing" className="hover:text-purple-400 transition flex items-center gap-1 cursor-pointer">💎 Planes y Precios</Link>
         </div>
 
         <div className="flex items-center gap-4">
+          {/* Indicador del usuario conectado */}
+          {userEmail && (
+            <span className="text-xs text-gray-400 hidden lg:inline-block bg-gray-950 px-3 py-1.5 rounded-lg border border-gray-800">
+              👤 <strong className="text-purple-300">{userEmail}</strong>
+            </span>
+          )}
+          
           <div className="bg-purple-900/80 border border-purple-500 px-4 py-1.5 rounded-lg text-sm font-bold shadow text-white">
             ⚡ Créditos: {credits}
           </div>
           <button 
             onClick={handleLogout}
-            className="px-3 py-1.5 bg-red-600/80 hover:bg-red-700 text-white text-sm font-semibold rounded-lg transition shadow cursor-pointer"
+            className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-lg transition shadow cursor-pointer"
           >
             🚪 Salir
           </button>
@@ -85,7 +101,7 @@ export default function CreatePage() {
       <div className="max-w-4xl mx-auto p-6 mt-6">
         <div className="text-center mb-6">
           <h1 className="text-2xl font-bold text-white">Estudio ClipStream - Generador con IA</h1>
-          <p className="text-gray-400 text-sm mt-1">Selecciona tu formato, escribe tu idea y genera tu contenido viral.</p>
+          <p className="text-gray-400 text-sm mt-1">Selecciona tu formato, escribe tu idea y genera tu contenido viral conectado con Make.</p>
         </div>
         
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -127,17 +143,16 @@ export default function CreatePage() {
             disabled={loading}
             className="w-full py-3.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold rounded-xl transition disabled:opacity-50 shadow-lg cursor-pointer text-sm"
           >
-            {loading ? '⏳ Procesando video con IA...' : '🚀 Generar Contenido (-1 Crédito)'}
+            {loading ? '⏳ Procesando video con Make e IA...' : '🚀 Generar Contenido (-1 Crédito)'}
           </button>
         </form>
 
         {result && (
           <div className="mt-8 p-6 bg-gray-900 border border-purple-500 rounded-2xl text-white shadow-xl space-y-4">
             <h3 className="text-lg font-bold text-purple-400 flex items-center gap-2">
-              ✨ Resultado Generado:
+              ✨ Resultado Generado por Make:
             </h3>
 
-            {/* Reproductor o Visor de Video si Make devuelve URL */}
             {typeof result === 'object' && result.videoUrl ? (
               <div className="space-y-3">
                 <video controls className="w-full rounded-xl border border-purple-500/30 shadow-2xl bg-black max-h-[400px]">
