@@ -13,7 +13,6 @@ export default function HomePage() {
     if (!email) return;
     
     setLoading(true);
-    // Guardamos el correo exacto en el navegador para mostrarlo luego en el menú
     localStorage.setItem('clipstream_session', email);
     
     setTimeout(() => {
@@ -55,7 +54,7 @@ export default function HomePage() {
             ClipStream AI utiliza tecnología de vanguardia para analizar tus vídeos largos, extraer automáticamente los momentos más impactantes y convertirlos en clips cortos y dinámicos para redes sociales. Con subtítulos automáticos y formatos adaptables, ahorra horas de edición y aumenta tu alcance orgánico.
           </p>
           
-          {/* Imagen de Portada Reintegrada */}
+          {/* Imagen de Portada */}
           <div className="rounded-2xl overflow-hidden border border-purple-500/30 shadow-2xl bg-[#161D2E] p-2">
             <img 
               src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1000&auto=format&fit=crop" 
@@ -65,7 +64,7 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Columna Derecha: Panel de Acceso Blindado */}
+        {/* Columna Derecha: Panel de Acceso Blindado sin Errores de Supabase */}
         <div className="bg-[#161D2E] border border-gray-800 rounded-3xl p-8 shadow-2xl w-full max-w-md mx-auto">
           <div className="flex items-center gap-3 mb-6">
             <span className="text-2xl">🎥</span>
