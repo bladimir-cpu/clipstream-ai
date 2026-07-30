@@ -52,7 +52,7 @@ export default function CreatePage() {
 
   return (
     <div className="min-h-screen bg-gray-950 text-white">
-      {/* Menú de Navegación Superior Anclado y Corregido */}
+      {/* Menú de Navegación Superior Anclado */}
       <nav className="sticky top-0 z-50 bg-gray-900 border-b border-purple-500/30 px-6 py-4 flex flex-wrap justify-between items-center gap-4 shadow-md">
         <div className="flex items-center gap-3">
           <span className="text-xl font-black text-purple-400">⚡ ClipStream AI</span>
@@ -113,7 +113,6 @@ export default function CreatePage() {
             onChange={(e) => setContent(e.target.value)}
             placeholder="Escribe tu idea, enlace o prompt aquí..."
             className="w-full h-32 p-3 border rounded-lg bg-gray-900 text-white focus:outline-none focus:border-purple-500"
-            rows/={4}
             rows={4}
           />
           
