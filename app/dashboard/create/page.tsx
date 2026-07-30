@@ -2,13 +2,15 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function CreatePage() {
   const [contentType, setContentType] = useState('text');
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<string | null>(null);
-  const [credits, setCredits] = useState(100);
+  const [credits, setCredits] = useState(30);
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,10 +45,14 @@ export default function CreatePage() {
     }
   };
 
+  const handleLogout = () => {
+    router.push('/');
+  };
+
   return (
     <div className="min-h-screen bg-gray-950 text-white">
-      {/* Menú de Navegación Superior */}
-      <nav className="bg-gray-900 border-b border-purple-500/30 px-6 py-4 flex flex-wrap justify-between items-center gap-4 shadow-md">
+      {/* Menú de Navegación Superior Anclado */}
+      <nav className="sticky top-0 z-50 bg-gray-900 border-b border-purple-500/30 px-6 py-4 flex flex-wrap justify-between items-center gap-4 shadow-md">
         <div className="flex items-center gap-3">
           <span className="text-xl font-black text-purple-400">⚡ ClipStream AI</span>
         </div>
@@ -56,8 +62,16 @@ export default function CreatePage() {
           <Link href="/dashboard/planes" className="hover:text-purple-400 transition">💎 Planes</Link>
           <Link href="/dashboard/creditos" className="hover:text-purple-400 transition">💳 Comprar Créditos</Link>
         </div>
-        <div className="bg-purple-900/80 border border-purple-500 px-4 py-1.5 rounded-lg text-sm font-bold shadow">
-          ⚡ Créditos: {credits}
+        <div className="flex items-center gap-4">
+          <div className="bg-purple-900/80 border border-purple-500 px-4 py-1.5 rounded-lg text-sm font-bold shadow text-white">
+            ⚡ Créditos: {credits}
+          </div>
+          <button 
+            onClick={handleLogout}
+            className="px-3 py-1.5 bg-red-600/80 hover:bg-red-700 text-white text-sm font-semibold rounded-lg transition shadow"
+          >
+            🚪 Salir
+          </button>
         </div>
       </nav>
 
@@ -68,7 +82,7 @@ export default function CreatePage() {
           <p className="text-gray-400 text-sm mt-1">Selecciona tu formato, escribe tu idea y conéctala con Make.</p>
         </div>
         
-        <form onSubmit/handleSubmit className="space-y-6" onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className="space-y-6">
           {/* Selector de las 4 opciones */}
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">Selecciona el tipo de entrada</label>
