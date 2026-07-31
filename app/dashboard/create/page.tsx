@@ -18,7 +18,6 @@ export default function CreatePage() {
     if (sessionUser) {
       setUserEmail(sessionUser);
     } else {
-      // Si no hay sesión, regresa al login
       router.push('/');
     }
   }, [router]);
@@ -66,7 +65,7 @@ export default function CreatePage() {
 
   return (
     <div className="min-h-screen bg-gray-950 text-white">
-      {/* Menú Superior Fijo */}
+      {/* Menú Superior Fijo e Intacto */}
       <nav className="sticky top-0 z-50 bg-gray-900 border-b border-purple-500/30 px-6 py-4 flex flex-wrap justify-between items-center gap-4 shadow-md">
         <div className="flex items-center gap-3">
           <span className="text-xl font-black text-purple-400">⚡ ClipStream AI</span>
