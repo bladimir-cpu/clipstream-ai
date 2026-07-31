@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 export default function HomePage() {
@@ -7,6 +7,14 @@ export default function HomePage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    // Si ya hay una sesión activa, el botón de Inicio o entrar a la home redirige directo al estudio
+    const activeSession = localStorage.getItem('clipstream_session');
+    if (activeSession) {
+      router.push('/dashboard/create');
+    }
+  }, [router]);
 
   const handleAccess = (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,8 +29,12 @@ export default function HomePage() {
   };
 
   const handleGoogleAccess = () => {
-    localStorage.setItem('clipstream_session', 'google_user@clipstream.ai');
-    router.push('/dashboard/create');
+    // Pide mediante un cuadro limpio la dirección de Google con la que desea entrar
+    const googleEmail = prompt("Ingresa tu correo de Google para continuar:", "usuario@gmail.com");
+    if (googleEmail && googleEmail.trim() !== "") {
+      localStorage.setItem('clipstream_session', googleEmail.trim());
+      router.push('/dashboard/create');
+    }
   };
 
   return (
@@ -44,7 +56,7 @@ export default function HomePage() {
 
       <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-12 items-center my-auto">
         
-        {/* Columna Izquierda: Presentación e Imagen de Portada Completa */}
+        {/* Columna Izquierda: Presentación y Nueva Imagen Estilo Profesional */}
         <div className="space-y-6">
           <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight">
             ¡Maximiza tu <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">Contenido!</span>
@@ -54,17 +66,17 @@ export default function HomePage() {
             ClipStream AI utiliza tecnología de vanguardia para analizar tus vídeos largos, extraer automáticamente los momentos más impactantes y convertirlos en clips cortos y dinámicos para redes sociales. Con subtítulos automáticos y formatos adaptables, ahorra horas de edición y aumenta tu alcance orgánico.
           </p>
           
-          {/* Imagen de Portada */}
+          {/* Nueva Imagen Estilo Corporativo/IA */}
           <div className="rounded-2xl overflow-hidden border border-purple-500/30 shadow-2xl bg-[#161D2E] p-2">
             <img 
-              src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1000&auto=format&fit=crop" 
-              alt="ClipStream AI Preview" 
-              className="w-full h-48 object-cover rounded-xl opacity-90 hover:opacity-100 transition"
+              src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1200&auto=format&fit=crop" 
+              alt="ClipStream AI Dashboard Preview" 
+              className="w-full h-52 object-cover rounded-xl opacity-95 hover:opacity-100 transition"
             />
           </div>
         </div>
 
-        {/* Columna Derecha: Panel de Acceso Directo Funcional */}
+        {/* Columna Derecha: Panel de Acceso Personalizado */}
         <div className="bg-[#161D2E] border border-gray-800 rounded-3xl p-8 shadow-2xl w-full max-w-md mx-auto">
           <div className="flex items-center gap-3 mb-6">
             <span className="text-2xl">🎥</span>
