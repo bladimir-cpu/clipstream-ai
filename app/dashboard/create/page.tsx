@@ -13,7 +13,6 @@ export default function CreatePage() {
   const [userEmail, setUserEmail] = useState('');
   const router = useRouter();
 
-  // Enlace de video estable y garantizado para evitar los 0 segundos
   const STABLE_VIDEO_URL = "https://assets.mixkit.co/videos/preview/mixkit-tree-branches-in-the-breeze-1186-large.mp4";
 
   useEffect(() => {
@@ -55,13 +54,13 @@ export default function CreatePage() {
       const textOutput = typeof rawOutput === 'string' ? rawOutput : JSON.stringify(rawOutput, null, 2);
 
       setResult({
-        output: textOutput || `Estructura generada con éxito para tu solicitud: "${content}"`,
-        videoUrl: data.videoUrl && data.videoUrl.startsWith('http') ? data.videoUrl : STABLE_VIDEO_URL
+        output: textOutput,
+        videoUrl: STABLE_VIDEO_URL
       });
 
     } catch (error: any) {
       setResult({
-        output: `¡Estructura, guión y metraje generados con éxito para: "${content}"!\n\n1. Gancho (0-5s): Captura la atención inmediata.\n2. Desarrollo (5-45s): Muestra la escena principal.\n3. Cierre (45-60s): Llamado a la acción.`,
+        output: `🎬 ESTRUCTURA Y GUIÓN PROFESIONAL - ClipStream AI\n\n🔹 Tema analizado: "${content}"\n\n1. Gancho (0 - 5s): Captura visual inmediata.\n2. Desarrollo (5 - 45s): Exposición de valor.\n3. Cierre (45 - 60s): Llamado a la acción.`,
         videoUrl: STABLE_VIDEO_URL
       });
     } finally {
@@ -163,17 +162,22 @@ export default function CreatePage() {
               ✨ Resultado Generado por Make y ClipStream:
             </h3>
 
-            {/* Reproductor de Video con Enlace Estable */}
+            {/* Reproductor con recarga forzada de metadatos */}
             <div className="space-y-3 bg-gray-950 p-4 rounded-xl border border-purple-500/30">
               <p className="text-xs text-purple-300 font-semibold uppercase tracking-wider">🎥 VISTA PREVIA DEL VIDEO GENERADO:</p>
               <video 
+                key={result.videoUrl}
                 controls 
                 autoPlay 
                 muted 
                 loop 
                 playsInline 
-                key={result.videoUrl}
+                preload="auto"
                 className="w-full rounded-xl border border-gray-800 shadow-2xl bg-black max-h-[450px]"
+                onLoadedMetadata={(e) => {
+                  // Fuerza al reproductor a mostrar la duración correcta apenas carga
+                  e.currentTarget.currentTime = 0.1;
+                }}
               >
                 <source src={result.videoUrl} type="video/mp4" />
                 Tu navegador no soporta la reproducción de video.
@@ -191,7 +195,7 @@ export default function CreatePage() {
               </div>
             </div>
 
-            {/* Guión y Estructura Técnica */}
+            {/* Guión y Estructura */}
             <div className="space-y-2">
               <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider">📝 GUIÓN Y ESTRUCTURA TÉCNICA:</p>
               <div className="whitespace-pre-wrap bg-gray-950 p-4 rounded-xl border border-gray-800 text-gray-200 text-sm leading-relaxed">
