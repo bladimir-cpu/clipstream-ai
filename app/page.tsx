@@ -10,7 +10,6 @@ export default function HomePage() {
   const [activeUser, setActiveUser] = useState<string | null>(null);
 
   useEffect(() => {
-    // Verificamos si ya hay una sesión activa para mostrar la vista de bienvenida limpia
     const session = localStorage.getItem('clipstream_session');
     if (session) {
       setActiveUser(session);
@@ -33,6 +32,16 @@ export default function HomePage() {
     const googleEmail = prompt("Ingresa tu correo de Google para continuar:", "usuario@gmail.com");
     if (googleEmail && googleEmail.trim() !== "") {
       localStorage.setItem('clipstream_session', googleEmail.trim());
+      router.push('/dashboard/create');
+    }
+  };
+
+  const handleRegister = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const regEmail = prompt("Ingresa tu correo electrónico para crear tu cuenta nueva:", "tucorreo@gmail.com");
+    if (regEmail && regEmail.trim() !== "") {
+      localStorage.setItem('clipstream_session', regEmail.trim());
+      alert("¡Cuenta creada con éxito! Te estamos redirigiendo al estudio.");
       router.push('/dashboard/create');
     }
   };
@@ -71,7 +80,7 @@ export default function HomePage() {
             ClipStream AI utiliza tecnología de vanguardia para analizar tus vídeos largos, extraer automáticamente los momentos más impactantes y convertirlos en clips cortos y dinámicos para redes sociales. Con subtítulos automáticos y formatos adaptables, ahorra horas de edición y aumenta tu alcance orgánico.
           </p>
           
-          {/* Nueva Imagen de Portada Estilo Tecnológico Avanzado */}
+          {/* Imagen de Portada */}
           <div className="rounded-2xl overflow-hidden border border-purple-500/30 shadow-2xl bg-[#161D2E] p-2">
             <img 
               src="https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=1200&auto=format&fit=crop" 
@@ -81,7 +90,7 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Columna Derecha: Si ya hay sesión muestra bienvenida limpia, sino muestra el login */}
+        {/* Columna Derecha: Panel de Acceso con Opción de Registro Integrada */}
         <div className="bg-[#161D2E] border border-gray-800 rounded-3xl p-8 shadow-2xl w-full max-w-md mx-auto">
           {activeUser ? (
             <div className="text-center space-y-6 py-6">
@@ -166,6 +175,19 @@ export default function HomePage() {
                     {loading ? 'Ingresando...' : 'Ingresar al Estudio'}
                   </button>
                 </form>
+
+                {/* Opción de Registro Integrada y Profesional */}
+                <div className="text-center pt-2">
+                  <p className="text-xs text-gray-400">
+                    ¿No tienes cuenta?{' '}
+                    <button 
+                      onClick={handleRegister} 
+                      className="text-purple-400 hover:text-purple-300 font-semibold underline cursor-pointer bg-transparent border-0 p-0 inline"
+                    >
+                      Regístrate gratis
+                    </button>
+                  </p>
+                </div>
               </div>
             </div>
           )}
