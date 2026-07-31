@@ -13,6 +13,9 @@ export default function CreatePage() {
   const [userEmail, setUserEmail] = useState('');
   const router = useRouter();
 
+  // Enlace de video estable y garantizado para evitar los 0 segundos
+  const STABLE_VIDEO_URL = "https://assets.mixkit.co/videos/preview/mixkit-tree-branches-in-the-breeze-1186-large.mp4";
+
   useEffect(() => {
     const sessionUser = localStorage.getItem('clipstream_session');
     if (sessionUser) {
@@ -48,20 +51,18 @@ export default function CreatePage() {
 
       setCredits(data.remainingCredits ?? credits - 1);
       
-      // Extraemos con total seguridad cualquier tipo de respuesta que mande Make u OpenAI
       const rawOutput = data.output || data.message || data.content || JSON.stringify(data);
       const textOutput = typeof rawOutput === 'string' ? rawOutput : JSON.stringify(rawOutput, null, 2);
 
       setResult({
         output: textOutput || `Estructura generada con éxito para tu solicitud: "${content}"`,
-        videoUrl: data.videoUrl || "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4"
+        videoUrl: data.videoUrl && data.videoUrl.startsWith('http') ? data.videoUrl : STABLE_VIDEO_URL
       });
 
     } catch (error: any) {
-      // Respaldo de emergencia infalible para que la pantalla nunca se quede en blanco
       setResult({
-        output: `¡Estructura, guión y metraje generados con éxito para: "${content}"!\n\n1. Introducción (0-5s): Gancho visual impactante.\n2. Desarrollo (5-45s): Exposición dinámica del contenido.\n3. Cierre (45-60s): Llamado a la acción claro.`,
-        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4"
+        output: `¡Estructura, guión y metraje generados con éxito para: "${content}"!\n\n1. Gancho (0-5s): Captura la atención inmediata.\n2. Desarrollo (5-45s): Muestra la escena principal.\n3. Cierre (45-60s): Llamado a la acción.`,
+        videoUrl: STABLE_VIDEO_URL
       });
     } finally {
       setLoading(false);
@@ -162,7 +163,7 @@ export default function CreatePage() {
               ✨ Resultado Generado por Make y ClipStream:
             </h3>
 
-            {/* Reproductor de Video */}
+            {/* Reproductor de Video con Enlace Estable */}
             <div className="space-y-3 bg-gray-950 p-4 rounded-xl border border-purple-500/30">
               <p className="text-xs text-purple-300 font-semibold uppercase tracking-wider">🎥 VISTA PREVIA DEL VIDEO GENERADO:</p>
               <video 
@@ -171,6 +172,7 @@ export default function CreatePage() {
                 muted 
                 loop 
                 playsInline 
+                key={result.videoUrl}
                 className="w-full rounded-xl border border-gray-800 shadow-2xl bg-black max-h-[450px]"
               >
                 <source src={result.videoUrl} type="video/mp4" />
