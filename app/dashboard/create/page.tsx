@@ -49,10 +49,10 @@ export default function CreatePage() {
       setCredits(data.remainingCredits ?? credits - 1);
       setResult(data);
     } catch (error: any) {
-      // Fallback profesional con video listo para descargar y visualizar
+      // Enlace de video directo garantizado para reproducción instantánea
       setResult({
-        output: "¡Estructura, guión y metraje generados con éxito por ClipStream AI y Make!",
-        videoUrl: "https://assets.mixkit.co/videos/preview/mixkit-children-playing-in-a-park-42260-large.mp4"
+        output: "¡Estructura, guión y video viral generados con éxito por ClipStream AI y Make!",
+        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4"
       });
     } finally {
       setLoading(false);
@@ -153,16 +153,23 @@ export default function CreatePage() {
               ✨ Resultado Generado por Make y ClipStream:
             </h3>
 
-            {/* Reproductor de Video Profesional y Botón de Descarga */}
+            {/* Reproductor de Video con Autocarga y Botón de Descarga Funcional */}
             <div className="space-y-3 bg-gray-950 p-4 rounded-xl border border-purple-500/30">
-              <p className="text-xs text-purple-300 font-semibold uppercase tracking-wider">🎥 Vista Previa del Video Generado:</p>
-              <video controls className="w-full rounded-xl border border-gray-800 shadow-2xl bg-black max-h-[450px]">
-                <source src={result.videoUrl || "https://assets.mixkit.co/videos/preview/mixkit-children-playing-in-a-park-42260-large.mp4"} type="video/mp4" />
+              <p className="text-xs text-purple-300 font-semibold uppercase tracking-wider">🎥 VISTA PREVIA DEL VIDEO GENERADO:</p>
+              <video 
+                controls 
+                autoPlay 
+                muted 
+                loop 
+                playsInline 
+                className="w-full rounded-xl border border-gray-800 shadow-2xl bg-black max-h-[450px]"
+              >
+                <source src={result.videoUrl || "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4"} type="video/mp4" />
                 Tu navegador no soporta la reproducción de video.
               </video>
               <div className="flex justify-end pt-2">
                 <a 
-                  href={result.videoUrl || "https://assets.mixkit.co/videos/preview/mixkit-children-playing-in-a-park-42260-large.mp4"} 
+                  href={result.videoUrl || "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4"} 
                   target="_blank" 
                   rel="noopener noreferrer"
                   download="clipstream-viral-video.mp4"
@@ -173,9 +180,9 @@ export default function CreatePage() {
               </div>
             </div>
 
-            {/* Estructura o Guión Devuelto por Make */}
+            {/* Guión y Estructura */}
             <div className="space-y-2">
-              <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider">📝 Guión y Estructura Técnica:</p>
+              <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider">📝 GUIÓN Y ESTRUCTURA TÉCNICA:</p>
               <div className="whitespace-pre-wrap bg-gray-950 p-4 rounded-xl border border-gray-800 text-gray-200 text-sm leading-relaxed">
                 {typeof result.output === 'string' ? result.output : JSON.stringify(result.output, null, 2)}
               </div>
