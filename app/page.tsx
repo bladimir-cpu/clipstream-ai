@@ -28,7 +28,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-[#0B0F19] text-white flex flex-col items-center justify-between p-4 md:p-8">
       
-      {/* Menú Superior Fijo e Intacto */}
+      {/* Menú Superior Completo y Fijo */}
       <div className="w-full max-w-5xl bg-[#161D2E] border border-gray-800 p-4 rounded-2xl shadow-xl flex justify-between items-center mb-6 sticky top-4 z-50">
         <div className="flex items-center gap-2">
           <span className="text-sm font-bold text-purple-300">🚀 ClipStream AI</span>
@@ -44,7 +44,7 @@ export default function HomePage() {
 
       <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-12 items-center my-auto">
         
-        {/* Columna Izquierda: Presentación e Imagen Original */}
+        {/* Columna Izquierda: Presentación e Imagen de Portada Completa */}
         <div className="space-y-6">
           <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight">
             ¡Maximiza tu <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">Contenido!</span>
@@ -64,7 +64,7 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Columna Derecha: Panel de Acceso Blindado sin Errores de Supabase */}
+        {/* Columna Derecha: Panel de Acceso Directo Funcional */}
         <div className="bg-[#161D2E] border border-gray-800 rounded-3xl p-8 shadow-2xl w-full max-w-md mx-auto">
           <div className="flex items-center gap-3 mb-6">
             <span className="text-2xl">🎥</span>
