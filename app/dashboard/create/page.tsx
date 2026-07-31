@@ -13,7 +13,7 @@ export default function CreatePage() {
   const [userEmail, setUserEmail] = useState('');
   const router = useRouter();
 
-  const STABLE_VIDEO_URL = "https://assets.mixkit.co/videos/preview/mixkit-tree-branches-in-the-breeze-1186-large.mp4";
+  const STABLE_VIDEO_URL = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
 
   useEffect(() => {
     const sessionUser = localStorage.getItem('clipstream_session');
@@ -162,22 +162,14 @@ export default function CreatePage() {
               ✨ Resultado Generado por Make y ClipStream:
             </h3>
 
-            {/* Reproductor con recarga forzada de metadatos */}
+            {/* Reproductor con carga estable y controles completos */}
             <div className="space-y-3 bg-gray-950 p-4 rounded-xl border border-purple-500/30">
               <p className="text-xs text-purple-300 font-semibold uppercase tracking-wider">🎥 VISTA PREVIA DEL VIDEO GENERADO:</p>
               <video 
                 key={result.videoUrl}
                 controls 
-                autoPlay 
-                muted 
-                loop 
-                playsInline 
-                preload="auto"
+                preload="metadata"
                 className="w-full rounded-xl border border-gray-800 shadow-2xl bg-black max-h-[450px]"
-                onLoadedMetadata={(e) => {
-                  // Fuerza al reproductor a mostrar la duración correcta apenas carga
-                  e.currentTarget.currentTime = 0.1;
-                }}
               >
                 <source src={result.videoUrl} type="video/mp4" />
                 Tu navegador no soporta la reproducción de video.
