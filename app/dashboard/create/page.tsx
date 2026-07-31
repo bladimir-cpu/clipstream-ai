@@ -14,12 +14,14 @@ export default function CreatePage() {
   const router = useRouter();
 
   useEffect(() => {
-    // Recuperamos el correo del usuario guardado para mostrarlo en pantalla
     const sessionUser = localStorage.getItem('clipstream_session');
     if (sessionUser) {
       setUserEmail(sessionUser);
+    } else {
+      // Si no hay sesión, regresa al login
+      router.push('/');
     }
-  }, []);
+  }, [router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,7 +50,6 @@ export default function CreatePage() {
       setCredits(data.remainingCredits ?? credits - 1);
       setResult(data.output || data.message || data);
     } catch (error: any) {
-      // Fallback conectado a Make
       setResult({
         output: "¡Clip generado con éxito por ClipStream AI! Tu estructura y guión están listos para producción con Make.",
         videoUrl: "" 
@@ -65,7 +66,7 @@ export default function CreatePage() {
 
   return (
     <div className="min-h-screen bg-gray-950 text-white">
-      {/* Menú Superior Fijo con el Nombre del Usuario y el Botón de Inicio Independiente */}
+      {/* Menú Superior Fijo */}
       <nav className="sticky top-0 z-50 bg-gray-900 border-b border-purple-500/30 px-6 py-4 flex flex-wrap justify-between items-center gap-4 shadow-md">
         <div className="flex items-center gap-3">
           <span className="text-xl font-black text-purple-400">⚡ ClipStream AI</span>
@@ -78,7 +79,6 @@ export default function CreatePage() {
         </div>
 
         <div className="flex items-center gap-4">
-          {/* Indicador del usuario conectado */}
           {userEmail && (
             <span className="text-xs text-gray-400 hidden lg:inline-block bg-gray-950 px-3 py-1.5 rounded-lg border border-gray-800">
               👤 <strong className="text-purple-300">{userEmail}</strong>
