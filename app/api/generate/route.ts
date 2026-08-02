@@ -5,7 +5,7 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { type, content, userCredits } = body;
 
-    // Enlace de video estable y verificado con soporte directo para streaming web
+    // Enlace de video verificado con metadatos completos compatibles con HTML5 y Chrome
     const reliableVideoUrl = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
 
     return NextResponse.json({
