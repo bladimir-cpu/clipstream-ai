@@ -5,18 +5,41 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { type, content, userCredits } = body;
 
-    // Enlace de video verificado con metadatos completos compatibles con HTML5 y Chrome
-    const reliableVideoUrl = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
+    const makeWebhookUrl = process.env.MAKE_WEBHOOK_URL || "";
+
+    if (!makeWebhookUrl) {
+      return NextResponse.json(
+        { error: 'Falta configurar la variable MAKE_WEBHOOK_URL en el servidor.' },
+        { status: 400 }
+      );
+    }
+
+    // Llamada directa y real a tu escenario de Make
+    const makeResponse = await fetch(makeWebhookUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type, content }),
+    });
+
+    if (!makeResponse.ok) {
+      throw new Error('Error al comunicarse con el Webhook de Make.');
+    }
+
+    const makeData = await makeResponse.json();
+
+    // Extraemos la respuesta y el enlace de video real que mande Make
+    const textOutput = makeData.output || makeData.message || makeData.text || "Contenido generado con éxito.";
+    const dynamicVideoUrl = makeData.videoUrl || makeData.url || "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
 
     return NextResponse.json({
-      output: `🎬 ESTRUCTURA Y GUIÓN PROFESIONAL - ClipStream AI\n\n🔹 Tema analizado: "${content}"\n🔹 Formato seleccionado: ${type ? type.toUpperCase() : 'TEXT'}\n\n1. Gancho (0 - 5s): Captura visual inmediata orientada a retención.\n2. Desarrollo (5 - 45s): Argumento clave enfocado en valor y conversión.\n3. Cierre (45 - 60s): Llamado a la acción claro y directo.`,
-      videoUrl: reliableVideoUrl,
+      output: textOutput,
+      videoUrl: dynamicVideoUrl,
       remainingCredits: userCredits > 0 ? userCredits - 1 : 0
     });
 
   } catch (error: any) {
     return NextResponse.json(
-      { error: 'Error interno al procesar la solicitud.' },
+      { error: error.message || 'Error interno al procesar la solicitud con Make.' },
       { status: 500 }
     );
   }
