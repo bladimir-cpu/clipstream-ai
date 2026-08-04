@@ -36,16 +36,15 @@ export default function CreateDashboardPage() {
   };
 
   const handleDownload = (title: string) => {
-    // Creamos un archivo de video simulado descargable al instante
-    const sampleBlob = new Blob(['Mock video binary content for ' + title], { type: 'video/mp4' });
-    const url = window.URL.createObjectURL(sampleBlob);
+    // Usamos un enlace de video de prueba real y público para que abra perfecto en cualquier reproductor
+    const realVideoUrl = 'https://www.w3schools.com/html/mov_bbb.mp4';
     const a = document.createElement('a');
-    a.href = url;
+    a.href = realVideoUrl;
     a.download = `${title.replace(/[^a-zA-Z0-9]/g, '_')}.mp4`;
+    a.target = '_blank';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-    window.URL.revokeObjectURL(url);
   };
 
   return (
