@@ -14,15 +14,14 @@ export async function POST(request: Request) {
       );
     }
 
+    // Llamada directa al Webhook de Make
     const makeResponse = await fetch(makeWebhookUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ type, content }),
     });
 
-    // Leemos la respuesta de Make como texto plano primero para ver qué trae
     const rawTextResponse = await makeResponse.text();
-    console.log("RESPUESTA CRUDA DE MAKE:", rawTextResponse);
 
     let makeData: any = {};
     try {
@@ -31,8 +30,9 @@ export async function POST(request: Request) {
       makeData = { output: rawTextResponse };
     }
 
+    // Extraemos la respuesta limpia y asignamos un video público funcional y libre de bloqueos
     const textOutput = makeData.output || makeData.message || makeData.text || rawTextResponse || "Contenido generado con éxito.";
-    const dynamicVideoUrl = makeData.videoUrl || makeData.url || "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
+    const dynamicVideoUrl = makeData.videoUrl || makeData.url || "https://www.w3schools.com/html/mov_bbb.mp4";
 
     return NextResponse.json({
       output: textOutput,
