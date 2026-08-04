@@ -6,6 +6,7 @@ import Link from 'next/link';
 export default function CreateDashboardPage() {
   const [activeTab, setActiveTab] = useState<'youtube' | 'text' | 'upload' | 'image' | 'prompt'>('youtube');
   const [contentInput, setContentInput] = useState('');
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [resultClips, setResultClips] = useState<any[] | null>(null);
   const [userEmail, setUserEmail] = useState<string>('wladyreyes@gmail.com');
@@ -23,10 +24,12 @@ export default function CreateDashboardPage() {
     setResultClips(null);
 
     try {
+      const payloadValue = selectedFile ? selectedFile.name : contentInput;
+
       const res = await fetch('/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: activeTab, content: contentInput }),
+        body: JSON.stringify({ type: activeTab, content: payloadValue }),
       });
 
       const data = await res.json();
@@ -59,14 +62,14 @@ export default function CreateDashboardPage() {
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-purple-600/10 rounded-full blur-3xl pointer-events-none"></div>
 
       <div className="max-w-4xl mx-auto relative z-10">
-        {/* Barra superior con enlaces corregidos */}
+        {/* Barra superior con 'Panel' en español */}
         <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-8 bg-slate-900/60 p-4 rounded-2xl border border-slate-800 backdrop-blur-md">
           <div className="flex items-center gap-4">
             <Link href="/" className="text-sm font-semibold text-purple-400 hover:text-purple-300 transition">
               ← Inicio
             </Link>
             <Link href="/dashboard/create" className="text-sm font-semibold text-slate-300 hover:text-white transition">
-              Dashboard
+              Panel
             </Link>
             <Link href="/pricing" className="text-sm font-semibold text-slate-300 hover:text-white transition">
               Planes
@@ -94,39 +97,39 @@ export default function CreateDashboardPage() {
           </h1>
           <h2 className="text-lg font-medium text-slate-300 mb-6">¿Qué deseas transformar hoy?</h2>
           
-          {/* Las 5 pestañas funcionales */}
+          {/* Pestañas con selector limpio al cambiar */}
           <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 bg-slate-950 p-1.5 rounded-2xl border border-slate-800 mb-6">
             <button
               type="button"
-              onClick={() => { setActiveTab('youtube'); setContentInput(''); }}
+              onClick={() => { setActiveTab('youtube'); setContentInput(''); setSelectedFile(null); }}
               className={`py-2 rounded-xl text-xs sm:text-sm font-semibold transition cursor-pointer ${activeTab === 'youtube' ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
             >
               🔗 YouTube
             </button>
             <button
               type="button"
-              onClick={() => { setActiveTab('text'); setContentInput(''); }}
+              onClick={() => { setActiveTab('text'); setContentInput(''); setSelectedFile(null); }}
               className={`py-2 rounded-xl text-xs sm:text-sm font-semibold transition cursor-pointer ${activeTab === 'text' ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
             >
               ✍️ Texto
             </button>
             <button
               type="button"
-              onClick={() => { setActiveTab('upload'); setContentInput(''); }}
+              onClick={() => { setActiveTab('upload'); setContentInput(''); setSelectedFile(null); }}
               className={`py-2 rounded-xl text-xs sm:text-sm font-semibold transition cursor-pointer ${activeTab === 'upload' ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
             >
               📁 Video
             </button>
             <button
               type="button"
-              onClick={() => { setActiveTab('image'); setContentInput(''); }}
+              onClick={() => { setActiveTab('image'); setContentInput(''); setSelectedFile(null); }}
               className={`py-2 rounded-xl text-xs sm:text-sm font-semibold transition cursor-pointer ${activeTab === 'image' ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
             >
               🖼️ Imagen
             </button>
             <button
               type="button"
-              onClick={() => { setActiveTab('prompt'); setContentInput(''); }}
+              onClick={() => { setActiveTab('prompt'); setContentInput(''); setSelectedFile(null); }}
               className={`py-2 rounded-xl text-xs sm:text-sm font-semibold transition cursor-pointer ${activeTab === 'prompt' ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
             >
               ✨ Prompt IA
@@ -164,29 +167,59 @@ export default function CreateDashboardPage() {
 
             {activeTab === 'upload' && (
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Sube tu archivo de video</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Nombre o ruta del archivo de video (ej: video.mp4)"
-                  value={contentInput}
-                  onChange={(e) => setContentInput(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition"
-                />
+                <label className="block text-sm font-medium text-slate-300 mb-2">Sube tu archivo de video desde la computadora</label>
+                <div className="flex items-center justify-center w-full">
+                  <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-slate-800 border-dashed rounded-xl cursor-pointer bg-slate-950 hover:bg-slate-900 transition">
+                    <div className="flex flex-col items-center justify-center pt-5 pb-6 px-4 text-center">
+                      <svg className="w-8 h-8 mb-2 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                      </svg>
+                      <p className="text-sm text-slate-300 font-medium">
+                        {selectedFile ? <span className="text-purple-300">📁 {selectedFile.name}</span> : 'Haz clic para seleccionar o arrastra tu video (MP4, MOV)'}
+                      </p>
+                    </div>
+                    <input
+                      type="file"
+                      accept="video/*"
+                      required={!selectedFile}
+                      className="hidden"
+                      onChange={(e) => {
+                        if (e.target.files && e.target.files[0]) {
+                          setSelectedFile(e.target.files[0]);
+                        }
+                      }}
+                    />
+                  </label>
+                </div>
               </div>
             )}
 
             {activeTab === 'image' && (
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Sube o enlaza una imagen base para la IA</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="URL o nombre del archivo de imagen (ej: banner.png)"
-                  value={contentInput}
-                  onChange={(e) => setContentInput(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition"
-                />
+                <label className="block text-sm font-medium text-slate-300 mb-2">Sube tu imagen base desde la computadora</label>
+                <div className="flex items-center justify-center w-full">
+                  <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-slate-800 border-dashed rounded-xl cursor-pointer bg-slate-950 hover:bg-slate-900 transition">
+                    <div className="flex flex-col items-center justify-center pt-5 pb-6 px-4 text-center">
+                      <svg className="w-8 h-8 mb-2 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                      </svg>
+                      <p className="text-sm text-slate-300 font-medium">
+                        {selectedFile ? <span className="text-purple-300">🖼️ {selectedFile.name}</span> : 'Haz clic para seleccionar o arrastra tu imagen (PNG, JPG)'}
+                      </p>
+                    </div>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      required={!selectedFile}
+                      className="hidden"
+                      onChange={(e) => {
+                        if (e.target.files && e.target.files[0]) {
+                          setSelectedFile(e.target.files[0]);
+                        }
+                      }}
+                    />
+                  </label>
+                </div>
               </div>
             )}
 
