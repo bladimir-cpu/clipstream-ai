@@ -14,7 +14,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // Llamada directa al Webhook de Make
     const makeResponse = await fetch(makeWebhookUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -30,9 +29,11 @@ export async function POST(request: Request) {
       makeData = { output: rawTextResponse };
     }
 
-    // Extraemos la respuesta limpia y asignamos un video público funcional y libre de bloqueos
+    // Extraemos la respuesta limpia de OpenAI
     const textOutput = makeData.output || makeData.message || makeData.text || rawTextResponse || "Contenido generado con éxito.";
-    const dynamicVideoUrl = makeData.videoUrl || makeData.url || "https://www.w3schools.com/html/mov_bbb.mp4";
+    
+    // AQUÍ ESTÁ EL TRUCO: Si Make no manda 'videoUrl', dejamos el campo vacío o limpio en lugar del oso
+    const dynamicVideoUrl = makeData.videoUrl || makeData.url || "";
 
     return NextResponse.json({
       output: textOutput,
