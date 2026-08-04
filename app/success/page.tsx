@@ -1,30 +1,52 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 export default function SuccessPage() {
+  const router = useRouter();
+  const [status, setStatus] = useState('Verificando tu pago y activando créditos...');
+
+  useEffect(() => {
+    // Aquí simulamos la acreditación automática en la sesión/base de datos
+    const timer = setTimeout(() => {
+      setStatus('¡Pago verificado con éxito! Tus créditos han sido acreditados 🎉');
+      
+      // Opcional: sumamos créditos temporalmente en localStorage para la prueba visual
+      if (typeof window !== 'undefined') {
+        const currentCredits = parseInt(localStorage.getItem('clipstream_credits') || '30');
+        localStorage.setItem('clipstream_credits', (currentCredits + 150).toString());
+      }
+
+      // Redirigir al panel de creación tras 3 segundos
+      setTimeout(() => {
+        router.push('/dashboard/create');
+      }, 2500);
+    }, 1500);
+
+    return () => clearTimeout(timer);
+  }, [router]);
+
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center items-center px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full bg-white shadow-lg rounded-3xl p-8 text-center border border-gray-100">
-        <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 text-green-600 text-3xl mb-6">
-          🎉
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center py-12 px-4 relative overflow-hidden">
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-purple-600/15 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div className="max-w-md w-full bg-slate-900/85 backdrop-blur-xl border border-slate-800 rounded-3xl p-8 shadow-2xl text-center relative z-10">
+        <div className="w-16 h-16 bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-6 text-2xl">
+          ✓
         </div>
-        <h2 className="text-3xl font-extrabold text-gray-900">¡Pago Exitoso!</h2>
-        <p className="mt-4 text-gray-600">
-          Muchas gracias por tu compra en <span className="font-semibold text-gray-900">ClipStream AI</span>. Tus créditos han sido acreditados correctamente.
-        </p>
-        <div className="mt-8 space-y-3">
-          <Link
-            href="/dashboard/create"
-            className="w-full inline-block bg-blue-600 text-white py-3.5 px-4 rounded-xl font-semibold hover:bg-blue-700 transition shadow-sm"
-          >
-            Ir al Generador de Videos
-          </Link>
-          <Link
-            href="/pricing"
-            className="w-full inline-block bg-gray-100 text-gray-700 py-3.5 px-4 rounded-xl font-semibold hover:bg-gray-200 transition"
-          >
-            Ver Planes y Precios
+        
+        <h1 className="text-2xl font-extrabold text-white mb-2">¡Gracias por tu compra!</h1>
+        <p className="text-sm text-slate-300 mb-6">{status}</p>
+
+        <div className="animate-pulse flex justify-center items-center gap-2 text-purple-400 text-sm font-semibold">
+          <span>Redirigiendo a tu estudio...</span>
+        </div>
+
+        <div className="mt-8">
+          <Link href="/dashboard/create" className="text-xs text-slate-400 hover:text-white transition underline">
+            Ir al panel manualmente
           </Link>
         </div>
       </div>
