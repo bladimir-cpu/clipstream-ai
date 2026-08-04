@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 
 export default function CreateDashboardPage() {
@@ -8,6 +8,15 @@ export default function CreateDashboardPage() {
   const [contentInput, setContentInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [resultClips, setResultClips] = useState<any[] | null>(null);
+  const [userEmail, setUserEmail] = useState<string>('usuario@clipstream.ai');
+
+  // Recuperamos el correo de la sesión si está guardado en localStorage o Supabase Auth simulado
+  useEffect(() => {
+    const savedEmail = localStorage.getItem('clipstream_user_email') || sessionStorage.getItem('clipstream_user_email');
+    if (savedEmail) {
+      setUserEmail(savedEmail);
+    }
+  }, []);
 
   const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,7 +45,6 @@ export default function CreateDashboardPage() {
   };
 
   const handleDownload = (title: string) => {
-    // Usamos un enlace de video de prueba real y público para que abra perfecto en cualquier reproductor
     const realVideoUrl = 'https://www.w3schools.com/html/mov_bbb.mp4';
     const a = document.createElement('a');
     a.href = realVideoUrl;
@@ -52,8 +60,8 @@ export default function CreateDashboardPage() {
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-purple-600/10 rounded-full blur-3xl pointer-events-none"></div>
 
       <div className="max-w-4xl mx-auto relative z-10">
-        {/* Barra superior con menú estático y créditos */}
-        <div className="flex justify-between items-center mb-8 bg-slate-900/60 p-4 rounded-2xl border border-slate-800 backdrop-blur-md">
+        {/* Barra superior con menú estático, correo de usuario y créditos */}
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-8 bg-slate-900/60 p-4 rounded-2xl border border-slate-800 backdrop-blur-md">
           <div className="flex items-center gap-4">
             <Link href="/" className="text-sm font-semibold text-purple-400 hover:text-purple-300 transition">
               ← Inicio
@@ -65,10 +73,17 @@ export default function CreateDashboardPage() {
               Planes
             </Link>
           </div>
-          <div className="flex items-center gap-3">
+
+          <div className="flex items-center gap-3 flex-wrap justify-end">
+            {/* Indicador de cuenta conectada */}
+            <span className="text-xs bg-slate-800 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-700 font-medium flex items-center gap-1.5">
+              👤 <span className="text-purple-300 font-semibold">{userEmail}</span>
+            </span>
+
             <span className="text-xs bg-purple-500/20 text-purple-300 px-3 py-1.5 rounded-full border border-purple-500/30 font-medium">
               🎁 30 Créditos Gratis
             </span>
+
             <Link href="/login" className="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold px-3 py-1.5 rounded-lg transition">
               🚪 Salir
             </Link>
