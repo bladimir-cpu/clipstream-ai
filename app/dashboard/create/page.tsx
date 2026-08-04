@@ -10,16 +10,33 @@ export default function CreateDashboardPage() {
   const [loading, setLoading] = useState(false);
   const [resultClips, setResultClips] = useState<any[] | null>(null);
   const [userEmail, setUserEmail] = useState<string>('wladyreyes@gmail.com');
+  const [userCredits, setUserCredits] = useState<number>(10);
 
   useEffect(() => {
     const savedEmail = localStorage.getItem('clipstream_user_email') || sessionStorage.getItem('clipstream_user_email');
     if (savedEmail) {
       setUserEmail(savedEmail);
     }
+    // Cargamos los créditos iniciales sincronizados con nuestros 10 créditos gratis
+    const savedCredits = localStorage.getItem('clipstream_credits');
+    if (savedCredits) {
+      setUserCredits(parseInt(savedCredits, 10));
+    } else {
+      localStorage.setItem('clipstream_credits', '10');
+      setUserCredits(10);
+    }
   }, []);
 
   const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Verificamos si tiene créditos antes de gastar
+    if (userCredits <= 0) {
+      alert('Te has quedado sin créditos. Por favor recarga o adquiere un plan.');
+      window.location.href = '/pricing';
+      return;
+    }
+
     setLoading(true);
     setResultClips(null);
 
@@ -35,6 +52,10 @@ export default function CreateDashboardPage() {
       const data = await res.json();
       if (data.success) {
         setResultClips(data.clips);
+        // Descontamos 1 crédito por generación exitosa
+        const newCredits = userCredits - 1;
+        setUserCredits(newCredits);
+        localStorage.setItem('clipstream_credits', newCredits.toString());
       } else {
         alert(data.error || 'Hubo un error al generar los clips.');
       }
@@ -62,7 +83,7 @@ export default function CreateDashboardPage() {
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-purple-600/10 rounded-full blur-3xl pointer-events-none"></div>
 
       <div className="max-w-4xl mx-auto relative z-10">
-        {/* Barra superior con 'Panel' en español */}
+        {/* Barra superior con navegación y créditos en vivo */}
         <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-8 bg-slate-900/60 p-4 rounded-2xl border border-slate-800 backdrop-blur-md">
           <div className="flex items-center gap-4">
             <Link href="/" className="text-sm font-semibold text-purple-400 hover:text-purple-300 transition">
@@ -81,9 +102,9 @@ export default function CreateDashboardPage() {
               👤 <span className="text-purple-300 font-semibold">{userEmail}</span>
             </span>
 
-            <span className="text-xs bg-purple-500/20 text-purple-300 px-3 py-1.5 rounded-full border border-purple-500/30 font-medium">
-              🎁 30 Créditos Gratis
-            </span>
+            <Link href="/pricing" className="text-xs bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 px-3 py-1.5 rounded-full border border-purple-500/30 font-medium transition cursor-pointer flex items-center gap-1">
+              ⚡ <span>{userCredits} Créditos Disponibles</span>
+            </Link>
 
             <Link href="/login" className="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold px-3 py-1.5 rounded-lg transition">
               🚪 Salir
@@ -97,7 +118,7 @@ export default function CreateDashboardPage() {
           </h1>
           <h2 className="text-lg font-medium text-slate-300 mb-6">¿Qué deseas transformar hoy?</h2>
           
-          {/* Pestañas con selector limpio al cambiar */}
+          {/* Pestañas con selector limpio */}
           <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 bg-slate-950 p-1.5 rounded-2xl border border-slate-800 mb-6">
             <button
               type="button"
@@ -251,7 +272,7 @@ export default function CreateDashboardPage() {
                   <span>La IA está analizando y creando tus clips...</span>
                 </>
               ) : (
-                <>🚀 Generar Clips Virales con IA</>
+                <>🚀 Generar Clips Virales con IA (-1 Crédito)</>
               )}
             </button>
           </form>
