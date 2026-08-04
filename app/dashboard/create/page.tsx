@@ -53,9 +53,12 @@ export default function CreatePage() {
       const rawOutput = data.output || data.message || data.content || JSON.stringify(data);
       const textOutput = typeof rawOutput === 'string' ? rawOutput : JSON.stringify(rawOutput, null, 2);
 
+      // AQUÍ ESTÁ EL CAMBIO CLAVE: Tomamos el videoUrl que manda Make, o usamos el de respaldo si viniera vacío
+      const dynamicVideoUrl = data.videoUrl || STABLE_VIDEO_URL;
+
       setResult({
         output: textOutput,
-        videoUrl: STABLE_VIDEO_URL
+        videoUrl: dynamicVideoUrl
       });
 
     } catch (error: any) {
@@ -162,7 +165,7 @@ export default function CreatePage() {
               ✨ Resultado Generado por Make y ClipStream:
             </h3>
 
-            {/* Reproductor de Video Limpio y Sin Conflictos */}
+            {/* Reproductor de Video */}
             <div className="space-y-3 bg-gray-950 p-4 rounded-xl border border-purple-500/30">
               <p className="text-xs text-purple-300 font-semibold uppercase tracking-wider">🎥 VISTA PREVIA DEL VIDEO GENERADO:</p>
               
