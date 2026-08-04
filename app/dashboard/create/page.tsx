@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 
 export default function CreateDashboardPage() {
-  const [activeTab, setActiveTab] = useState<'youtube' | 'text' | 'upload'>('youtube');
+  const [activeTab, setActiveTab] = useState<'youtube' | 'text' | 'upload' | 'image' | 'prompt'>('youtube');
   const [contentInput, setContentInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [resultClips, setResultClips] = useState<any[] | null>(null);
@@ -25,7 +25,7 @@ export default function CreateDashboardPage() {
       if (data.success) {
         setResultClips(data.clips);
       } else {
-        alert('Hubo un error al generar los clips.');
+        alert(data.error || 'Hubo un error al generar los clips.');
       }
     } catch (err) {
       console.error(err);
@@ -40,39 +40,71 @@ export default function CreateDashboardPage() {
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-purple-600/10 rounded-full blur-3xl pointer-events-none"></div>
 
       <div className="max-w-4xl mx-auto relative z-10">
-        <div className="flex justify-between items-center mb-8">
-          <Link href="/" className="text-sm font-semibold text-purple-400 hover:text-purple-300 transition">
-            ← Volver al inicio
-          </Link>
-          <h1 className="text-2xl font-extrabold text-white">
-            ClipStream <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">AI Studio</span>
-          </h1>
+        {/* Barra superior con menú estático y créditos */}
+        <div className="flex justify-between items-center mb-8 bg-slate-900/60 p-4 rounded-2xl border border-slate-800 backdrop-blur-md">
+          <div className="flex items-center gap-4">
+            <Link href="/" className="text-sm font-semibold text-purple-400 hover:text-purple-300 transition">
+              ← Inicio
+            </Link>
+            <Link href="/dashboard" className="text-sm font-semibold text-slate-300 hover:text-white transition">
+              Dashboard
+            </Link>
+            <Link href="/pricing" className="text-sm font-semibold text-slate-300 hover:text-white transition">
+              Planes
+            </Link>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-xs bg-purple-500/20 text-purple-300 px-3 py-1.5 rounded-full border border-purple-500/30 font-medium">
+              🎁 30 Créditos Gratis
+            </span>
+            <Link href="/login" className="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold px-3 py-1.5 rounded-lg transition">
+              🚪 Salir
+            </Link>
+          </div>
         </div>
 
         <div className="bg-slate-900/85 backdrop-blur-xl border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl">
-          <h2 className="text-xl font-bold text-white mb-4">¿Qué deseas transformar hoy?</h2>
+          <h1 className="text-2xl font-extrabold text-white mb-2">
+            ClipStream <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">AI Studio</span>
+          </h1>
+          <h2 className="text-lg font-medium text-slate-300 mb-6">¿Qué deseas transformar hoy?</h2>
           
-          <div className="grid grid-cols-3 gap-2 bg-slate-950 p-1.5 rounded-2xl border border-slate-800 mb-6">
+          {/* Pestañas Completas: YouTube, Texto, Video, Imagen y Prompt */}
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 bg-slate-950 p-1.5 rounded-2xl border border-slate-800 mb-6">
             <button
               type="button"
               onClick={() => { setActiveTab('youtube'); setContentInput(''); }}
-              className={`py-2.5 rounded-xl text-sm font-semibold transition cursor-pointer ${activeTab === 'youtube' ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
+              className={`py-2 rounded-xl text-xs sm:text-sm font-semibold transition cursor-pointer ${activeTab === 'youtube' ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
             >
-              🔗 Enlace YouTube
+              🔗 YouTube
             </button>
             <button
               type="button"
               onClick={() => { setActiveTab('text'); setContentInput(''); }}
-              className={`py-2.5 rounded-xl text-sm font-semibold transition cursor-pointer ${activeTab === 'text' ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
+              className={`py-2 rounded-xl text-xs sm:text-sm font-semibold transition cursor-pointer ${activeTab === 'text' ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
             >
-              ✍️ Texto / Idea
+              ✍️ Texto
             </button>
             <button
               type="button"
               onClick={() => { setActiveTab('upload'); setContentInput(''); }}
-              className={`py-2.5 rounded-xl text-sm font-semibold transition cursor-pointer ${activeTab === 'upload' ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
+              className={`py-2 rounded-xl text-xs sm:text-sm font-semibold transition cursor-pointer ${activeTab === 'upload' ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
             >
-              📁 Subir Archivo
+              📁 Video
+            </button>
+            <button
+              type="button"
+              onClick={() => { setActiveTab('image'); setContentInput(''); }}
+              className={`py-2 rounded-xl text-xs sm:text-sm font-semibold transition cursor-pointer ${activeTab === 'image' ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
+            >
+              🖼️ Imagen
+            </button>
+            <button
+              type="button"
+              onClick={() => { setActiveTab('prompt'); setContentInput(''); }}
+              className={`py-2 rounded-xl text-xs sm:text-sm font-semibold transition cursor-pointer ${activeTab === 'prompt' ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
+            >
+              ✨ Prompt IA
             </button>
           </div>
 
@@ -93,7 +125,7 @@ export default function CreateDashboardPage() {
 
             {activeTab === 'text' && (
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Escribe tu idea o guion para que la IA cree el video</label>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Escribe tu idea o guion</label>
                 <textarea
                   required
                   rows={4}
@@ -107,7 +139,7 @@ export default function CreateDashboardPage() {
 
             {activeTab === 'upload' && (
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Sube tu archivo de video o audio</label>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Sube tu archivo de video</label>
                 <input
                   type="text"
                   required
@@ -115,6 +147,34 @@ export default function CreateDashboardPage() {
                   value={contentInput}
                   onChange={(e) => setContentInput(e.target.value)}
                   className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition"
+                />
+              </div>
+            )}
+
+            {activeTab === 'image' && (
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Sube o enlaza una imagen base para la IA</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="URL o nombre del archivo de imagen (ej: banner.png)"
+                  value={contentInput}
+                  onChange={(e) => setContentInput(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition"
+                />
+              </div>
+            )}
+
+            {activeTab === 'prompt' && (
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Escribe un Prompt avanzado para la IA</label>
+                <textarea
+                  required
+                  rows={4}
+                  placeholder="Ej: Genera una estructura de clips centrada en marketing de guerrilla..."
+                  value={contentInput}
+                  onChange={(e) => setContentInput(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl p-4 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition"
                 />
               </div>
             )}
@@ -130,7 +190,7 @@ export default function CreateDashboardPage() {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
                   </svg>
-                  <span>La IA está procesando y creando tus clips...</span>
+                  <span>La IA está analizando y creando tus clips...</span>
                 </>
               ) : (
                 <>🚀 Generar Clips Virales con IA</>
@@ -140,7 +200,7 @@ export default function CreateDashboardPage() {
 
           {resultClips && (
             <div className="mt-8 pt-6 border-t border-slate-800">
-              <h3 className="text-lg font-bold text-white mb-4">🎉 ¡Clips Generados Exitosamente!</h3>
+              <h3 className="text-lg font-bold text-white mb-4">🎉 ¡Clips Generados Exitosamente por la IA!</h3>
               <div className="space-y-3">
                 {resultClips.map((clip) => (
                   <div key={clip.id} className="bg-slate-950 border border-slate-800 p-4 rounded-xl flex items-center justify-between">
