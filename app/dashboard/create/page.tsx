@@ -35,6 +35,19 @@ export default function CreateDashboardPage() {
     }
   };
 
+  const handleDownload = (title: string) => {
+    // Creamos un archivo de video simulado descargable al instante
+    const sampleBlob = new Blob(['Mock video binary content for ' + title], { type: 'video/mp4' });
+    const url = window.URL.createObjectURL(sampleBlob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${title.replace(/[^a-zA-Z0-9]/g, '_')}.mp4`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 py-10 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-purple-600/10 rounded-full blur-3xl pointer-events-none"></div>
@@ -210,7 +223,7 @@ export default function CreateDashboardPage() {
                     </div>
                     <button
                       type="button"
-                      onClick={() => alert(`¡Descargando "${clip.title}" (${clip.duration})! Tu video está listo.`)}
+                      onClick={() => handleDownload(clip.title)}
                       className="bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 text-xs font-bold px-3 py-2 rounded-lg border border-purple-500/30 transition cursor-pointer"
                     >
                       ⬇️ Descargar Clip
