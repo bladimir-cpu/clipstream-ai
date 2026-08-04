@@ -9,15 +9,17 @@ export default function CreateDashboardPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [resultClips, setResultClips] = useState<any[] | null>(null);
-  const [userEmail, setUserEmail] = useState<string>('wladyreyes@gmail.com');
+  const [userEmail, setUserEmail] = useState<string>('distribuidoresencalada@gmail.com');
   const [userCredits, setUserCredits] = useState<number>(10);
 
   useEffect(() => {
+    // Sincronizamos el correo real del usuario logueado
     const savedEmail = localStorage.getItem('clipstream_user_email') || sessionStorage.getItem('clipstream_user_email');
     if (savedEmail) {
       setUserEmail(savedEmail);
     }
-    // Cargamos los créditos iniciales sincronizados con nuestros 10 créditos gratis
+
+    // Cargamos o inicializamos los créditos reales
     const savedCredits = localStorage.getItem('clipstream_credits');
     if (savedCredits) {
       setUserCredits(parseInt(savedCredits, 10));
@@ -30,7 +32,7 @@ export default function CreateDashboardPage() {
   const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Verificamos si tiene créditos antes de gastar
+    // Verificamos créditos antes de gastar
     if (userCredits <= 0) {
       alert('Te has quedado sin créditos. Por favor recarga o adquiere un plan.');
       window.location.href = '/pricing';
@@ -83,7 +85,7 @@ export default function CreateDashboardPage() {
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-purple-600/10 rounded-full blur-3xl pointer-events-none"></div>
 
       <div className="max-w-4xl mx-auto relative z-10">
-        {/* Barra superior con navegación y créditos en vivo */}
+        {/* Barra superior con navegación, correo real y créditos */}
         <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-8 bg-slate-900/60 p-4 rounded-2xl border border-slate-800 backdrop-blur-md">
           <div className="flex items-center gap-4">
             <Link href="/" className="text-sm font-semibold text-purple-400 hover:text-purple-300 transition">
@@ -118,7 +120,7 @@ export default function CreateDashboardPage() {
           </h1>
           <h2 className="text-lg font-medium text-slate-300 mb-6">¿Qué deseas transformar hoy?</h2>
           
-          {/* Pestañas con selector limpio */}
+          {/* Pestañas de selección */}
           <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 bg-slate-950 p-1.5 rounded-2xl border border-slate-800 mb-6">
             <button
               type="button"
