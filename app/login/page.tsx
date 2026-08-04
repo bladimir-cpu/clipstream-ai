@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('wladyreyes@gmail.com');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -17,6 +17,7 @@ export default function LoginPage() {
 
     try {
       if (typeof window !== 'undefined') {
+        localStorage.removeItem('clipstream_user_email');
         localStorage.setItem('clipstream_user_email', email);
       }
 
@@ -52,6 +53,7 @@ export default function LoginPage() {
             <input
               type="email"
               required
+              placeholder="tu@correo.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition"
