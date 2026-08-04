@@ -6,12 +6,6 @@ import Link from 'next/link';
 export default function PricingPage() {
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly');
 
-  // Función para manejar recargas extra (puedes enlazar tu botón de PayPal o pasarela aquí)
-  const handleTopUp = (credits: number, price: string) => {
-    alert(`Redirigiendo a pasarela para recargar ${credits} Créditos Extra (${price}) 🚀`);
-    // window.location.href = "TU_ENLACE_DE_PAYPAL_PARA_RECARGA";
-  };
-
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
       {/* Luces de fondo decorativas */}
@@ -152,34 +146,35 @@ export default function PricingPage() {
 
         </div>
 
-        {/* Sección Extra: Paquetes de Recarga Única de Créditos */}
+        {/* Sección Extra: Paquetes de Recarga Única de Créditos con enlaces reales de PayPal */}
         <div className="bg-slate-900/50 backdrop-blur-xl border border-slate-800 rounded-3xl p-8 text-center">
           <span className="text-xs bg-purple-500/20 text-purple-300 font-bold px-3 py-1 rounded-full border border-purple-500/30 uppercase tracking-wider">
             ¿Necesitas más capacidad este mes?
           </span>
           <h2 className="text-2xl font-bold text-white mt-3 mb-2">Paquetes de Recarga Única</h2>
           <p className="text-slate-400 text-sm max-w-xl mx-auto mb-6">
-            Estos créditos extra **sí se acumulan** y no expiran. Úsalos cuando quieras sin cambiar de plan.
+            Estos créditos extra sí se acumulan y no expiran. Úsalos cuando quieras sin cambiar de plan.
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-2xl mx-auto">
-            {/* Paquete 1 */}
+            {/* Paquete 50 Créditos ($5) */}
             <div className="bg-slate-950 border border-slate-800 p-6 rounded-2xl flex flex-col justify-between">
               <div>
                 <h4 className="font-bold text-lg text-white">Bolsa de 50 Créditos</h4>
                 <p className="text-3xl font-black text-purple-400 mt-2">$5.00 <span className="text-xs text-slate-400 font-normal">USD único</span></p>
                 <p className="text-xs text-slate-400 mt-2">Perfecto para un empujón rápido en tus campañas.</p>
               </div>
-              <button
-                type="button"
-                onClick={() => handleTopUp(50, '$5.00')}
-                className="mt-6 w-full bg-slate-800 hover:bg-slate-700 text-purple-300 font-bold py-2.5 rounded-xl text-sm transition border border-slate-700 cursor-pointer"
+              <a
+                href="https://www.paypal.com/ncp/payment/43GBAWU24GGXS"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-6 w-full bg-slate-800 hover:bg-slate-700 text-purple-300 font-bold py-2.5 rounded-xl text-sm transition border border-slate-700 text-center block cursor-pointer"
               >
                 Comprar 50 Créditos ⚡
-              </button>
+              </a>
             </div>
 
-            {/* Paquete 2 */}
+            {/* Paquete 150 Créditos ($12) */}
             <div className="bg-slate-950 border border-purple-500/30 p-6 rounded-2xl flex flex-col justify-between relative">
               <div className="absolute -top-3 right-4 bg-purple-600 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase">
                 Más Comprado
@@ -189,13 +184,14 @@ export default function PricingPage() {
                 <p className="text-3xl font-black text-purple-400 mt-2">$12.00 <span className="text-xs text-slate-400 font-normal">USD único</span></p>
                 <p className="text-xs text-slate-400 mt-2">Mayor ahorro por volumen de generación.</p>
               </div>
-              <button
-                type="button"
-                onClick={() => handleTopUp(150, '$12.00')}
-                className="mt-6 w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-bold py-2.5 rounded-xl text-sm transition shadow-md cursor-pointer"
+              <a
+                href="https://www.paypal.com/ncp/payment/EQZZ3DHJ7Q3DS"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-6 w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-bold py-2.5 rounded-xl text-sm transition shadow-md text-center block cursor-pointer"
               >
                 Comprar 150 Créditos 💎
-              </button>
+              </a>
             </div>
           </div>
         </div>
