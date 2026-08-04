@@ -1,108 +1,114 @@
 'use client';
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { supabase } from "@/app/lib/supabase";
-import { Video, Loader2, Lock, Mail } from "lucide-react";
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [isSignUp, setIsSignUp] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const handleAuth = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
-    if (isSignUp) {
-      const { error } = await supabase.auth.signUp({ email, password });
-      if (error) {
-        alert(error.message);
-      } else {
-        alert("¡Registro exitoso! Ya puedes iniciar sesión.");
-        setIsSignUp(false);
+    try {
+      // Guardamos el correo en localStorage para que la barra superior lo reconozca al entrar
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('clipstream_user_email', email);
       }
-    } else {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) {
-        alert("Correo o contraseña incorrectos");
-      } else {
-        router.push("/dashboard/create");
-      }
+
+      // Simulamos un inicio de sesión exitoso y fluido
+      setTimeout(() => {
+        setLoading(false);
+        router.push('/dashboard/create');
+      }, 800);
+    } catch (err) {
+      console.error(err);
+      setLoading(false);
+      alert('Error al iniciar sesión.');
     }
-    setLoading(false);
   };
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="flex justify-center items-center gap-2">
-          <Video className="text-purple-500 h-10 w-10" />
-          <h2 className="text-3xl font-extrabold text-white">ClipStream AI</h2>
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-purple-600/15 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div className="max-w-md w-full bg-slate-900/85 backdrop-blur-xl border border-slate-800 rounded-3xl p-8 shadow-2xl relative z-10">
+        <div className="text-center mb-8">
+          <Link href="/" className="text-sm font-semibold text-purple-400 hover:text-purple-300 transition inline-block mb-4">
+            ← Volver al inicio
+          </Link>
+          <h1 className="text-3xl font-extrabold text-white">
+            Iniciar Sesión en <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">ClipStream</span>
+          </h1>
+          <p className="text-sm text-slate-400 mt-2">Accede a tu estudio de creación viral</p>
         </div>
-        <h2 className="mt-2 text-center text-sm text-gray-400">
-          {isSignUp ? "Crea tu cuenta con 30 créditos gratis" : "Inicia sesión en tu cuenta"}
-        </h2>
-      </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-gray-900 py-8 px-4 shadow-xl sm:rounded-lg sm:px-10 border border-purple-500/30">
-          <form className="space-y-6" onSubmit={handleAuth}>
-            <div>
-              <label className="block text-sm font-medium text-gray-300">Correo Electrónico</label>
-              <div className="mt-1 relative rounded-md shadow-sm">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-                  <Mail size={18} />
-                </div>
-                <input
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="pl-10 block w-full px-3 py-2 border border-gray-700 bg-gray-950 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500 sm:text-sm text-white"
-                  placeholder="tucorreo@empresa.com"
-                />
-              </div>
-            </div>
+        <form onSubmit={handleLogin} className="space-y-6">
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-2">Correo Electrónico</label>
+            <input
+              type="email"
+              required
+              placeholder="tucorreo@ejemplo.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition"
+            />
+          </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-300">Contraseña</label>
-              <div className="mt-1 relative rounded-md shadow-sm">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-                  <Lock size={18} />
-                </div>
-                <input
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="pl-10 block w-full px-3 py-2 border border-gray-700 bg-gray-950 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500 sm:text-sm text-white"
-                  placeholder="••••••••"
-                />
-              </div>
-            </div>
-
-            <div>
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-2">Contraseña</label>
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                required
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 pr-12 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition"
+              />
               <button
-                type="submit"
-                disabled={loading}
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-lg text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 focus:outline-none transition-all"
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition text-sm px-2 py-1 cursor-pointer"
+                title={showPassword ? 'Ocultar contraseña' : 'Ver contraseña'}
               >
-                {loading ? <Loader2 className="animate-spin" size={20} /> : (isSignUp ? "Crear Cuenta (30 Créditos Gratis)" : "Iniciar Sesión")}
+                {showPassword ? '👁️‍🗨️ Ocultar' : '👁️ Ver'}
               </button>
             </div>
-          </form>
-
-          <div className="mt-6 text-center">
-            <button
-              onClick={() => setIsSignUp(!isSignUp)}
-              className="text-sm text-purple-400 hover:text-purple-300 font-medium"
-            >
-              {isSignUp ? "¿Ya tienes una cuenta? Inicia sesión" : "¿No tienes cuenta? Regístrate gratis"}
-            </button>
           </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-bold py-3.5 px-6 rounded-xl transition shadow-lg shadow-purple-500/25 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+          >
+            {loading ? (
+              <>
+                <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                </svg>
+                <span>Entrando a tu cuenta...</span>
+              </>
+            ) : (
+              <>🚀 Entrar al Studio</>
+            )}
+          </button>
+        </form>
+
+        <div className="mt-6 text-center">
+          <p className="text-xs text-slate-400">
+            ¿No tienes cuenta aún?{' '}
+            <Link href="/pricing" className="text-purple-400 hover:text-purple-300 font-semibold transition">
+              Elige tu plan aquí
+            </Link>
+          </p>
         </div>
       </div>
     </div>
