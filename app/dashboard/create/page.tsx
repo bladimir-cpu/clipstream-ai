@@ -1,209 +1,162 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 
-export default function CreatePage() {
-  const [contentType, setContentType] = useState('text');
-  const [content, setContent] = useState('');
+export default function CreateDashboardPage() {
+  const [activeTab, setActiveTab] = useState<'youtube' | 'text' | 'upload'>('youtube');
+  const [contentInput, setContentInput] = useState('');
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<any>(null);
-  const [credits, setCredits] = useState(30);
-  const [userEmail, setUserEmail] = useState('');
-  const router = useRouter();
+  const [resultClips, setResultClips] = useState<any[] | null>(null);
 
-  const STABLE_VIDEO_URL = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
-
-  useEffect(() => {
-    const sessionUser = localStorage.getItem('clipstream_session');
-    if (sessionUser) {
-      setUserEmail(sessionUser);
-    } else {
-      router.push('/');
-    }
-  }, [router]);
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!content.trim()) return;
-
     setLoading(true);
-    setResult(null);
+    setResultClips(null);
 
     try {
-      const response = await fetch('/api/generate', {
+      const res = await fetch('/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          type: contentType,
-          content: content,
-          userCredits: credits,
-        }),
+        body: JSON.stringify({ type: activeTab, content: contentInput }),
       });
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Error al conectar con Make');
+      const data = await res.json();
+      if (data.success) {
+        setResultClips(data.clips);
+      } else {
+        alert('Hubo un error al generar los clips.');
       }
-
-      setCredits(data.remainingCredits ?? credits - 1);
-      
-      const rawOutput = data.output || data.message || data.content || JSON.stringify(data);
-      const textOutput = typeof rawOutput === 'string' ? rawOutput : JSON.stringify(rawOutput, null, 2);
-
-      // AQUÍ ESTÁ EL CAMBIO CLAVE: Tomamos el videoUrl que manda Make, o usamos el de respaldo si viniera vacío
-      const dynamicVideoUrl = data.videoUrl || STABLE_VIDEO_URL;
-
-      setResult({
-        output: textOutput,
-        videoUrl: dynamicVideoUrl
-      });
-
-    } catch (error: any) {
-      setResult({
-        output: `🎬 ESTRUCTURA Y GUIÓN PROFESIONAL - ClipStream AI\n\n🔹 Tema analizado: "${content}"\n\n1. Gancho (0 - 5s): Captura visual inmediata.\n2. Desarrollo (5 - 45s): Exposición de valor.\n3. Cierre (45 - 60s): Llamado a la acción.`,
-        videoUrl: STABLE_VIDEO_URL
-      });
+    } catch (err) {
+      console.error(err);
+      alert('Error de conexión.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('clipstream_session');
-    router.push('/');
-  };
-
   return (
-    <div className="min-h-screen bg-gray-950 text-white">
-      {/* Menú Superior Fijo e Intacto */}
-      <nav className="sticky top-0 z-50 bg-gray-900 border-b border-purple-500/30 px-6 py-4 flex flex-wrap justify-between items-center gap-4 shadow-md">
-        <div className="flex items-center gap-3">
-          <span className="text-xl font-black text-purple-400">⚡ ClipStream AI</span>
-        </div>
-        
-        <div className="flex items-center gap-6 font-medium text-sm">
-          <Link href="/" className="hover:text-purple-400 transition flex items-center gap-1 cursor-pointer">🏠 Inicio</Link>
-          <Link href="/dashboard/create" className="text-purple-400 font-bold flex items-center gap-1 cursor-pointer">🎬 Crear</Link>
-          <Link href="/pricing" className="hover:text-purple-400 transition flex items-center gap-1 cursor-pointer">💎 Planes y Precios</Link>
+    <div className="min-h-screen bg-slate-950 text-slate-100 py-10 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-purple-600/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div className="max-w-4xl mx-auto relative z-10">
+        <div className="flex justify-between items-center mb-8">
+          <Link href="/" className="text-sm font-semibold text-purple-400 hover:text-purple-300 transition">
+            ← Volver al inicio
+          </Link>
+          <h1 className="text-2xl font-extrabold text-white">
+            ClipStream <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">AI Studio</span>
+          </h1>
         </div>
 
-        <div className="flex items-center gap-4">
-          {userEmail && (
-            <span className="text-xs text-gray-400 hidden lg:inline-block bg-gray-950 px-3 py-1.5 rounded-lg border border-gray-800">
-              👤 <strong className="text-purple-300">{userEmail}</strong>
-            </span>
+        <div className="bg-slate-900/85 backdrop-blur-xl border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl">
+          <h2 className="text-xl font-bold text-white mb-4">¿Qué deseas transformar hoy?</h2>
+          
+          <div className="grid grid-cols-3 gap-2 bg-slate-950 p-1.5 rounded-2xl border border-slate-800 mb-6">
+            <button
+              type="button"
+              onClick={() => { setActiveTab('youtube'); setContentInput(''); }}
+              className={`py-2.5 rounded-xl text-sm font-semibold transition cursor-pointer ${activeTab === 'youtube' ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
+            >
+              🔗 Enlace YouTube
+            </button>
+            <button
+              type="button"
+              onClick={() => { setActiveTab('text'); setContentInput(''); }}
+              className={`py-2.5 rounded-xl text-sm font-semibold transition cursor-pointer ${activeTab === 'text' ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
+            >
+              ✍️ Texto / Idea
+            </button>
+            <button
+              type="button"
+              onClick={() => { setActiveTab('upload'); setContentInput(''); }}
+              className={`py-2.5 rounded-xl text-sm font-semibold transition cursor-pointer ${activeTab === 'upload' ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
+            >
+              📁 Subir Archivo
+            </button>
+          </div>
+
+          <form onSubmit={handleGenerate} className="space-y-6">
+            {activeTab === 'youtube' && (
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Pega el enlace del video de YouTube</label>
+                <input
+                  type="url"
+                  required
+                  placeholder="https://www.youtube.com/watch?v=..."
+                  value={contentInput}
+                  onChange={(e) => setContentInput(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition"
+                />
+              </div>
+            )}
+
+            {activeTab === 'text' && (
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Escribe tu idea o guion para que la IA cree el video</label>
+                <textarea
+                  required
+                  rows={4}
+                  placeholder="Ej: Crea un video dinámico sobre 3 consejos..."
+                  value={contentInput}
+                  onChange={(e) => setContentInput(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl p-4 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition"
+                />
+              </div>
+            )}
+
+            {activeTab === 'upload' && (
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Sube tu archivo de video o audio</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Nombre o ruta del archivo de video (ej: video.mp4)"
+                  value={contentInput}
+                  onChange={(e) => setContentInput(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition"
+                />
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-bold py-4 px-6 rounded-xl transition shadow-lg shadow-purple-500/25 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+            >
+              {loading ? (
+                <>
+                  <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                  </svg>
+                  <span>La IA está procesando y creando tus clips...</span>
+                </>
+              ) : (
+                <>🚀 Generar Clips Virales con IA</>
+              )}
+            </button>
+          </form>
+
+          {resultClips && (
+            <div className="mt-8 pt-6 border-t border-slate-800">
+              <h3 className="text-lg font-bold text-white mb-4">🎉 ¡Clips Generados Exitosamente!</h3>
+              <div className="space-y-3">
+                {resultClips.map((clip) => (
+                  <div key={clip.id} className="bg-slate-950 border border-slate-800 p-4 rounded-xl flex items-center justify-between">
+                    <div>
+                      <p className="font-semibold text-white text-sm">{clip.title}</p>
+                      <span className="text-xs text-purple-400">Duración: {clip.duration} • Listo para TikTok / Reels</span>
+                    </div>
+                    <button type="button" className="bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 text-xs font-bold px-3 py-2 rounded-lg border border-purple-500/30 transition cursor-pointer">
+                      ⬇️ Descargar Clip
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
           )}
-          
-          <div className="bg-purple-900/80 border border-purple-500 px-4 py-1.5 rounded-lg text-sm font-bold shadow text-white">
-            ⚡ Créditos: {credits}
-          </div>
-          <button 
-            onClick={handleLogout}
-            className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-lg transition shadow cursor-pointer"
-          >
-            🚪 Salir
-          </button>
         </div>
-      </nav>
-
-      {/* Contenido Principal */}
-      <div className="max-w-4xl mx-auto p-6 mt-6">
-        <div className="text-center mb-6">
-          <h1 className="text-2xl font-bold text-white">Estudio ClipStream - Generador con IA</h1>
-          <p className="text-gray-400 text-sm mt-1">Selecciona tu formato, escribe tu idea y genera tu contenido viral conectado con Make.</p>
-        </div>
-        
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">Selecciona el tipo de entrada</label>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              {[
-                { id: 'text', label: '📄 Texto / Idea' },
-                { id: 'youtube', label: '📺 URL de YouTube' },
-                { id: 'image', label: '🖼️ Imagen (URL)' },
-                { id: 'prompt', label: '✨ Prompt IA' },
-              ].map((item) => (
-                <button
-                  key={item.id}
-                  type="button"
-                  onClick={() => setContentType(item.id)}
-                  className={`py-3 px-4 rounded-lg font-medium border transition cursor-pointer ${
-                    contentType === item.id
-                      ? 'bg-purple-600 border-purple-400 text-white shadow-lg'
-                      : 'bg-gray-900 border-gray-700 text-gray-400 hover:bg-gray-800'
-                  }`}
-                >
-                  {item.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <textarea
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            placeholder="Escribe tu idea, enlace o prompt aquí..."
-            className="w-full h-32 p-3 border rounded-lg bg-gray-900 text-white focus:outline-none focus:border-purple-500 text-sm"
-            rows={4}
-          />
-          
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-3.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold rounded-xl transition disabled:opacity-50 shadow-lg cursor-pointer text-sm"
-          >
-            {loading ? '⏳ Procesando video con Make e IA...' : '🚀 Generar Contenido (-1 Crédito)'}
-          </button>
-        </form>
-
-        {result && (
-          <div className="mt-8 p-6 bg-gray-900 border border-purple-500 rounded-2xl text-white shadow-xl space-y-6">
-            <h3 className="text-lg font-bold text-purple-400 flex items-center gap-2">
-              ✨ Resultado Generado por Make y ClipStream:
-            </h3>
-
-            {/* Reproductor de Video */}
-            <div className="space-y-3 bg-gray-950 p-4 rounded-xl border border-purple-500/30">
-              <p className="text-xs text-purple-300 font-semibold uppercase tracking-wider">🎥 VISTA PREVIA DEL VIDEO GENERADO:</p>
-              
-              <div className="relative w-full overflow-hidden rounded-xl border border-gray-800 bg-black shadow-2xl">
-                <video 
-                  key={result.videoUrl}
-                  controls 
-                  preload="metadata"
-                  playsInline
-                  className="w-full max-h-[450px] mx-auto block"
-                >
-                  <source src={result.videoUrl} type="video/mp4" />
-                  Tu navegador no soporta la reproducción de video.
-                </video>
-              </div>
-
-              <div className="flex justify-end pt-2">
-                <a 
-                  href={result.videoUrl} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  download="clipstream-viral-video.mp4"
-                  className="px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white font-bold text-xs rounded-xl transition shadow-lg flex items-center gap-2 cursor-pointer"
-                >
-                  📥 Descargar Video MP4
-                </a>
-              </div>
-            </div>
-
-            {/* Guión y Estructura Técnica */}
-            <div className="space-y-2">
-              <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider">📝 GUIÓN Y ESTRUCTURA TÉCNICA:</p>
-              <div className="whitespace-pre-wrap bg-gray-950 p-4 rounded-xl border border-gray-800 text-gray-200 text-sm leading-relaxed">
-                {result.output}
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
