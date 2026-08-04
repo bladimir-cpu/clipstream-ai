@@ -8,9 +8,8 @@ export default function CreateDashboardPage() {
   const [contentInput, setContentInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [resultClips, setResultClips] = useState<any[] | null>(null);
-  const [userEmail, setUserEmail] = useState<string>('usuario@clipstream.ai');
+  const [userEmail, setUserEmail] = useState<string>('wladyreyes@gmail.com');
 
-  // Recuperamos el correo de la sesión si está guardado en localStorage o Supabase Auth simulado
   useEffect(() => {
     const savedEmail = localStorage.getItem('clipstream_user_email') || sessionStorage.getItem('clipstream_user_email');
     if (savedEmail) {
@@ -60,13 +59,13 @@ export default function CreateDashboardPage() {
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-purple-600/10 rounded-full blur-3xl pointer-events-none"></div>
 
       <div className="max-w-4xl mx-auto relative z-10">
-        {/* Barra superior con menú estático, correo de usuario y créditos */}
+        {/* Barra superior con enlaces corregidos */}
         <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-8 bg-slate-900/60 p-4 rounded-2xl border border-slate-800 backdrop-blur-md">
           <div className="flex items-center gap-4">
             <Link href="/" className="text-sm font-semibold text-purple-400 hover:text-purple-300 transition">
               ← Inicio
             </Link>
-            <Link href="/dashboard" className="text-sm font-semibold text-slate-300 hover:text-white transition">
+            <Link href="/dashboard/create" className="text-sm font-semibold text-slate-300 hover:text-white transition">
               Dashboard
             </Link>
             <Link href="/pricing" className="text-sm font-semibold text-slate-300 hover:text-white transition">
@@ -75,7 +74,6 @@ export default function CreateDashboardPage() {
           </div>
 
           <div className="flex items-center gap-3 flex-wrap justify-end">
-            {/* Indicador de cuenta conectada */}
             <span className="text-xs bg-slate-800 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-700 font-medium flex items-center gap-1.5">
               👤 <span className="text-purple-300 font-semibold">{userEmail}</span>
             </span>
@@ -96,7 +94,7 @@ export default function CreateDashboardPage() {
           </h1>
           <h2 className="text-lg font-medium text-slate-300 mb-6">¿Qué deseas transformar hoy?</h2>
           
-          {/* Pestañas Completas: YouTube, Texto, Video, Imagen y Prompt */}
+          {/* Las 5 pestañas funcionales */}
           <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 bg-slate-950 p-1.5 rounded-2xl border border-slate-800 mb-6">
             <button
               type="button"
