@@ -6,6 +6,7 @@ import Link from 'next/link';
 export default function CreateDashboardPage() {
   const [activeTab, setActiveTab] = useState<'youtube' | 'text' | 'upload' | 'image' | 'prompt'>('youtube');
   const [contentInput, setContentInput] = useState('');
+  const [instructionInput, setInstructionInput] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [resultClips, setResultClips] = useState<any[] | null>(null);
@@ -13,13 +14,11 @@ export default function CreateDashboardPage() {
   const [userCredits, setUserCredits] = useState<number>(10);
 
   useEffect(() => {
-    // Sincronizamos el correo real del usuario logueado
     const savedEmail = localStorage.getItem('clipstream_user_email') || sessionStorage.getItem('clipstream_user_email');
     if (savedEmail) {
       setUserEmail(savedEmail);
     }
 
-    // Cargamos o inicializamos los créditos reales
     const savedCredits = localStorage.getItem('clipstream_credits');
     if (savedCredits) {
       setUserCredits(parseInt(savedCredits, 10));
@@ -32,7 +31,6 @@ export default function CreateDashboardPage() {
   const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Verificamos créditos antes de gastar
     if (userCredits <= 0) {
       alert('Te has quedado sin créditos. Por favor recarga o adquiere un plan.');
       window.location.href = '/pricing';
@@ -43,7 +41,10 @@ export default function CreateDashboardPage() {
     setResultClips(null);
 
     try {
-      const payloadValue = selectedFile ? selectedFile.name : contentInput;
+      // Combinamos el archivo o entrada con las instrucciones escritas si existen
+      const payloadValue = selectedFile 
+        ? `Archivo: ${selectedFile.name} | Instrucción: ${instructionInput || 'Generar clips dinámicos'}` 
+        : contentInput;
 
       const res = await fetch('/api/generate', {
         method: 'POST',
@@ -54,7 +55,6 @@ export default function CreateDashboardPage() {
       const data = await res.json();
       if (data.success) {
         setResultClips(data.clips);
-        // Descontamos 1 crédito por generación exitosa
         const newCredits = userCredits - 1;
         setUserCredits(newCredits);
         localStorage.setItem('clipstream_credits', newCredits.toString());
@@ -85,7 +85,6 @@ export default function CreateDashboardPage() {
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-purple-600/10 rounded-full blur-3xl pointer-events-none"></div>
 
       <div className="max-w-4xl mx-auto relative z-10">
-        {/* Barra superior con navegación, correo real y créditos */}
         <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-8 bg-slate-900/60 p-4 rounded-2xl border border-slate-800 backdrop-blur-md">
           <div className="flex items-center gap-4">
             <Link href="/" className="text-sm font-semibold text-purple-400 hover:text-purple-300 transition">
@@ -120,39 +119,38 @@ export default function CreateDashboardPage() {
           </h1>
           <h2 className="text-lg font-medium text-slate-300 mb-6">¿Qué deseas transformar hoy?</h2>
           
-          {/* Pestañas de selección */}
           <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 bg-slate-950 p-1.5 rounded-2xl border border-slate-800 mb-6">
             <button
               type="button"
-              onClick={() => { setActiveTab('youtube'); setContentInput(''); setSelectedFile(null); }}
+              onClick={() => { setActiveTab('youtube'); setContentInput(''); setInstructionInput(''); setSelectedFile(null); }}
               className={`py-2 rounded-xl text-xs sm:text-sm font-semibold transition cursor-pointer ${activeTab === 'youtube' ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
             >
               🔗 YouTube
             </button>
             <button
               type="button"
-              onClick={() => { setActiveTab('text'); setContentInput(''); setSelectedFile(null); }}
+              onClick={() => { setActiveTab('text'); setContentInput(''); setInstructionInput(''); setSelectedFile(null); }}
               className={`py-2 rounded-xl text-xs sm:text-sm font-semibold transition cursor-pointer ${activeTab === 'text' ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
             >
               ✍️ Texto
             </button>
             <button
               type="button"
-              onClick={() => { setActiveTab('upload'); setContentInput(''); setSelectedFile(null); }}
+              onClick={() => { setActiveTab('upload'); setContentInput(''); setInstructionInput(''); setSelectedFile(null); }}
               className={`py-2 rounded-xl text-xs sm:text-sm font-semibold transition cursor-pointer ${activeTab === 'upload' ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
             >
               📁 Video
             </button>
             <button
               type="button"
-              onClick={() => { setActiveTab('image'); setContentInput(''); setSelectedFile(null); }}
+              onClick={() => { setActiveTab('image'); setContentInput(''); setInstructionInput(''); setSelectedFile(null); }}
               className={`py-2 rounded-xl text-xs sm:text-sm font-semibold transition cursor-pointer ${activeTab === 'image' ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
             >
               🖼️ Imagen
             </button>
             <button
               type="button"
-              onClick={() => { setActiveTab('prompt'); setContentInput(''); setSelectedFile(null); }}
+              onClick={() => { setActiveTab('prompt'); setContentInput(''); setInstructionInput(''); setSelectedFile(null); }}
               className={`py-2 rounded-xl text-xs sm:text-sm font-semibold transition cursor-pointer ${activeTab === 'prompt' ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
             >
               ✨ Prompt IA
@@ -189,9 +187,9 @@ export default function CreateDashboardPage() {
             )}
 
             {activeTab === 'upload' && (
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Sube tu archivo de video desde la computadora</label>
-                <div className="flex items-center justify-center w-full">
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">Sube tu archivo de video desde la computadora</label>
                   <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-slate-800 border-dashed rounded-xl cursor-pointer bg-slate-950 hover:bg-slate-900 transition">
                     <div className="flex flex-col items-center justify-center pt-5 pb-6 px-4 text-center">
                       <svg className="w-8 h-8 mb-2 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -214,13 +212,23 @@ export default function CreateDashboardPage() {
                     />
                   </label>
                 </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">¿Qué debe hacer la IA con este video? (Instrucción)</label>
+                  <input
+                    type="text"
+                    placeholder="Ej: Extrae los 2 momentos más impactantes y ponles subtítulos dinámicos..."
+                    value={instructionInput}
+                    onChange={(e) => setInstructionInput(e.target.value)}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition text-sm"
+                  />
+                </div>
               </div>
             )}
 
             {activeTab === 'image' && (
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Sube tu imagen base desde la computadora</label>
-                <div className="flex items-center justify-center w-full">
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">Sube tu imagen base desde la computadora</label>
                   <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-slate-800 border-dashed rounded-xl cursor-pointer bg-slate-950 hover:bg-slate-900 transition">
                     <div className="flex flex-col items-center justify-center pt-5 pb-6 px-4 text-center">
                       <svg className="w-8 h-8 mb-2 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -242,6 +250,16 @@ export default function CreateDashboardPage() {
                       }}
                     />
                   </label>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">¿Qué quieres que la IA haga con esta imagen? (Prompt)</label>
+                  <input
+                    type="text"
+                    placeholder="Ej: Haz que esta imagen cobre vida, baile y tenga un estilo publicitario viral..."
+                    value={instructionInput}
+                    onChange={(e) => setInstructionInput(e.target.value)}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition text-sm"
+                  />
                 </div>
               </div>
             )}
