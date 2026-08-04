@@ -9,12 +9,11 @@ export async function POST(request: Request) {
 
     if (!makeWebhookUrl) {
       return NextResponse.json(
-        { error: 'Falta configurar la variable MAKE_WEBHOOK_URL en el servidor.' },
+        { error: 'Falta configurar la variable MAKE_WEBHOOK_URL en Vercel.' },
         { status: 400 }
       );
     }
 
-    // Llamada directa y real a tu escenario de Make
     const makeResponse = await fetch(makeWebhookUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -22,14 +21,13 @@ export async function POST(request: Request) {
     });
 
     if (!makeResponse.ok) {
-      throw new Error('Error al comunicarse con el Webhook de Make.');
+      throw new Error(`Error en el Webhook de Make (Código: ${makeResponse.status})`);
     }
 
-    const makeData = await makeResponse.json();
+    const makeData = await makeResponse.json().catch(() => ({}));
 
-    // Extraemos la respuesta y el enlace de video real que mande Make
     const textOutput = makeData.output || makeData.message || makeData.text || "Contenido generado con éxito.";
-    const dynamicVideoUrl = makeData.videoUrl || makeData.url || "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
+    const dynamicVideoUrl = makeData.videoUrl || "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
 
     return NextResponse.json({
       output: textOutput,
@@ -38,6 +36,7 @@ export async function POST(request: Request) {
     });
 
   } catch (error: any) {
+    console.error("API ROUTE ERROR:", error);
     return NextResponse.json(
       { error: error.message || 'Error interno al procesar la solicitud con Make.' },
       { status: 500 }
