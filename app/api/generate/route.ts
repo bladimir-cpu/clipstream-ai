@@ -86,4 +86,4 @@ export async function POST(request: Request) {
     console.error('Error general:', error);
     return NextResponse.json({ success: false, error: 'Error interno en el servidor' }, { status: 500 });
   }
-}
+} 
