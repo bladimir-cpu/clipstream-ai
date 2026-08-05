@@ -22,7 +22,6 @@ export default function LoginPage() {
 
     try {
       if (typeof window !== 'undefined') {
-        // Limpiamos y guardamos el correo real del usuario actual
         localStorage.removeItem('clipstream_user_email');
         localStorage.setItem('clipstream_user_email', email);
       }
@@ -39,15 +38,21 @@ export default function LoginPage() {
   };
 
   const handleGoogleLogin = () => {
-    // Simulamos / Preparamos el flujo de acceso con Google
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('clipstream_user_email', 'distribuidoresencalada@gmail.com');
-    }
     setLoading(true);
+    
+    // Simulamos la elección de cuenta o limpieza de caché preguntando al usuario o dándole opción
     setTimeout(() => {
       setLoading(false);
-      router.push('/dashboard/create');
-    }, 1000);
+      // Aquí puedes pedir o definir un correo limpio, o en entorno real se pasa el parámetro prompt: 'select_account'
+      const chosenEmail = prompt('Simulando selector de Google. Ingresa o confirma la cuenta con la que deseas entrar:', 'distribuidoresencalada@gmail.com');
+      
+      if (chosenEmail) {
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('clipstream_user_email', chosenEmail);
+        }
+        router.push('/dashboard/create');
+      }
+    }, 600);
   };
 
   return (
@@ -65,7 +70,7 @@ export default function LoginPage() {
           <p className="text-sm text-slate-400 mt-2">Accede a tu estudio de creación viral</p>
         </div>
 
-        {/* Botón de Google Profesional */}
+        {/* Botón de Google Profesional con Selector Forzado */}
         <button
           type="button"
           onClick={handleGoogleLogin}
@@ -152,4 +157,3 @@ export default function LoginPage() {
     </div>
   );
 }
- 
