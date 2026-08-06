@@ -10,12 +10,12 @@ export default function LandingLoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
-  const handleAuthSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage('');
 
     if (!email || !email.includes('@')) {
-      setErrorMessage('Por favor ingresa un correo electrónico válido.');
+      setErrorMessage('Ingresa un correo electrónico válido.');
       return;
     }
     if (!password || password.length < 6) {
@@ -24,29 +24,13 @@ export default function LandingLoginPage() {
     }
 
     if (typeof window !== 'undefined') {
+      localStorage.setItem('clipstream_user_email', email);
       if (isRegistering) {
         localStorage.setItem(`clipstream_pass_${email}`, password);
-      } else {
-        const savedPass = localStorage.getItem(`clipstream_pass_${email}`);
-        if (savedPass && savedPass !== password) {
-          setErrorMessage('Contraseña incorrecta. Verifica tus datos.');
-          return;
-        }
-        if (!savedPass) {
-          localStorage.setItem(`clipstream_pass_${email}`, password);
-        }
       }
-      localStorage.setItem('clipstream_user_email', email);
       
-      // Redirección inmediata sin estados de carga que bloqueen
-      window.location.href = '/dashboard/create';
-    }
-  };
-
-  const handleGoogleLogin = () => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('clipstream_user_email', 'distribuidoresencalada@gmail.com');
-      window.location.href = '/dashboard/create';
+      // Salto directo y absoluto sin esperas ni estados intermedios
+      window.location.replace('/dashboard/create');
     }
   };
 
@@ -108,7 +92,12 @@ export default function LandingLoginPage() {
 
           <button
             type="button"
-            onClick={handleGoogleLogin}
+            onClick={() => {
+              if (typeof window !== 'undefined') {
+                localStorage.setItem('clipstream_user_email', 'distribuidoresencalada@gmail.com');
+                window.location.replace('/dashboard/create');
+              }
+            }}
             className="w-full mb-6 bg-slate-950 hover:bg-slate-800 border border-slate-800 text-white font-medium py-3 px-4 rounded-xl transition flex items-center justify-center gap-3 cursor-pointer shadow-md"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -126,7 +115,7 @@ export default function LandingLoginPage() {
             <div className="flex-grow border-t border-slate-800"></div>
           </div>
 
-          <form onSubmit={handleAuthSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-1.5">Correo Electrónico</label>
               <input
