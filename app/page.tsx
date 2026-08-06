@@ -9,7 +9,6 @@ export default function LandingLoginPage() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  const [loading, setLoading] = useState(false);
 
   const handleAuthSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,46 +23,30 @@ export default function LandingLoginPage() {
       return;
     }
 
-    setLoading(true);
-
-    try {
-      if (typeof window !== 'undefined') {
-        if (isRegistering) {
-          localStorage.setItem(`clipstream_pass_${email}`, password);
-        } else {
-          const savedPass = localStorage.getItem(`clipstream_pass_${email}`);
-          if (savedPass && savedPass !== password) {
-            setErrorMessage('Contraseña incorrecta. Verifica tus datos.');
-            setLoading(false);
-            return;
-          }
-          if (!savedPass) {
-            localStorage.setItem(`clipstream_pass_${email}`, password);
-          }
+    if (typeof window !== 'undefined') {
+      if (isRegistering) {
+        localStorage.setItem(`clipstream_pass_${email}`, password);
+      } else {
+        const savedPass = localStorage.getItem(`clipstream_pass_${email}`);
+        if (savedPass && savedPass !== password) {
+          setErrorMessage('Contraseña incorrecta. Verifica tus datos.');
+          return;
         }
-        localStorage.setItem('clipstream_user_email', email);
-        
-        // Redirección nativa forzada para evitar que Next.js se quede colgado
-        window.location.href = '/dashboard/create';
+        if (!savedPass) {
+          localStorage.setItem(`clipstream_pass_${email}`, password);
+        }
       }
-    } catch (err) {
-      console.error(err);
-      setErrorMessage('Error al procesar la solicitud.');
-      setLoading(false);
+      localStorage.setItem('clipstream_user_email', email);
+      
+      // Redirección inmediata sin estados de carga que bloqueen
+      window.location.href = '/dashboard/create';
     }
   };
 
   const handleGoogleLogin = () => {
-    setLoading(true);
-    try {
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('clipstream_user_email', 'distribuidoresencalada@gmail.com');
-        // Redirección nativa forzada para evitar que Next.js se quede colgado
-        window.location.href = '/dashboard/create';
-      }
-    } catch (err) {
-      console.error(err);
-      setLoading(false);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('clipstream_user_email', 'distribuidoresencalada@gmail.com');
+      window.location.href = '/dashboard/create';
     }
   };
 
@@ -126,8 +109,7 @@ export default function LandingLoginPage() {
           <button
             type="button"
             onClick={handleGoogleLogin}
-            disabled={loading}
-            className="w-full mb-6 bg-slate-950 hover:bg-slate-800 border border-slate-800 text-white font-medium py-3 px-4 rounded-xl transition flex items-center justify-center gap-3 cursor-pointer shadow-md disabled:opacity-50"
+            className="w-full mb-6 bg-slate-950 hover:bg-slate-800 border border-slate-800 text-white font-medium py-3 px-4 rounded-xl transition flex items-center justify-center gap-3 cursor-pointer shadow-md"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/>
@@ -180,20 +162,9 @@ export default function LandingLoginPage() {
 
             <button
               type="submit"
-              disabled={loading}
-              className="w-full mt-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-bold py-3.5 px-6 rounded-xl transition shadow-lg shadow-purple-500/25 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 text-sm"
+              className="w-full mt-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-bold py-3.5 px-6 rounded-xl transition shadow-lg shadow-purple-500/25 flex items-center justify-center gap-2 cursor-pointer text-sm"
             >
-              {loading ? (
-                <>
-                  <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a88 8 0 018-8v8H4z"></path>
-                  </svg>
-                  <span>{isRegistering ? 'Registrando...' : 'Ingresando al Studio...'}</span>
-                </>
-              ) : (
-                <>{isRegistering ? '✨ Registrarme Ahora' : '🚀 Entrar al Studio'}</>
-              )}
+              {isRegistering ? '✨ Registrarme Ahora' : '🚀 Entrar al Studio'}
             </button>
           </form>
 
