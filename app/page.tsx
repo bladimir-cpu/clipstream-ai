@@ -3,13 +3,13 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import Image from 'next/image'; // <-- Importación de la imagen agregada
 
 export default function LandingLoginPage() {
   const [isRegistering, setIsRegistering] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const router = useRouter();
 
@@ -26,31 +26,54 @@ export default function LandingLoginPage() {
       return;
     }
 
-    if (typeof window !== 'undefined') {
-      if (isRegistering) {
-        localStorage.setItem(`clipstream_pass_${email}`, password);
-      } else {
-        const savedPass = localStorage.getItem(`clipstream_pass_${email}`);
-        if (savedPass && savedPass !== password) {
-          setErrorMessage('Contraseña incorrecta. Verifica tus datos.');
-          return;
-        }
-        if (!savedPass) {
-          localStorage.setItem(`clipstream_pass_${email}`, password);
-        }
-      }
-      localStorage.setItem('clipstream_user_email', email);
-    }
+    setLoading(true);
 
-    // Redirección instantánea sin bloqueos de carga colgados
-    router.push('/dashboard/create');
+    // Temporizador de seguridad para evitar que se quede colgado
+    setTimeout(() => {
+      try {
+        if (typeof window !== 'undefined') {
+          if (isRegistering) {
+            // Lógica de registro
+            localStorage.setItem(`clipstream_pass_${email}`, password);
+          } else {
+            // Lógica de inicio de sesión
+            const savedPass = localStorage.getItem(`clipstream_pass_${email}`);
+            if (savedPass && savedPass !== password) {
+              setErrorMessage('Contraseña incorrecta. Verifica tus datos.');
+              setLoading(false);
+              return;
+            }
+            if (!savedPass) {
+              localStorage.setItem(`clipstream_pass_${email}`, password);
+            }
+          }
+          localStorage.setItem('clipstream_user_email', email);
+        }
+        router.push('/dashboard/create');
+      } catch (err) {
+        console.error(err);
+        setErrorMessage('Error al acceder. Verifica la ruta.');
+      } finally {
+        setLoading(false);
+      }
+    }, 600);
   };
 
   const handleGoogleLogin = () => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('clipstream_user_email', 'distribuidoresencalada@gmail.com');
-    }
-    router.push('/dashboard/create');
+    setLoading(true);
+    
+    setTimeout(() => {
+      try {
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('clipstream_user_email', email || 'usuario@gmail.com');
+        }
+        router.push('/dashboard/create');
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    }, 600);
   };
 
   return (
@@ -89,14 +112,17 @@ export default function LandingLoginPage() {
             </div>
           </div>
           
-          {/* AQUÍ ESTÁ LA IMAGEN RESTAURADA */}
-          <div className="mt-8 relative w-full h-[300px] rounded-2xl overflow-hidden border border-slate-800 shadow-2xl">
-            <Image 
-              src="/image_9a9804.jpg" /* Cambia este nombre por el archivo exacto que tienes en tu carpeta public */
+          {/* Imagen restaurada usando etiqueta estándar para evitar bloqueos */}
+          <div className="mt-8 w-full h-[300px] rounded-2xl overflow-hidden border border-slate-800 shadow-2xl bg-slate-900 flex items-center justify-center">
+            <img 
+              src="/image_9a9804.jpg" 
               alt="ClipStream AI Dashboard"
-              fill
-              className="object-cover"
-              priority
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                // Si la imagen falla en cargar, muestra un fondo alternativo en lugar de romperse
+                (e.target as HTMLImageElement).style.display = 'none';
+                (e.target as HTMLImageElement).parentElement!.classList.add('bg-gradient-to-br', 'from-purple-900/50', 'to-slate-900');
+              }}
             />
           </div>
         </div>
@@ -123,7 +149,8 @@ export default function LandingLoginPage() {
           <button
             type="button"
             onClick={handleGoogleLogin}
-            className="w-full mb-6 bg-slate-950 hover:bg-slate-800 border border-slate-800 text-white font-medium py-3 px-4 rounded-xl transition flex items-center justify-center gap-3 cursor-pointer shadow-md"
+            disabled={loading}
+            className="w-full mb-6 bg-slate-950 hover:bg-slate-800 border border-slate-800 text-white font-medium py-3 px-4 rounded-xl transition flex items-center justify-center gap-3 cursor-pointer shadow-md disabled:opacity-50"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/>
@@ -176,9 +203,20 @@ export default function LandingLoginPage() {
 
             <button
               type="submit"
-              className="w-full mt-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-bold py-3.5 px-6 rounded-xl transition shadow-lg shadow-purple-500/25 flex items-center justify-center gap-2 cursor-pointer text-sm"
+              disabled={loading}
+              className="w-full mt-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-bold py-3.5 px-6 rounded-xl transition shadow-lg shadow-purple-500/25 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 text-sm"
             >
-              {isRegistering ? '✨ Registrarme Ahora' : '🚀 Entrar al Studio'}
+              {loading ? (
+                <>
+                  <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a88 8 0 018-8v8H4z"></path>
+                  </svg>
+                  <span>{isRegistering ? 'Registrando...' : 'Ingresando al Studio...'}</span>
+                </>
+              ) : (
+                <>{isRegistering ? '✨ Registrarme Ahora' : '🚀 Entrar al Studio'}</>
+              )}
             </button>
           </form>
 
