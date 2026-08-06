@@ -5,7 +5,8 @@ import Link from 'next/link';
 
 export default function DashboardCreatePage() {
   const [userEmail, setUserEmail] = useState('');
-  const [videoUrl, setVideoUrl] = useState('');
+  const [activeTab, setActiveTab] = useState<'video' | 'text' | 'image' | 'prompt'>('video');
+  const [inputData, setInputData] = useState('');
   const [processing, setProcessing] = useState(false);
 
   useEffect(() => {
@@ -17,17 +18,17 @@ export default function DashboardCreatePage() {
     }
   }, []);
 
-  const handleProcessVideo = (e: React.FormEvent) => {
+  const handleProcess = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!videoUrl) {
-      alert('Por favor ingresa un enlace o archivo de video válido.');
+    if (!inputData && activeTab !== 'video') {
+      alert('Por favor ingresa la información requerida.');
       return;
     }
 
     setProcessing(true);
     setTimeout(() => {
       setProcessing(false);
-      alert('¡Video analizado con éxito por la IA! Generando clips virales...');
+      alert(`¡Contenido procesado con éxito usando la opción de ${activeTab.toUpperCase()}!`);
     }, 2000);
   };
 
@@ -61,7 +62,7 @@ export default function DashboardCreatePage() {
         </div>
       </header>
 
-      {/* Contenido Principal del Panel de Creación */}
+      {/* Contenido Principal con las 4 Opciones */}
       <main className="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-12 flex flex-col justify-center">
         <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-8 sm:p-12 shadow-2xl relative overflow-hidden">
           <div className="absolute top-0 right-0 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl pointer-events-none"></div>
@@ -71,23 +72,92 @@ export default function DashboardCreatePage() {
               Kling AI Engine Activo
             </span>
             <h1 className="text-3xl sm:text-4xl font-extrabold text-white mt-4 tracking-tight">
-              Sube tu video y genera <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">clips virales</span>
+              Selecciona el modo de <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">Creación Viral</span>
             </h1>
             <p className="text-slate-400 text-sm mt-2">
-              Pega el enlace de YouTube o arrastra tu video largo para que la inteligencia artificial extraiga los mejores momentos.
+              Elige entre video, texto, imagen o prompt personalizado para generar tu contenido optimizado.
             </p>
           </div>
 
-          <form onSubmit={handleProcessVideo} className="space-y-4 max-w-xl mx-auto">
+          {/* Botones de las 4 Opciones */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-xl mx-auto mb-8">
+            <button
+              type="button"
+              onClick={() => setActiveTab('video')}
+              className={`py-3 px-4 rounded-xl text-xs font-bold transition cursor-pointer border ${
+                activeTab === 'video'
+                  ? 'bg-purple-600 text-white border-purple-500 shadow-lg shadow-purple-600/30'
+                  : 'bg-slate-950 text-slate-400 border-slate-800 hover:bg-slate-800 hover:text-white'
+              }`}
+            >
+              🎬 Video / URL
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('text')}
+              className={`py-3 px-4 rounded-xl text-xs font-bold transition cursor-pointer border ${
+                activeTab === 'text'
+                  ? 'bg-purple-600 text-white border-purple-500 shadow-lg shadow-purple-600/30'
+                  : 'bg-slate-950 text-slate-400 border-slate-800 hover:bg-slate-800 hover:text-white'
+              }`}
+            >
+              📝 Texto
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('image')}
+              className={`py-3 px-4 rounded-xl text-xs font-bold transition cursor-pointer border ${
+                activeTab === 'image'
+                  ? 'bg-purple-600 text-white border-purple-500 shadow-lg shadow-purple-600/30'
+                  : 'bg-slate-950 text-slate-400 border-slate-800 hover:bg-slate-800 hover:text-white'
+              }`}
+            >
+              🖼️ Imagen
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('prompt')}
+              className={`py-3 px-4 rounded-xl text-xs font-bold transition cursor-pointer border ${
+                activeTab === 'prompt'
+                  ? 'bg-purple-600 text-white border-purple-500 shadow-lg shadow-purple-600/30'
+                  : 'bg-slate-950 text-slate-400 border-slate-800 hover:bg-slate-800 hover:text-white'
+              }`}
+            >
+              ✨ Prompt IA
+            </button>
+          </div>
+
+          {/* Formulario Dinámico según la opción seleccionada */}
+          <form onSubmit={handleProcess} className="space-y-4 max-w-xl mx-auto">
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Enlace de YouTube o Video</label>
-              <input
-                type="text"
-                placeholder="https://www.youtube.com/watch?v=..."
-                value={videoUrl}
-                onChange={(e) => setVideoUrl(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3.5 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition text-sm"
-              />
+              <label className="block text-sm font-medium text-slate-300 mb-2">
+                {activeTab === 'video' && 'Enlace de YouTube o Video'}
+                {activeTab === 'text' && 'Guion o Texto base para los clips'}
+                {activeTab === 'image' && 'Sube o enlaza tu imagen de referencia'}
+                {activeTab === 'prompt' && 'Escribe el Prompt detallado para la Inteligencia Artificial'}
+              </label>
+
+              {activeTab === 'text' || activeTab === 'prompt' ? (
+                <textarea
+                  rows={4}
+                  placeholder={activeTab === 'text' ? 'Pega tu texto o guion aquí...' : 'Ej: Crea un video viral sobre hábitos de éxito...'}
+                  value={inputData}
+                  onChange={(e) => setInputData(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl p-4 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition text-sm"
+                />
+              ) : (
+                <input
+                  type="text"
+                  placeholder={
+                    activeTab === 'video'
+                      ? 'https://www.youtube.com/watch?v=...'
+                      : 'https://tuservidor.com/imagen.jpg o archivo'
+                  }
+                  value={inputData}
+                  onChange={(e) => setInputData(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3.5 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition text-sm"
+                />
+              )}
             </div>
 
             <button
@@ -99,12 +169,12 @@ export default function DashboardCreatePage() {
                 <>
                   <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a88 8 0 018-8v8H4z"></path>
                   </svg>
-                  <span>Analizando video con IA...</span>
+                  <span>Procesando con Kling AI...</span>
                 </>
               ) : (
-                <>⚡ Generar Clips Automáticos</>
+                <>⚡ Generar Contenido ({activeTab.toUpperCase()})</>
               )}
             </button>
           </form>
