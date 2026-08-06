@@ -1,287 +1,194 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
-export default function CreateDashboardPage() {
-  const [activeTab, setActiveTab] = useState<'youtube' | 'text' | 'upload' | 'image' | 'prompt'>('youtube');
-  const [contentInput, setContentInput] = useState('');
-  const [instructionInput, setInstructionInput] = useState('');
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+export default function LandingLoginPage() {
+  const [isRegistering, setIsRegistering] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [resultClips, setResultClips] = useState<any[] | null>(null);
-  const [userEmail, setUserEmail] = useState<string>('distribuidoresencalada@gmail.com');
-  const [userCredits, setUserCredits] = useState<number>(10);
+  const router = useRouter();
 
-  useEffect(() => {
-    const savedEmail = localStorage.getItem('clipstream_user_email') || sessionStorage.getItem('clipstream_user_email');
-    if (savedEmail) {
-      setUserEmail(savedEmail);
-    }
-
-    const savedCredits = localStorage.getItem('clipstream_credits');
-    if (savedCredits) {
-      setUserCredits(parseInt(savedCredits, 10));
-    } else {
-      localStorage.setItem('clipstream_credits', '10');
-      setUserCredits(10);
-    }
-  }, []);
-
-  const handleGenerate = async (e: React.FormEvent) => {
+  const handleAuthSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (userCredits <= 0) {
-      alert('Te has quedado sin créditos. Por favor recarga o adquiere un plan.');
-      window.location.href = '/pricing';
+    if (!email || !email.includes('@')) {
+      alert('Por favor ingresa un correo electrónico válido.');
+      return;
+    }
+    if (!password || password.length < 6) {
+      alert('La contraseña debe tener al menos 6 caracteres.');
       return;
     }
 
     setLoading(true);
-    setResultClips(null);
 
     try {
-      // Combinamos el archivo o entrada con las instrucciones escritas si existen
-      const payloadValue = selectedFile 
-        ? `Archivo: ${selectedFile.name} | Instrucción: ${instructionInput || 'Generar clips dinámicos'}` 
-        : contentInput;
-
-      const res = await fetch('/api/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: activeTab, content: payloadValue }),
-      });
-
-      const data = await res.json();
-      if (data.success) {
-        setResultClips(data.clips);
-        const newCredits = userCredits - 1;
-        setUserCredits(newCredits);
-        localStorage.setItem('clipstream_credits', newCredits.toString());
-      } else {
-        alert(data.error || 'Hubo un error al generar los clips.');
+      if (typeof window !== 'undefined') {
+        if (isRegistering) {
+          // Guardamos la cuenta nueva con su contraseña en el navegador
+          localStorage.setItem(`clipstream_pass_${email}`, password);
+          localStorage.setItem('clipstream_user_email', email);
+          alert('¡Cuenta creada exitosamente! Ingresando al estudio...');
+        } else {
+          // Validamos si la cuenta existe y la contraseña coincide
+          const savedPass = localStorage.getItem(`clipstream_pass_${email}`);
+          
+          // Si es una cuenta nueva de prueba que no se registró aquí, o coincide la clave
+          if (savedPass && savedPass !== password) {
+            setLoading(false);
+            alert('Contraseña incorrecta. Por favor verifícala e intenta de nuevo.');
+            return;
+          }
+          
+          // Si no tenía registro previo guardado pero el correo es válido, lo dejamos pasar o lo guardamos
+          if (!savedPass) {
+            localStorage.setItem(`clipstream_pass_${email}`, password);
+          }
+          
+          localStorage.setItem('clipstream_user_email', email);
+        }
       }
+
+      setTimeout(() => {
+        setLoading(false);
+        router.push('/dashboard/create');
+      }, 800);
     } catch (err) {
       console.error(err);
-      alert('Error de conexión.');
-    } finally {
       setLoading(false);
+      alert('Ocurrió un error en el acceso.');
     }
   };
 
-  const handleDownload = (title: string) => {
-    const realVideoUrl = 'https://www.w3schools.com/html/mov_bbb.mp4';
-    const a = document.createElement('a');
-    a.href = realVideoUrl;
-    a.download = `${title.replace(/[^a-zA-Z0-9]/g, '_')}.mp4`;
-    a.target = '_blank';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+  const handleGoogleLogin = () => {
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+      const chosenEmail = 'distribuidoresencalada@gmail.com';
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('clipstream_user_email', chosenEmail);
+      }
+      router.push('/dashboard/create');
+    }, 600);
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 py-10 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-purple-600/10 rounded-full blur-3xl pointer-events-none"></div>
-
-      <div className="max-w-4xl mx-auto relative z-10">
-        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-8 bg-slate-900/60 p-4 rounded-2xl border border-slate-800 backdrop-blur-md">
-          <div className="flex items-center gap-4">
-            <Link href="/" className="text-sm font-semibold text-purple-400 hover:text-purple-300 transition">
-              ← Inicio
-            </Link>
-            <Link href="/dashboard/create" className="text-sm font-semibold text-slate-300 hover:text-white transition">
-              Panel
-            </Link>
-            <Link href="/pricing" className="text-sm font-semibold text-slate-300 hover:text-white transition">
-              Planes
-            </Link>
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col relative overflow-hidden">
+      {/* Barra de navegación superior */}
+      <header className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 relative z-20">
+        <div className="flex justify-between items-center bg-slate-900/60 p-4 rounded-2xl border border-slate-800 backdrop-blur-md">
+          <div className="flex items-center gap-2">
+            <span className="text-xl">🚀</span>
+            <span className="font-extrabold text-white tracking-wide">ClipStream AI</span>
           </div>
+          <nav className="flex items-center gap-6">
+            <Link href="/" className="text-sm font-medium text-purple-400 hover:text-purple-300 transition">Inicio</Link>
+            <Link href="/dashboard/create" className="text-sm font-medium text-slate-300 hover:text-white transition">Crear</Link>
+            <Link href="/pricing" className="text-sm font-medium text-slate-300 hover:text-white transition">Planes y Precios</Link>
+          </nav>
+        </div>
+      </header>
 
-          <div className="flex items-center gap-3 flex-wrap justify-end">
-            <span className="text-xs bg-slate-800 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-700 font-medium flex items-center gap-1.5">
-              👤 <span className="text-purple-300 font-semibold">{userEmail}</span>
-            </span>
+      {/* Contenido Principal con la Landing a la izquierda y el Panel de Acceso/Registro a la derecha */}
+      <div className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-12 flex flex-col lg:flex-row items-center justify-between gap-12 relative z-10 my-auto">
+        <div className="absolute top-1/2 left-1/4 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-purple-600/15 rounded-full blur-3xl pointer-events-none"></div>
 
-            <Link href="/pricing" className="text-xs bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 px-3 py-1.5 rounded-full border border-purple-500/30 font-medium transition cursor-pointer flex items-center gap-1">
-              ⚡ <span>{userCredits} Créditos Disponibles</span>
-            </Link>
-
-            <Link href="/login" className="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold px-3 py-1.5 rounded-lg transition">
-              🚪 Salir
-            </Link>
+        {/* Sección Izquierda: Promesa de Valor */}
+        <div className="max-w-xl text-left space-y-6">
+          <h1 className="text-4xl sm:text-6xl font-extrabold text-white tracking-tight leading-tight">
+            ¡Maximiza tu <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">Contenido!</span>
+          </h1>
+          <p className="text-lg text-purple-300 font-medium">
+            La forma más inteligente de crear clips virales
+          </p>
+          <p className="text-slate-400 text-sm sm:text-base leading-relaxed">
+            ClipStream AI utiliza tecnología de vanguardia para analizar tus vídeos largos, extraer automáticamente los momentos más impactantes y convertirlos en clips cortos y dinámicos para redes sociales. Con subtítulos automáticos y formatos adaptables, ahorra horas de edición y aumenta tu alcance orgánico.
+          </p>
+          <div className="rounded-2xl overflow-hidden border border-slate-800 shadow-2xl bg-slate-900/50 p-2">
+            <div className="bg-slate-950 rounded-xl p-4 text-xs text-slate-400 flex items-center justify-between">
+              <span>⚡ Inteligencia Artificial Activa</span>
+              <span className="text-purple-400 font-bold">Kling AI Engine</span>
+            </div>
           </div>
         </div>
 
-        <div className="bg-slate-900/85 backdrop-blur-xl border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl">
-          <h1 className="text-2xl font-extrabold text-white mb-2">
-            ClipStream <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">AI Studio</span>
-          </h1>
-          <h2 className="text-lg font-medium text-slate-300 mb-6">¿Qué deseas transformar hoy?</h2>
-          
-          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 bg-slate-950 p-1.5 rounded-2xl border border-slate-800 mb-6">
-            <button
-              type="button"
-              onClick={() => { setActiveTab('youtube'); setContentInput(''); setInstructionInput(''); setSelectedFile(null); }}
-              className={`py-2 rounded-xl text-xs sm:text-sm font-semibold transition cursor-pointer ${activeTab === 'youtube' ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
-            >
-              🔗 YouTube
-            </button>
-            <button
-              type="button"
-              onClick={() => { setActiveTab('text'); setContentInput(''); setInstructionInput(''); setSelectedFile(null); }}
-              className={`py-2 rounded-xl text-xs sm:text-sm font-semibold transition cursor-pointer ${activeTab === 'text' ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
-            >
-              ✍️ Texto
-            </button>
-            <button
-              type="button"
-              onClick={() => { setActiveTab('upload'); setContentInput(''); setInstructionInput(''); setSelectedFile(null); }}
-              className={`py-2 rounded-xl text-xs sm:text-sm font-semibold transition cursor-pointer ${activeTab === 'upload' ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
-            >
-              📁 Video
-            </button>
-            <button
-              type="button"
-              onClick={() => { setActiveTab('image'); setContentInput(''); setInstructionInput(''); setSelectedFile(null); }}
-              className={`py-2 rounded-xl text-xs sm:text-sm font-semibold transition cursor-pointer ${activeTab === 'image' ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
-            >
-              🖼️ Imagen
-            </button>
-            <button
-              type="button"
-              onClick={() => { setActiveTab('prompt'); setContentInput(''); setInstructionInput(''); setSelectedFile(null); }}
-              className={`py-2 rounded-xl text-xs sm:text-sm font-semibold transition cursor-pointer ${activeTab === 'prompt' ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
-            >
-              ✨ Prompt IA
-            </button>
+        {/* Sección Derecha: Tarjeta de Acceso / Registro Profesional */}
+        <div className="max-w-md w-full bg-slate-900/85 backdrop-blur-xl border border-slate-800 rounded-3xl p-8 shadow-2xl relative z-10">
+          <div className="text-center mb-6">
+            <div className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-purple-600/20 text-purple-400 mb-2 font-bold text-lg">
+              🎥
+            </div>
+            <h2 className="text-2xl font-extrabold text-white">
+              {isRegistering ? 'Crea tu Cuenta' : 'Panel de Acceso'}
+            </h2>
+            <p className="text-xs text-slate-400 mt-1">
+              {isRegistering ? 'Regístrate para comenzar a crear clips virales' : 'Accede a tu estudio de creación viral'}
+            </p>
           </div>
 
-          <form onSubmit={handleGenerate} className="space-y-6">
-            {activeTab === 'youtube' && (
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Pega el enlace del video de YouTube</label>
+          {/* Botón de Google Profesional */}
+          <button
+            type="button"
+            onClick={handleGoogleLogin}
+            disabled={loading}
+            className="w-full mb-6 bg-slate-950 hover:bg-slate-800 border border-slate-800 text-white font-medium py-3 px-4 rounded-xl transition flex items-center justify-center gap-3 cursor-pointer shadow-md"
+          >
+            <svg className="w-5 h-5" viewBox="0 0 24 24">
+              <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/>
+              <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.13 0-5.78-2.11-6.73-4.96H1.18v3.15C3.17 21.36 7.23 24 12 24z"/>
+              <path fill="#FBBC05" d="M5.27 14.24c-.25-.72-.38-1.49-.38-2.24s.13-1.52.38-2.24V6.61H1.18C.43 8.13 0 9.87 0 12s.43 3.87 1.18 5.39l4.09-3.15z"/>
+              <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.23 0 3.17 2.64 1.18 6.61l4.09 3.15c.95-2.85 3.6-4.96 6.73-4.96z"/>
+            </svg>
+            <span>Continuar con Google</span>
+          </button>
+
+          <div className="relative flex py-2 items-center mb-4">
+            <div className="flex-grow border-t border-slate-800"></div>
+            <span className="flex-shrink mx-4 text-xs text-slate-500 uppercase">o con correo</span>
+            <div className="flex-grow border-t border-slate-800"></div>
+          </div>
+
+          <form onSubmit={handleAuthSubmit} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-1.5">Correo Electrónico</label>
+              <input
+                type="email"
+                required
+                placeholder="tu@correo.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition text-sm"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-1.5">Contraseña</label>
+              <div className="relative">
                 <input
-                  type="url"
+                  type={showPassword ? 'text' : 'password'}
                   required
-                  placeholder="https://www.youtube.com/watch?v=..."
-                  value={contentInput}
-                  onChange={(e) => setContentInput(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition"
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 pr-16 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition text-sm"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition text-xs font-medium px-2 py-1 cursor-pointer bg-slate-900/80 rounded-md border border-slate-800"
+                >
+                  {showPassword ? 'Ocultar' : 'Ver'}
+                </button>
               </div>
-            )}
-
-            {activeTab === 'text' && (
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Escribe tu idea o guion</label>
-                <textarea
-                  required
-                  rows={4}
-                  placeholder="Ej: Crea un video dinámico sobre 3 consejos..."
-                  value={contentInput}
-                  onChange={(e) => setContentInput(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl p-4 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition"
-                />
-              </div>
-            )}
-
-            {activeTab === 'upload' && (
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">Sube tu archivo de video desde la computadora</label>
-                  <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-slate-800 border-dashed rounded-xl cursor-pointer bg-slate-950 hover:bg-slate-900 transition">
-                    <div className="flex flex-col items-center justify-center pt-5 pb-6 px-4 text-center">
-                      <svg className="w-8 h-8 mb-2 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
-                      </svg>
-                      <p className="text-sm text-slate-300 font-medium">
-                        {selectedFile ? <span className="text-purple-300">📁 {selectedFile.name}</span> : 'Haz clic para seleccionar o arrastra tu video (MP4, MOV)'}
-                      </p>
-                    </div>
-                    <input
-                      type="file"
-                      accept="video/*"
-                      required={!selectedFile}
-                      className="hidden"
-                      onChange={(e) => {
-                        if (e.target.files && e.target.files[0]) {
-                          setSelectedFile(e.target.files[0]);
-                        }
-                      }}
-                    />
-                  </label>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">¿Qué debe hacer la IA con este video? (Instrucción)</label>
-                  <input
-                    type="text"
-                    placeholder="Ej: Extrae los 2 momentos más impactantes y ponles subtítulos dinámicos..."
-                    value={instructionInput}
-                    onChange={(e) => setInstructionInput(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition text-sm"
-                  />
-                </div>
-              </div>
-            )}
-
-            {activeTab === 'image' && (
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">Sube tu imagen base desde la computadora</label>
-                  <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-slate-800 border-dashed rounded-xl cursor-pointer bg-slate-950 hover:bg-slate-900 transition">
-                    <div className="flex flex-col items-center justify-center pt-5 pb-6 px-4 text-center">
-                      <svg className="w-8 h-8 mb-2 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                      </svg>
-                      <p className="text-sm text-slate-300 font-medium">
-                        {selectedFile ? <span className="text-purple-300">🖼️ {selectedFile.name}</span> : 'Haz clic para seleccionar o arrastra tu imagen (PNG, JPG)'}
-                      </p>
-                    </div>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      required={!selectedFile}
-                      className="hidden"
-                      onChange={(e) => {
-                        if (e.target.files && e.target.files[0]) {
-                          setSelectedFile(e.target.files[0]);
-                        }
-                      }}
-                    />
-                  </label>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">¿Qué quieres que la IA haga con esta imagen? (Prompt)</label>
-                  <input
-                    type="text"
-                    placeholder="Ej: Haz que esta imagen cobre vida, baile y tenga un estilo publicitario viral..."
-                    value={instructionInput}
-                    onChange={(e) => setInstructionInput(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition text-sm"
-                  />
-                </div>
-              </div>
-            )}
-
-            {activeTab === 'prompt' && (
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Escribe un Prompt avanzado para la IA</label>
-                <textarea
-                  required
-                  rows={4}
-                  placeholder="Ej: Genera una estructura de clips centrada en marketing de guerrilla..."
-                  value={contentInput}
-                  onChange={(e) => setContentInput(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl p-4 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition"
-                />
-              </div>
-            )}
+            </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-bold py-4 px-6 rounded-xl transition shadow-lg shadow-purple-500/25 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+              className="w-full mt-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-bold py-3.5 px-6 rounded-xl transition shadow-lg shadow-purple-500/25 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 text-sm"
             >
               {loading ? (
                 <>
@@ -289,38 +196,28 @@ export default function CreateDashboardPage() {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
                   </svg>
-                  <span>La IA está analizando y creando tus clips...</span>
+                  <span>Procesando...</span>
                 </>
               ) : (
-                <>🚀 Generar Clips Virales con IA (-1 Crédito)</>
+                <>{isRegistering ? '✨ Registrarme Ahora' : '🚀 Ingresar al Estudio'}</>
               )}
             </button>
           </form>
 
-          {resultClips && (
-            <div className="mt-8 pt-6 border-t border-slate-800">
-              <h3 className="text-lg font-bold text-white mb-4">🎉 ¡Clips Generados Exitosamente por la IA!</h3>
-              <div className="space-y-3">
-                {resultClips.map((clip) => (
-                  <div key={clip.id} className="bg-slate-950 border border-slate-800 p-4 rounded-xl flex items-center justify-between">
-                    <div>
-                      <p className="font-semibold text-white text-sm">{clip.title}</p>
-                      <span className="text-xs text-purple-400">Duración: {clip.duration} • Listo para TikTok / Reels</span>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => handleDownload(clip.title)}
-                      className="bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 text-xs font-bold px-3 py-2 rounded-lg border border-purple-500/30 transition cursor-pointer"
-                    >
-                      ⬇️ Descargar Clip
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+          <div className="mt-6 text-center">
+            <p className="text-xs text-slate-400">
+              {isRegistering ? '¿Ya tienes una cuenta?' : '¿No tienes cuenta aún?'}{' '}
+              <button
+                type="button"
+                onClick={() => setIsRegistering(!isRegistering)}
+                className="text-purple-400 hover:text-purple-300 font-semibold transition underline cursor-pointer ml-1"
+              >
+                {isRegistering ? 'Inicia sesión aquí' : 'Regístrate gratis'}
+              </button>
+            </p>
+          </div>
         </div>
       </div>
     </div>
   );
-} 
+}
