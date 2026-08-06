@@ -17,6 +17,10 @@ export default function LoginPage() {
       alert('Por favor ingresa un correo electrónico válido.');
       return;
     }
+    if (!password || password.length < 6) {
+      alert('La contraseña debe tener al menos 6 caracteres.');
+      return;
+    }
 
     setLoading(true);
 
@@ -40,7 +44,6 @@ export default function LoginPage() {
   const handleGoogleLogin = () => {
     setLoading(true);
     
-    // Simulación limpia y profesional de selección de cuenta OAuth
     setTimeout(() => {
       setLoading(false);
       const chosenEmail = 'distribuidoresencalada@gmail.com';
@@ -111,14 +114,14 @@ export default function LoginPage() {
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 pr-12 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition text-sm"
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 pr-16 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition text-sm"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition text-xs px-2 py-1 cursor-pointer"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition text-xs font-medium px-2 py-1 cursor-pointer bg-slate-900/80 rounded-md border border-slate-800"
               >
-                {showPassword ? '👁️ Ocultar' : '👁️ Ver'}
+                {showPassword ? 'Ocultar' : 'Ver'}
               </button>
             </div>
           </div>
