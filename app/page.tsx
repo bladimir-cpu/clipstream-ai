@@ -29,7 +29,7 @@ export default function LandingLoginPage() {
         localStorage.setItem(`clipstream_pass_${email}`, password);
       }
       
-      // Salto directo y absoluto al panel
+      // Salto directo y seguro al panel de creación
       window.location.href = '/dashboard/create';
     }
   };
