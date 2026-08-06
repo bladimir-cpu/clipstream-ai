@@ -10,16 +10,19 @@ export default function LandingLoginPage() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const router = useRouter();
 
   const handleAuthSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMessage('');
+
     if (!email || !email.includes('@')) {
-      alert('Por favor ingresa un correo electrónico válido.');
+      setErrorMessage('Por favor ingresa un correo electrónico válido.');
       return;
     }
     if (!password || password.length < 6) {
-      alert('La contraseña debe tener al menos 6 caracteres.');
+      setErrorMessage('La contraseña debe tener al menos 6 caracteres.');
       return;
     }
 
@@ -28,56 +31,46 @@ export default function LandingLoginPage() {
     try {
       if (typeof window !== 'undefined') {
         if (isRegistering) {
-          // Guardamos la cuenta nueva con su contraseña en el navegador
           localStorage.setItem(`clipstream_pass_${email}`, password);
           localStorage.setItem('clipstream_user_email', email);
-          alert('¡Cuenta creada exitosamente! Ingresando al estudio...');
         } else {
-          // Validamos si la cuenta existe y la contraseña coincide
           const savedPass = localStorage.getItem(`clipstream_pass_${email}`);
-          
-          // Si es una cuenta nueva de prueba que no se registró aquí, o coincide la clave
           if (savedPass && savedPass !== password) {
             setLoading(false);
-            alert('Contraseña incorrecta. Por favor verifícala e intenta de nuevo.');
+            setErrorMessage('Contraseña incorrecta. Verifica tus datos.');
             return;
           }
-          
-          // Si no tenía registro previo guardado pero el correo es válido, lo dejamos pasar o lo guardamos
           if (!savedPass) {
             localStorage.setItem(`clipstream_pass_${email}`, password);
           }
-          
           localStorage.setItem('clipstream_user_email', email);
         }
       }
 
+      // Redirección limpia sin alertas bloqueantes
       setTimeout(() => {
-        setLoading(false);
         router.push('/dashboard/create');
-      }, 800);
+      }, 500);
     } catch (err) {
       console.error(err);
       setLoading(false);
-      alert('Ocurrió un error en el acceso.');
+      setErrorMessage('Ocurrió un error en el acceso.');
     }
   };
 
   const handleGoogleLogin = () => {
     setLoading(true);
     setTimeout(() => {
-      setLoading(false);
       const chosenEmail = 'distribuidoresencalada@gmail.com';
       if (typeof window !== 'undefined') {
         localStorage.setItem('clipstream_user_email', chosenEmail);
       }
       router.push('/dashboard/create');
-    }, 600);
+    }, 500);
   };
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col relative overflow-hidden">
-      {/* Barra de navegación superior */}
       <header className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 relative z-20">
         <div className="flex justify-between items-center bg-slate-900/60 p-4 rounded-2xl border border-slate-800 backdrop-blur-md">
           <div className="flex items-center gap-2">
@@ -92,11 +85,9 @@ export default function LandingLoginPage() {
         </div>
       </header>
 
-      {/* Contenido Principal con la Landing a la izquierda y el Panel de Acceso/Registro a la derecha */}
       <div className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-12 flex flex-col lg:flex-row items-center justify-between gap-12 relative z-10 my-auto">
         <div className="absolute top-1/2 left-1/4 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-purple-600/15 rounded-full blur-3xl pointer-events-none"></div>
 
-        {/* Sección Izquierda: Promesa de Valor */}
         <div className="max-w-xl text-left space-y-6">
           <h1 className="text-4xl sm:text-6xl font-extrabold text-white tracking-tight leading-tight">
             ¡Maximiza tu <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">Contenido!</span>
@@ -105,7 +96,7 @@ export default function LandingLoginPage() {
             La forma más inteligente de crear clips virales
           </p>
           <p className="text-slate-400 text-sm sm:text-base leading-relaxed">
-            ClipStream AI utiliza tecnología de vanguardia para analizar tus vídeos largos, extraer automáticamente los momentos más impactantes y convertirlos en clips cortos y dinámicos para redes sociales. Con subtítulos automáticos y formatos adaptables, ahorra horas de edición y aumenta tu alcance orgánico.
+            ClipStream AI utiliza tecnología de vanguardia para analizar tus vídeos largos, extraer automáticamente los momentos más impactantes y convertirlos en clips cortos y dinámicos para redes sociales.
           </p>
           <div className="rounded-2xl overflow-hidden border border-slate-800 shadow-2xl bg-slate-900/50 p-2">
             <div className="bg-slate-950 rounded-xl p-4 text-xs text-slate-400 flex items-center justify-between">
@@ -115,7 +106,6 @@ export default function LandingLoginPage() {
           </div>
         </div>
 
-        {/* Sección Derecha: Tarjeta de Acceso / Registro Profesional */}
         <div className="max-w-md w-full bg-slate-900/85 backdrop-blur-xl border border-slate-800 rounded-3xl p-8 shadow-2xl relative z-10">
           <div className="text-center mb-6">
             <div className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-purple-600/20 text-purple-400 mb-2 font-bold text-lg">
@@ -129,7 +119,12 @@ export default function LandingLoginPage() {
             </p>
           </div>
 
-          {/* Botón de Google Profesional */}
+          {errorMessage && (
+            <div className="mb-4 p-3 bg-red-500/20 border border-red-500/50 rounded-xl text-red-300 text-xs font-medium text-center">
+              ⚠️ {errorMessage}
+            </div>
+          )}
+
           <button
             type="button"
             onClick={handleGoogleLogin}
@@ -194,12 +189,12 @@ export default function LandingLoginPage() {
                 <>
                   <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a88 8 0 018-8v8H4z"></path>
                   </svg>
-                  <span>Procesando...</span>
+                  <span>Ingresando al Studio...</span>
                 </>
               ) : (
-                <>{isRegistering ? '✨ Registrarme Ahora' : '🚀 Ingresar al Estudio'}</>
+                <>{isRegistering ? '✨ Registrarme Ahora' : '🚀 Entrar al Studio'}</>
               )}
             </button>
           </form>
