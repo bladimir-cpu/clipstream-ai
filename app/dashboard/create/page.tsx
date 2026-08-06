@@ -1,10 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
 
 export default function DashboardCreatePage() {
   const [userEmail, setUserEmail] = useState('');
+  const [credits, setCredits] = useState<number>(10);
   const [activeTab, setActiveTab] = useState<'video' | 'text' | 'image' | 'prompt'>('video');
   const [inputData, setInputData] = useState('');
   const [processing, setProcessing] = useState(false);
@@ -14,6 +14,13 @@ export default function DashboardCreatePage() {
       const email = localStorage.getItem('clipstream_user_email');
       if (email) {
         setUserEmail(email);
+        const savedCredits = localStorage.getItem(`clipstream_credits_${email}`);
+        if (savedCredits !== null) {
+          setCredits(Number(savedCredits));
+        } else {
+          localStorage.setItem(`clipstream_credits_${email}`, '10');
+          setCredits(10);
+        }
       }
     }
   }, []);
@@ -25,10 +32,21 @@ export default function DashboardCreatePage() {
       return;
     }
 
+    if (credits <= 0) {
+      alert('Te has quedado sin créditos. Visita la sección de Planes y Precios para recargar.');
+      return;
+    }
+
     setProcessing(true);
     setTimeout(() => {
       setProcessing(false);
-      alert(`¡Contenido procesado con éxito usando la opción de ${activeTab.toUpperCase()}!`);
+      const newCredits = credits - 1;
+      setCredits(newCredits);
+      if (typeof window !== 'undefined' && userEmail) {
+        localStorage.setItem(`clipstream_credits_${userEmail}`, newCredits.toString());
+      }
+      alert(`¡Contenido procesado con éxito! Se ha descontado 1 crédito. Te quedan ${newCredits} créditos.`);
+      setInputData('');
     }, 2000);
   };
 
@@ -49,8 +67,8 @@ export default function DashboardCreatePage() {
             <span className="font-extrabold text-white tracking-wide">ClipStream AI Studio</span>
           </div>
           <div className="flex items-center gap-4">
-            <span className="text-xs text-purple-400 bg-purple-500/10 px-3 py-1.5 rounded-full border border-purple-500/20 hidden sm:inline-block">
-              {userEmail || 'Sesión Activa'}
+            <span className="text-xs text-amber-400 bg-amber-500/10 px-3 py-1.5 rounded-full border border-amber-500/20 font-bold">
+              ⚡ Créditos: {credits} / 10
             </span>
             <button
               onClick={handleLogout}
@@ -75,7 +93,7 @@ export default function DashboardCreatePage() {
               Selecciona el modo de <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">Creación Viral</span>
             </h1>
             <p className="text-slate-400 text-sm mt-2">
-              Elige entre video, texto, imagen o prompt personalizado para generar tu contenido optimizado.
+              Cada generación consume 1 crédito de tu cuenta.
             </p>
           </div>
 
@@ -127,7 +145,7 @@ export default function DashboardCreatePage() {
             </button>
           </div>
 
-          {/* Formulario Dinámico según la opción seleccionada */}
+          {/* Formulario Dinámico */}
           <form onSubmit={handleProcess} className="space-y-4 max-w-xl mx-auto">
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-2">
@@ -151,7 +169,7 @@ export default function DashboardCreatePage() {
                   placeholder={
                     activeTab === 'video'
                       ? 'https://www.youtube.com/watch?v=...'
-                      : 'https://tuservidor.com/imagen.jpg o archivo'
+                      : 'https://tuservidor.com/imagen.jpg'
                   }
                   value={inputData}
                   onChange={(e) => setInputData(e.target.value)}
@@ -162,7 +180,7 @@ export default function DashboardCreatePage() {
 
             <button
               type="submit"
-              disabled={processing}
+              disabled={processing || credits <= 0}
               className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-bold py-4 px-6 rounded-xl transition shadow-lg shadow-purple-500/25 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 text-sm"
             >
               {processing ? (
@@ -171,10 +189,10 @@ export default function DashboardCreatePage() {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a88 8 0 018-8v8H4z"></path>
                   </svg>
-                  <span>Procesando con Kling AI...</span>
+                  <span>Procesando con Kling AI (-1 Crédito)...</span>
                 </>
               ) : (
-                <>⚡ Generar Contenido ({activeTab.toUpperCase()})</>
+                <>⚡ Generar Contenido (Costo: 1 Crédito)</>
               )}
             </button>
           </form>
