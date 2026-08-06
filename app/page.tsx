@@ -15,7 +15,7 @@ export default function LandingLoginPage() {
     setErrorMessage('');
 
     if (!email || !email.includes('@')) {
-      setErrorMessage('Ingresa un correo electrónico válido.');
+      setErrorMessage('Por favor ingresa un correo electrónico válido.');
       return;
     }
     if (!password || password.length < 6) {
@@ -29,7 +29,7 @@ export default function LandingLoginPage() {
         localStorage.setItem(`clipstream_pass_${email}`, password);
       }
       
-      // Redirección directa
+      // Salto absoluto para evitar que se quede congelado
       window.location.replace('/dashboard/create');
     }
   };
@@ -60,7 +60,6 @@ export default function LandingLoginPage() {
       <div className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-12 flex flex-col lg:flex-row items-center justify-between gap-12 relative z-10 my-auto">
         <div className="absolute top-1/2 left-1/4 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-purple-600/15 rounded-full blur-3xl pointer-events-none"></div>
 
-        {/* Columna Izquierda con Elemento Visual Garantizado */}
         <div className="max-w-xl text-left space-y-6">
           <h1 className="text-4xl sm:text-6xl font-extrabold text-white tracking-tight leading-tight">
             ¡Maximiza tu <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">Contenido!</span>
@@ -71,15 +70,13 @@ export default function LandingLoginPage() {
           <p className="text-slate-400 text-sm sm:text-base leading-relaxed">
             ClipStream AI utiliza tecnología de vanguardia para analizar tus vídeos largos, extraer automáticamente los momentos más impactantes y convertirlos en clips cortos y dinámicos para redes sociales.
           </p>
-          
           <div className="rounded-2xl overflow-hidden border border-slate-800 shadow-2xl bg-slate-900/50 p-2">
             <div className="bg-slate-950 rounded-xl p-4 text-xs text-slate-400 flex items-center justify-between">
               <span>⚡ Inteligencia Artificial Activa</span>
               <span className="text-purple-400 font-bold">Kling AI Engine</span>
             </div>
           </div>
-
-          {/* Tarjeta Visual de Reemplazo para evitar errores de imagen rota en Vercel */}
+          
           <div className="relative w-full h-[220px] rounded-2xl overflow-hidden border border-slate-800 bg-gradient-to-br from-purple-900/40 via-slate-900 to-blue-950/40 p-6 flex flex-col justify-between shadow-2xl">
             <div className="flex justify-between items-center">
               <span className="px-3 py-1 rounded-full bg-purple-500/20 text-purple-300 text-xs font-semibold border border-purple-500/30">Studio Activo</span>
@@ -92,7 +89,6 @@ export default function LandingLoginPage() {
           </div>
         </div>
 
-        {/* Columna Derecha: Formulario */}
         <div className="max-w-md w-full bg-slate-900/85 backdrop-blur-xl border border-slate-800 rounded-3xl p-8 shadow-2xl relative z-10">
           <div className="text-center mb-6">
             <div className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-purple-600/20 text-purple-400 mb-2 font-bold text-lg">
