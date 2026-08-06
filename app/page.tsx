@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 export default function LandingLoginPage() {
@@ -11,7 +10,6 @@ export default function LandingLoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  const router = useRouter();
 
   const handleAuthSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,15 +26,12 @@ export default function LandingLoginPage() {
 
     setLoading(true);
 
-    // Temporizador de seguridad para evitar que se quede colgado
     setTimeout(() => {
       try {
         if (typeof window !== 'undefined') {
           if (isRegistering) {
-            // Lógica de registro
             localStorage.setItem(`clipstream_pass_${email}`, password);
           } else {
-            // Lógica de inicio de sesión
             const savedPass = localStorage.getItem(`clipstream_pass_${email}`);
             if (savedPass && savedPass !== password) {
               setErrorMessage('Contraseña incorrecta. Verifica tus datos.');
@@ -48,12 +43,13 @@ export default function LandingLoginPage() {
             }
           }
           localStorage.setItem('clipstream_user_email', email);
+          
+          // Navegación forzada (Garantiza que no se quede colgado)
+          window.location.href = '/dashboard/create';
         }
-        router.push('/dashboard/create');
       } catch (err) {
         console.error(err);
-        setErrorMessage('Error al acceder. Verifica la ruta.');
-      } finally {
+        setErrorMessage('Error al acceder. Verifica tu conexión.');
         setLoading(false);
       }
     }, 600);
@@ -66,11 +62,11 @@ export default function LandingLoginPage() {
       try {
         if (typeof window !== 'undefined') {
           localStorage.setItem('clipstream_user_email', email || 'usuario@gmail.com');
+          // Navegación forzada
+          window.location.href = '/dashboard/create';
         }
-        router.push('/dashboard/create');
       } catch (err) {
         console.error(err);
-      } finally {
         setLoading(false);
       }
     }, 600);
@@ -110,20 +106,6 @@ export default function LandingLoginPage() {
               <span>⚡ Inteligencia Artificial Activa</span>
               <span className="text-purple-400 font-bold">Kling AI Engine</span>
             </div>
-          </div>
-          
-          {/* Imagen restaurada usando etiqueta estándar para evitar bloqueos */}
-          <div className="mt-8 w-full h-[300px] rounded-2xl overflow-hidden border border-slate-800 shadow-2xl bg-slate-900 flex items-center justify-center">
-            <img 
-              src="/image_9a9804.jpg" 
-              alt="ClipStream AI Dashboard"
-              className="w-full h-full object-cover"
-              onError={(e) => {
-                // Si la imagen falla en cargar, muestra un fondo alternativo en lugar de romperse
-                (e.target as HTMLImageElement).style.display = 'none';
-                (e.target as HTMLImageElement).parentElement!.classList.add('bg-gradient-to-br', 'from-purple-900/50', 'to-slate-900');
-              }}
-            />
           </div>
         </div>
 
