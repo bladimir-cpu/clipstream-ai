@@ -6,13 +6,15 @@ import Link from 'next/link';
 import Image from 'next/image';
 
 export default function LoginPage() {
+  const [isRegistering, setIsRegistering] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !email.includes('@')) {
       alert('Por favor ingresa un correo electrónico válido.');
@@ -30,20 +32,17 @@ export default function LoginPage() {
         localStorage.removeItem('clipstream_user_email');
         localStorage.setItem('clipstream_user_email', email);
       }
-      // Redirección directa y segura
       router.push('/dashboard/create');
     } catch (err) {
-      console.error('Error en la redirección:', err);
+      console.error('Error en el proceso:', err);
       alert('Error al acceder al panel. Verifica que la ruta exista.');
     } finally {
-      // Nos aseguramos de que el botón deje de cargar pase lo que pase
       setLoading(false);
     }
   };
 
   const handleGoogleLogin = async () => {
     setLoading(true);
-    
     try {
       const chosenEmail = 'distribuidoresencalada@gmail.com';
       if (typeof window !== 'undefined') {
@@ -51,7 +50,7 @@ export default function LoginPage() {
       }
       router.push('/dashboard/create');
     } catch (err) {
-      console.error('Error en la redirección de Google:', err);
+      console.error('Error en la autenticación con Google:', err);
     } finally {
       setLoading(false);
     }
@@ -77,7 +76,7 @@ export default function LoginPage() {
       <div className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-12 flex flex-col lg:flex-row items-center justify-between gap-12 relative z-10 my-auto">
         <div className="absolute top-1/2 left-1/4 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-purple-600/15 rounded-full blur-3xl pointer-events-none"></div>
 
-        {/* Columna Izquierda (Texto + Imagen) */}
+        {/* Columna Izquierda (Texto + Imagen Garantizada) */}
         <div className="max-w-xl text-left space-y-6">
           <h1 className="text-4xl sm:text-6xl font-extrabold text-white tracking-tight leading-tight">
             ¡Maximiza tu <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">Contenido!</span>
@@ -95,29 +94,38 @@ export default function LoginPage() {
             </div>
           </div>
           
-          {/* IMAGEN RESTAURADA AQUÍ */}
-          <div className="mt-8 relative w-full h-[300px] rounded-2xl overflow-hidden border border-slate-800 shadow-2xl">
+          {/* Imagen de la Página de Inicio Corregida con respaldo visual */}
+          <div className="mt-8 relative w-full h-[300px] rounded-2xl overflow-hidden border border-slate-800 shadow-2xl bg-slate-900 flex items-center justify-center">
             <Image 
-              src="/image_9a9804.jpg" 
+              src="/image_8ec2bd.png" 
               alt="ClipStream AI Dashboard"
               fill
               className="object-cover"
               priority
+              onError={(e) => {
+                // Respaldo visual en caso de que la ruta varíe
+                e.currentTarget.style.display = 'none';
+              }}
             />
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-tr from-purple-950/80 to-slate-900/80 text-center p-6 pointer-events-none">
+              <span className="text-4xl mb-2">🎥✨</span>
+              <p className="text-sm font-bold text-purple-200">Panel de Creación Automatizada</p>
+              <p className="text-xs text-slate-400 mt-1">Transforma horas de video en minutos de viralidad</p>
+            </div>
           </div>
         </div>
 
-        {/* Columna Derecha (Formulario de Login blindado) */}
+        {/* Columna Derecha (Formulario Dinámico Login / Registro) */}
         <div className="max-w-md w-full bg-slate-900/85 backdrop-blur-xl border border-slate-800 rounded-3xl p-8 shadow-2xl relative z-10">
           <div className="text-center mb-6">
             <div className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-purple-600/20 text-purple-400 mb-2 font-bold text-lg">
               🎥
             </div>
             <h2 className="text-2xl font-extrabold text-white">
-              Iniciar Sesión
+              {isRegistering ? 'Crear una Cuenta' : 'Iniciar Sesión'}
             </h2>
             <p className="text-xs text-slate-400 mt-1">
-              Accede a tu estudio de creación viral
+              {isRegistering ? 'Empieza gratis en ClipStream AI' : 'Accede a tu estudio de creación viral'}
             </p>
           </div>
 
@@ -142,7 +150,21 @@ export default function LoginPage() {
             <div className="flex-grow border-t border-slate-800"></div>
           </div>
 
-          <form onSubmit={handleLogin} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {isRegistering && (
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-1.5">Nombre Completo</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Tu nombre"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition text-sm"
+                />
+              </div>
+            )}
+
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-1.5">Correo Electrónico</label>
               <input
@@ -185,22 +207,26 @@ export default function LoginPage() {
                 <>
                   <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a88 8 0 018-8v8H4z"></path>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
                   </svg>
-                  <span>Accediendo...</span>
+                  <span>Procesando...</span>
                 </>
               ) : (
-                <>🚀 Entrar al Studio</>
+                <>{isRegistering ? '🚀 Crear Cuenta Gratis' : '🚀 Entrar al Studio'}</>
               )}
             </button>
           </form>
 
           <div className="mt-6 text-center">
             <p className="text-xs text-slate-400">
-              ¿No tienes cuenta aún?{' '}
-              <Link href="/pricing" className="text-purple-400 hover:text-purple-300 font-semibold transition">
-                Elige tu plan aquí
-              </Link>
+              {isRegistering ? '¿Ya tienes una cuenta?' : '¿No tienes cuenta aún?'}{' '}
+              <button
+                type="button"
+                onClick={() => setIsRegistering(!isRegistering)}
+                className="text-purple-400 hover:text-purple-300 font-semibold transition cursor-pointer ml-1"
+              >
+                {isRegistering ? 'Inicia sesión aquí' : 'Regístrate aquí'}
+              </button>
             </p>
           </div>
         </div>
