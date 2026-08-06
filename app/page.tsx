@@ -29,15 +29,15 @@ export default function LandingLoginPage() {
         localStorage.setItem(`clipstream_pass_${email}`, password);
       }
       
-      // Salto absoluto para evitar que se quede congelado
-      window.location.replace('/dashboard/create');
+      // Salto directo y absoluto al panel
+      window.location.href = '/dashboard/create';
     }
   };
 
   const handleGoogleLogin = () => {
     if (typeof window !== 'undefined') {
       localStorage.setItem('clipstream_user_email', 'distribuidoresencalada@gmail.com');
-      window.location.replace('/dashboard/create');
+      window.location.href = '/dashboard/create';
     }
   };
 
