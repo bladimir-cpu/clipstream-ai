@@ -8,8 +8,8 @@ export default function LandingLoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleAuthSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,50 +26,45 @@ export default function LandingLoginPage() {
 
     setLoading(true);
 
-    setTimeout(() => {
-      try {
-        if (typeof window !== 'undefined') {
-          if (isRegistering) {
-            localStorage.setItem(`clipstream_pass_${email}`, password);
-          } else {
-            const savedPass = localStorage.getItem(`clipstream_pass_${email}`);
-            if (savedPass && savedPass !== password) {
-              setErrorMessage('Contraseña incorrecta. Verifica tus datos.');
-              setLoading(false);
-              return;
-            }
-            if (!savedPass) {
-              localStorage.setItem(`clipstream_pass_${email}`, password);
-            }
+    try {
+      if (typeof window !== 'undefined') {
+        if (isRegistering) {
+          localStorage.setItem(`clipstream_pass_${email}`, password);
+        } else {
+          const savedPass = localStorage.getItem(`clipstream_pass_${email}`);
+          if (savedPass && savedPass !== password) {
+            setErrorMessage('Contraseña incorrecta. Verifica tus datos.');
+            setLoading(false);
+            return;
           }
-          localStorage.setItem('clipstream_user_email', email);
-          
-          // Navegación forzada (Garantiza que no se quede colgado)
-          window.location.href = '/dashboard/create';
+          if (!savedPass) {
+            localStorage.setItem(`clipstream_pass_${email}`, password);
+          }
         }
-      } catch (err) {
-        console.error(err);
-        setErrorMessage('Error al acceder. Verifica tu conexión.');
-        setLoading(false);
+        localStorage.setItem('clipstream_user_email', email);
+        
+        // Redirección nativa forzada para evitar que Next.js se quede colgado
+        window.location.href = '/dashboard/create';
       }
-    }, 600);
+    } catch (err) {
+      console.error(err);
+      setErrorMessage('Error al procesar la solicitud.');
+      setLoading(false);
+    }
   };
 
   const handleGoogleLogin = () => {
     setLoading(true);
-    
-    setTimeout(() => {
-      try {
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('clipstream_user_email', email || 'usuario@gmail.com');
-          // Navegación forzada
-          window.location.href = '/dashboard/create';
-        }
-      } catch (err) {
-        console.error(err);
-        setLoading(false);
+    try {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('clipstream_user_email', 'distribuidoresencalada@gmail.com');
+        // Redirección nativa forzada para evitar que Next.js se quede colgado
+        window.location.href = '/dashboard/create';
       }
-    }, 600);
+    } catch (err) {
+      console.error(err);
+      setLoading(false);
+    }
   };
 
   return (
