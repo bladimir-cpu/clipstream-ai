@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image'; // <-- Importación de la imagen agregada
 
 export default function LandingLoginPage() {
   const [isRegistering, setIsRegistering] = useState(false);
@@ -86,6 +87,17 @@ export default function LandingLoginPage() {
               <span>⚡ Inteligencia Artificial Activa</span>
               <span className="text-purple-400 font-bold">Kling AI Engine</span>
             </div>
+          </div>
+          
+          {/* AQUÍ ESTÁ LA IMAGEN RESTAURADA */}
+          <div className="mt-8 relative w-full h-[300px] rounded-2xl overflow-hidden border border-slate-800 shadow-2xl">
+            <Image 
+              src="/image_9a9804.jpg" /* Cambia este nombre por el archivo exacto que tienes en tu carpeta public */
+              alt="ClipStream AI Dashboard"
+              fill
+              className="object-cover"
+              priority
+            />
           </div>
         </div>
 
