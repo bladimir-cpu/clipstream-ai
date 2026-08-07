@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 
-type ClipResult = { id: number; title: string; url: string };
+type ClipResult = { id: number; title: string; filename: string };
 
 export default function DashboardCreatePage() {
   const [userEmail, setUserEmail] = useState('');
@@ -52,11 +52,24 @@ export default function DashboardCreatePage() {
       }
       
       setResults([
-        { id: 1, title: 'Clip Corto Viral (9:16 - TikTok/Reels)', url: '#' },
-        { id: 2, title: 'Clip Dinámico Extendido', url: '#' },
-        { id: 3, title: 'Clip Resumen Formato Original', url: '#' }
+        { id: 1, title: 'Clip Corto Viral (9:16 - TikTok/Reels)', filename: 'clip-viral-9-16.mp4' },
+        { id: 2, title: 'Clip Dinámico Extendido', filename: 'clip-dinamico-extendido.mp4' },
+        { id: 3, title: 'Clip Resumen Formato Original', filename: 'clip-resumen-original.mp4' }
       ]);
     }, 1500);
+  };
+
+  const handleDownload = (title: string, filename: string) => {
+    // Creamos un blob de video simulado para que el navegador ejecute una descarga real sin recargar la página
+    const blob = new Blob([`Simulacion de contenido de video para: ${title}`], { type: 'video/mp4' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
 
   const handleLogout = () => {
@@ -210,12 +223,13 @@ export default function DashboardCreatePage() {
                   <div key={clip.id} className="bg-slate-950 border border-slate-800 p-4 rounded-xl text-center space-y-3">
                     <div className="text-2xl">🎬</div>
                     <p className="text-xs font-medium text-slate-300">{clip.title}</p>
-                    <a
-                      href={clip.url}
-                      className="block w-full bg-purple-600/20 hover:bg-purple-600 text-purple-300 hover:text-white py-2 rounded-lg text-xs font-bold transition border border-purple-500/30 cursor-pointer"
+                    <button
+                      type="button"
+                      onClick={() => handleDownload(clip.title, clip.filename)}
+                      className="w-full bg-purple-600/20 hover:bg-purple-600 text-purple-300 hover:text-white py-2 rounded-lg text-xs font-bold transition border border-purple-500/30 cursor-pointer"
                     >
                       📥 Descargar
-                    </a>
+                    </button>
                   </div>
                 ))}
               </div>
