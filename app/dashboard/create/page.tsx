@@ -51,7 +51,6 @@ export default function DashboardCreatePage() {
         localStorage.setItem(`clipstream_credits_${userEmail}`, newCredits.toString());
       }
       
-      // Despliegue inmediato de los 3 clips sin alertas que congelen la pantalla
       setResults([
         { id: 1, title: 'Clip Corto Viral (9:16 - TikTok/Reels)', url: '#' },
         { id: 2, title: 'Clip Dinámico Extendido', url: '#' },
@@ -69,7 +68,6 @@ export default function DashboardCreatePage() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col">
-      {/* Header del Panel */}
       <header className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
         <div className="flex justify-between items-center bg-slate-900/60 p-4 rounded-2xl border border-slate-800 backdrop-blur-md">
           <div className="flex items-center gap-2">
@@ -90,7 +88,6 @@ export default function DashboardCreatePage() {
         </div>
       </header>
 
-      {/* Contenido Principal con las 4 Opciones Originales */}
       <main className="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-12 flex flex-col justify-center">
         <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-8 sm:p-12 shadow-2xl relative overflow-hidden">
           <div className="absolute top-0 right-0 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl pointer-events-none"></div>
@@ -107,7 +104,6 @@ export default function DashboardCreatePage() {
             </p>
           </div>
 
-          {/* Botones de las 4 Opciones */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-xl mx-auto mb-8">
             <button
               type="button"
@@ -155,7 +151,6 @@ export default function DashboardCreatePage() {
             </button>
           </div>
 
-          {/* Formulario Dinámico Original */}
           <form onSubmit={handleProcess} className="space-y-4 max-w-xl mx-auto">
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-2">
@@ -207,7 +202,6 @@ export default function DashboardCreatePage() {
             </button>
           </form>
 
-          {/* BANDEJA DE LOS 3 CLIPS RESULTADOS (Aparece abajo automáticamente sin alertas que congelen) */}
           {results.length > 0 && (
             <div className="mt-10 pt-8 border-t border-slate-800 max-w-xl mx-auto animate-in fade-in duration-500">
               <h3 className="text-center text-white font-bold mb-4 text-sm">🎉 ¡Tus clips virales están listos para descargar!</h3>
@@ -218,7 +212,6 @@ export default function DashboardCreatePage() {
                     <p className="text-xs font-medium text-slate-300">{clip.title}</p>
                     <a
                       href={clip.url}
-                      onClick={(e) => { e.preventDefault(); alert('Simulación de descarga del ' + clip.title); }}
                       className="block w-full bg-purple-600/20 hover:bg-purple-600 text-purple-300 hover:text-white py-2 rounded-lg text-xs font-bold transition border border-purple-500/30 cursor-pointer"
                     >
                       📥 Descargar
