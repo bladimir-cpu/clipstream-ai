@@ -2,13 +2,16 @@
 
 import { useState, useEffect } from 'react';
 
-type ClipResult = { id: number; title: string; filename: string };
+type ClipResult = { id: number; title: string; videoUrl: string; filename: string };
 
 export default function DashboardCreatePage() {
   const [userEmail, setUserEmail] = useState('');
   const [credits, setCredits] = useState<number>(10);
-  const [activeTab, setActiveTab] = useState<'video' | 'text' | 'image' | 'prompt'>('video');
+  const [activeTab, setActiveTab] = useState<'youtube' | 'video' | 'image' | 'text' | 'prompt'>('youtube');
+  
   const [inputData, setInputData] = useState('');
+  const [fileInput, setFileInput] = useState<File | null>(null);
+  
   const [processing, setProcessing] = useState(false);
   const [results, setResults] = useState<ClipResult[]>([]);
 
@@ -30,10 +33,6 @@ export default function DashboardCreatePage() {
 
   const handleProcess = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!inputData && activeTab !== 'video') {
-      alert('Por favor ingresa la información requerida.');
-      return;
-    }
 
     if (credits <= 0) {
       alert('Te has quedado sin créditos. Visita la sección de Planes y Precios para recargar.');
@@ -51,25 +50,24 @@ export default function DashboardCreatePage() {
         localStorage.setItem(`clipstream_credits_${userEmail}`, newCredits.toString());
       }
       
+      const sampleVideo = 'https://www.w3schools.com/html/mov_bbb.mp4';
+
       setResults([
-        { id: 1, title: 'Clip Corto Viral (9:16 - TikTok/Reels)', filename: 'clip-viral-9-16.mp4' },
-        { id: 2, title: 'Clip Dinámico Extendido', filename: 'clip-dinamico-extendido.mp4' },
-        { id: 3, title: 'Clip Resumen Formato Original', filename: 'clip-resumen-original.mp4' }
+        { id: 1, title: 'Clip Corto Viral (9:16 - TikTok/Reels)', videoUrl: sampleVideo, filename: 'clip-viral-9-16.mp4' },
+        { id: 2, title: 'Clip Dinámico Extendido', videoUrl: sampleVideo, filename: 'clip-dinamico-extendido.mp4' },
+        { id: 3, title: 'Clip Resumen Formato Original', videoUrl: sampleVideo, filename: 'clip-resumen-original.mp4' }
       ]);
-    }, 1500);
+    }, 2000);
   };
 
-  const handleDownload = (title: string, filename: string) => {
-    // Creamos un blob de video simulado para que el navegador ejecute una descarga real sin recargar la página
-    const blob = new Blob([`Simulacion de contenido de video para: ${title}`], { type: 'video/mp4' });
-    const url = URL.createObjectURL(blob);
+  const handleDownload = (videoUrl: string, filename: string) => {
     const a = document.createElement('a');
-    a.href = url;
+    a.href = videoUrl;
     a.download = filename;
+    a.target = '_blank';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-    URL.revokeObjectURL(url);
   };
 
   const handleLogout = () => {
@@ -117,22 +115,45 @@ export default function DashboardCreatePage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-xl mx-auto mb-8">
+          {/* 5 OPCIONES EXACTAS */}
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 max-w-2xl mx-auto mb-8">
             <button
               type="button"
-              onClick={() => setActiveTab('video')}
-              className={`py-3 px-4 rounded-xl text-xs font-bold transition cursor-pointer border ${
+              onClick={() => { setActiveTab('youtube'); setFileInput(null); setInputData(''); }}
+              className={`py-3 px-3 rounded-xl text-xs font-bold transition cursor-pointer border ${
+                activeTab === 'youtube'
+                  ? 'bg-purple-600 text-white border-purple-500 shadow-lg shadow-purple-600/30'
+                  : 'bg-slate-950 text-slate-400 border-slate-800 hover:bg-slate-800 hover:text-white'
+              }`}
+            >
+              📺 URL YouTube
+            </button>
+            <button
+              type="button"
+              onClick={() => { setActiveTab('video'); setFileInput(null); setInputData(''); }}
+              className={`py-3 px-3 rounded-xl text-xs font-bold transition cursor-pointer border ${
                 activeTab === 'video'
                   ? 'bg-purple-600 text-white border-purple-500 shadow-lg shadow-purple-600/30'
                   : 'bg-slate-950 text-slate-400 border-slate-800 hover:bg-slate-800 hover:text-white'
               }`}
             >
-              🎬 Video / URL
+              🎬 Subir Video
             </button>
             <button
               type="button"
-              onClick={() => setActiveTab('text')}
-              className={`py-3 px-4 rounded-xl text-xs font-bold transition cursor-pointer border ${
+              onClick={() => { setActiveTab('image'); setFileInput(null); setInputData(''); }}
+              className={`py-3 px-3 rounded-xl text-xs font-bold transition cursor-pointer border ${
+                activeTab === 'image'
+                  ? 'bg-purple-600 text-white border-purple-500 shadow-lg shadow-purple-600/30'
+                  : 'bg-slate-950 text-slate-400 border-slate-800 hover:bg-slate-800 hover:text-white'
+              }`}
+            >
+              🖼️ Subir Imagen
+            </button>
+            <button
+              type="button"
+              onClick={() => { setActiveTab('text'); setFileInput(null); setInputData(''); }}
+              className={`py-3 px-3 rounded-xl text-xs font-bold transition cursor-pointer border ${
                 activeTab === 'text'
                   ? 'bg-purple-600 text-white border-purple-500 shadow-lg shadow-purple-600/30'
                   : 'bg-slate-950 text-slate-400 border-slate-800 hover:bg-slate-800 hover:text-white'
@@ -142,19 +163,8 @@ export default function DashboardCreatePage() {
             </button>
             <button
               type="button"
-              onClick={() => setActiveTab('image')}
-              className={`py-3 px-4 rounded-xl text-xs font-bold transition cursor-pointer border ${
-                activeTab === 'image'
-                  ? 'bg-purple-600 text-white border-purple-500 shadow-lg shadow-purple-600/30'
-                  : 'bg-slate-950 text-slate-400 border-slate-800 hover:bg-slate-800 hover:text-white'
-              }`}
-            >
-              🖼️ Imagen
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveTab('prompt')}
-              className={`py-3 px-4 rounded-xl text-xs font-bold transition cursor-pointer border ${
+              onClick={() => { setActiveTab('prompt'); setFileInput(null); setInputData(''); }}
+              className={`py-3 px-3 rounded-xl text-xs font-bold transition cursor-pointer border ${
                 activeTab === 'prompt'
                   ? 'bg-purple-600 text-white border-purple-500 shadow-lg shadow-purple-600/30'
                   : 'bg-slate-950 text-slate-400 border-slate-800 hover:bg-slate-800 hover:text-white'
@@ -165,41 +175,103 @@ export default function DashboardCreatePage() {
           </div>
 
           <form onSubmit={handleProcess} className="space-y-4 max-w-xl mx-auto">
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
-                {activeTab === 'video' && 'Enlace de YouTube o Video'}
-                {activeTab === 'text' && 'Guion o Texto base para los clips'}
-                {activeTab === 'image' && 'Sube o enlaza tu imagen de referencia'}
-                {activeTab === 'prompt' && 'Escribe el Prompt detallado para la Inteligencia Artificial'}
-              </label>
-
-              {activeTab === 'text' || activeTab === 'prompt' ? (
-                <textarea
-                  rows={4}
-                  placeholder={activeTab === 'text' ? 'Pega tu texto o guion aquí...' : 'Ej: Crea un video viral sobre hábitos de éxito...'}
-                  value={inputData}
-                  onChange={(e) => setInputData(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl p-4 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition text-sm"
-                />
-              ) : (
+            
+            {/* 1. URL DE YOUTUBE */}
+            {activeTab === 'youtube' && (
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Enlace o URL del video de YouTube</label>
                 <input
                   type="text"
-                  placeholder={
-                    activeTab === 'video'
-                      ? 'https://www.youtube.com/watch?v=...'
-                      : 'https://tuservidor.com/imagen.jpg'
-                  }
+                  placeholder="https://www.youtube.com/watch?v=..."
                   value={inputData}
                   onChange={(e) => setInputData(e.target.value)}
                   className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3.5 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition text-sm"
                 />
-              )}
-            </div>
+              </div>
+            )}
+
+            {/* 2. SUBIR VIDEO (Archivo + Cuadro de texto) */}
+            {activeTab === 'video' && (
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-1.5">Sube tu archivo de video</label>
+                  <input
+                    type="file"
+                    accept="video/*"
+                    onChange={(e) => setFileInput(e.target.files?.[0] || null)}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-slate-300 text-xs file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-500 cursor-pointer"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-1.5">Instrucciones o detalles para este video</label>
+                  <input
+                    type="text"
+                    placeholder="Ej: Extrae los mejores momentos de humor..."
+                    value={inputData}
+                    onChange={(e) => setInputData(e.target.value)}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition text-sm"
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* 3. SUBIR IMAGEN (Archivo + Cuadro de texto) */}
+            {activeTab === 'image' && (
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-1.5">Sube tu archivo de imagen</label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => setFileInput(e.target.files?.[0] || null)}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-slate-300 text-xs file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-500 cursor-pointer"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-1.5">¿Qué solicita de esta imagen?</label>
+                  <input
+                    type="text"
+                    placeholder="Ej: Anima la imagen y genera una historia..."
+                    value={inputData}
+                    onChange={(e) => setInputData(e.target.value)}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition text-sm"
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* 4. TEXTO */}
+            {activeTab === 'text' && (
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Guion o Texto base para los clips</label>
+                <textarea
+                  rows={4}
+                  placeholder="Pega tu texto o guion aquí..."
+                  value={inputData}
+                  onChange={(e) => setInputData(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl p-4 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition text-sm"
+                />
+              </div>
+            )}
+
+            {/* 5. PROMPT IA */}
+            {activeTab === 'prompt' && (
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Prompt detallado para la Inteligencia Artificial</label>
+                <textarea
+                  rows={4}
+                  placeholder="Ej: Crea un video viral sobre hábitos de éxito..."
+                  value={inputData}
+                  onChange={(e) => setInputData(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl p-4 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition text-sm"
+                />
+              </div>
+            )}
 
             <button
               type="submit"
               disabled={processing || credits <= 0}
-              className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-bold py-4 px-6 rounded-xl transition shadow-lg shadow-purple-500/25 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 text-sm"
+              className="w-full mt-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-bold py-4 px-6 rounded-xl transition shadow-lg shadow-purple-500/25 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 text-sm"
             >
               {processing ? (
                 <>
@@ -215,9 +287,10 @@ export default function DashboardCreatePage() {
             </button>
           </form>
 
+          {/* BANDEJA DE LOS 3 CLIPS DE DESCARGA */}
           {results.length > 0 && (
             <div className="mt-10 pt-8 border-t border-slate-800 max-w-xl mx-auto animate-in fade-in duration-500">
-              <h3 className="text-center text-white font-bold mb-4 text-sm">🎉 ¡Tus clips virales están listos para descargar!</h3>
+              <h3 className="text-center text-white font-bold mb-4 text-sm">🎉 ¡Tus 3 opciones de clips virales están listas para descargar!</h3>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {results.map((clip) => (
                   <div key={clip.id} className="bg-slate-950 border border-slate-800 p-4 rounded-xl text-center space-y-3">
@@ -225,7 +298,7 @@ export default function DashboardCreatePage() {
                     <p className="text-xs font-medium text-slate-300">{clip.title}</p>
                     <button
                       type="button"
-                      onClick={() => handleDownload(clip.title, clip.filename)}
+                      onClick={() => handleDownload(clip.videoUrl, clip.filename)}
                       className="w-full bg-purple-600/20 hover:bg-purple-600 text-purple-300 hover:text-white py-2 rounded-lg text-xs font-bold transition border border-purple-500/30 cursor-pointer"
                     >
                       📥 Descargar
