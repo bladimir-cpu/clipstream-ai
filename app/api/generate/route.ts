@@ -14,7 +14,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // Aquí realizamos la petición real al endpoint oficial de Kling AI
+    // 1. Petición para crear la tarea de generación de video en Kling AI
     const response = await fetch('https://api.klingai.com/v1/videos/text2video', {
       method: 'POST',
       headers: {
@@ -32,9 +32,10 @@ export async function POST(request: Request) {
     const data = await response.json();
 
     if (!response.ok) {
-      throw new Error(data.message || 'Error en la respuesta del motor de Kling AI');
+      throw new Error(data.message || 'Error al comunicarse con Kling AI. Verifica tus fondos o saldo API.');
     }
 
+    // Devolvemos el resultado real de la API
     return NextResponse.json({ success: true, data });
   } catch (error: any) {
     console.error('Error al conectar con Kling AI:', error);
