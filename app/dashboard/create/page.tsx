@@ -51,15 +51,13 @@ export default function DashboardCreatePage() {
         localStorage.setItem(`clipstream_credits_${userEmail}`, newCredits.toString());
       }
       
-      // Activamos la aparición de los 3 clips de descarga abajo
+      // Despliegue inmediato de los 3 clips sin alertas que congelen la pantalla
       setResults([
         { id: 1, title: 'Clip Corto Viral (9:16 - TikTok/Reels)', url: '#' },
         { id: 2, title: 'Clip Dinámico Extendido', url: '#' },
         { id: 3, title: 'Clip Resumen Formato Original', url: '#' }
       ]);
-
-      alert(`¡Contenido procesado con éxito! Se ha descontado 1 crédito. Te quedan ${newCredits} créditos.`);
-    }, 2000);
+    }, 1500);
   };
 
   const handleLogout = () => {
@@ -209,9 +207,9 @@ export default function DashboardCreatePage() {
             </button>
           </form>
 
-          {/* BANDEJA DE LOS 3 CLIPS RESULTADOS (Aparece abajo al terminar) */}
+          {/* BANDEJA DE LOS 3 CLIPS RESULTADOS (Aparece abajo automáticamente sin alertas que congelen) */}
           {results.length > 0 && (
-            <div className="mt-10 pt-8 border-t border-slate-800 max-w-xl mx-auto">
+            <div className="mt-10 pt-8 border-t border-slate-800 max-w-xl mx-auto animate-in fade-in duration-500">
               <h3 className="text-center text-white font-bold mb-4 text-sm">🎉 ¡Tus clips virales están listos para descargar!</h3>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {results.map((clip) => (
