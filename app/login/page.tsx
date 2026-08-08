@@ -26,7 +26,7 @@ export default function LoginPage() {
 
   const router = useRouter();
 
-  // Validación estricta para evitar correos falsos o repetitivos
+  // Validación estricta para correos reales
   const isValidRealEmail = (mail: string) => {
     const cleanMail = mail.trim().toLowerCase();
     const regex = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/;
@@ -44,7 +44,7 @@ export default function LoginPage() {
     e.preventDefault();
     
     if (!isValidRealEmail(email)) {
-      alert('Por favor ingresa un correo electrónico real y válido (no se permiten correos de prueba o caracteres repetidos).');
+      alert('Por favor ingresa un correo electrónico real y válido.');
       return;
     }
 
@@ -58,10 +58,10 @@ export default function LoginPage() {
     try {
       if (typeof window !== 'undefined') {
         if (isRegistering) {
-          // Verificar si ya existe el usuario
+          // MODO REGISTRO: Validar que no exista ya
           const existingPass = localStorage.getItem(`clipstream_pass_${email}`);
           if (existingPass) {
-            alert('Este correo ya está registrado. Por favor inicia sesión o recupera tu contraseña.');
+            alert('Este correo ya está registrado. Por favor inicia sesión.');
             setLoading(false);
             return;
           }
@@ -71,40 +71,46 @@ export default function LoginPage() {
             setLoading(false);
             return;
           }
-          if (!secretAnswer.trim() || secretAnswer.trim().length < 2) {
-            alert('Por favor ingresa una respuesta secreta válida.');
+          if (!secretAnswer.trim()) {
+            alert('Por favor ingresa tu respuesta secreta.');
             setLoading(false);
             return;
           }
 
-          // Guardar datos de registro reales
+          // Guardar registro real
           localStorage.setItem(`clipstream_pass_${email}`, password);
           localStorage.setItem(`clipstream_q_${email}`, secretQuestion);
           localStorage.setItem(`clipstream_a_${email}`, secretAnswer.toLowerCase().trim());
           localStorage.setItem(`clipstream_name_${email}`, name);
-        } else {
-          // MODO INICIO DE SESIÓN: Validar contra la clave guardada
-          const savedPass = localStorage.getItem(`clipstream_pass_${email}`);
+          localStorage.setItem('clipstream_user_email', email);
           
+          alert('¡Cuenta creada con éxito!');
+          router.push('/dashboard/create');
+
+        } else {
+          // MODO LOGIN: Validación estricta obligatoria
+          const savedPass = localStorage.getItem(`clipstream_pass_${email}`);
+
           if (!savedPass) {
-            alert('Este correo no está registrado. Regístrate primero o verifica que esté bien escrito.');
+            alert('Este correo no está registrado. Regístrate primero.');
             setLoading(false);
             return;
           }
 
           if (savedPass !== password) {
-            alert('Contraseña incorrecta. Si no la recuerdas, usa la opción "¿Olvidaste tu contraseña?".');
+            alert('Contraseña incorrecta. Acceso denegado.');
             setLoading(false);
             return;
           }
-        }
 
-        localStorage.setItem('clipstream_user_email', email);
+          // Si todo es correcto, pasa al dashboard
+          localStorage.setItem('clipstream_user_email', email);
+          router.push('/dashboard/create');
+        }
       }
-      router.push('/dashboard/create');
     } catch (err) {
-      console.error('Error en el proceso:', err);
-      alert('Error al acceder al panel.');
+      console.error('Error:', err);
+      alert('Ocurrió un error en el acceso.');
     } finally {
       setLoading(false);
     }
@@ -119,7 +125,7 @@ export default function LoginPage() {
       }
       router.push('/dashboard/create');
     } catch (err) {
-      console.error('Error en la autenticación con Google:', err);
+      console.error('Error:', err);
     } finally {
       setLoading(false);
     }
