@@ -18,7 +18,7 @@ export default function LoginPage() {
 
   // Estados para el Modal de Recuperación de Contraseña
   const [showForgotModal, setShowForgotModal] = useState(false);
-  const [forgotStep, setForgotStep] = useState(1); // 1: Pedir correo, 2: Responder pregunta, 3: Nueva contraseña
+  const [forgotStep, setForgotStep] = useState(1);
   const [forgotEmail, setForgotEmail] = useState('');
   const [fetchedQuestion, setFetchedQuestion] = useState('');
   const [userAnswerInput, setUserAnswerInput] = useState('');
@@ -26,18 +26,31 @@ export default function LoginPage() {
 
   const router = useRouter();
 
-  // Validación estricta de correo real con Regex profesional
-  const isValidEmail = (mail: string) => {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return regex.test(mail);
+  // Validación estricta y profesional para evitar correos falsos tipo mmmmm@gmail.com
+  const isValidRealEmail = (mail: string) => {
+    const cleanMail = mail.trim().toLowerCase();
+    // Regex estándar de correo
+    const regex = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/;
+    if (!regex.test(cleanMail)) return false;
+
+    // Bloquear patrones repetitivos o falsos evidentes (ej. mmm@gmail.com, aaaa@gmail.com, 1111@gmail.com)
+    const usernamePart = cleanMail.split('@')[0];
+    const isRepeatedChars = /^([a-z0-9])\1{3,}$/.test(usernamePart); // 4 o más caracteres iguales seguidos
+    if (isRepeatedChars || usernamePart.length < 3) {
+      return false;
+    }
+
+    return true;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !isValidEmail(email)) {
-      alert('Por favor ingresa un correo electrónico real y válido (ej. usuario@gmail.com).');
+    
+    if (!isValidRealEmail(email)) {
+      alert('Por favor ingresa un correo electrónico real y válido (no se permiten correos de prueba o caracteres repetidos).');
       return;
     }
+
     if (!password || password.length < 6) {
       alert('La contraseña debe tener al menos 6 caracteres.');
       return;
@@ -48,8 +61,8 @@ export default function LoginPage() {
         alert('Por favor ingresa tu nombre completo.');
         return;
       }
-      if (!secretAnswer.trim()) {
-        alert('Por favor ingresa una respuesta secreta para recuperar tu cuenta.');
+      if (!secretAnswer.trim() || secretAnswer.trim().length < 2) {
+        alert('Por favor ingresa una respuesta secreta válida.');
         return;
       }
     }
@@ -59,13 +72,11 @@ export default function LoginPage() {
     try {
       if (typeof window !== 'undefined') {
         if (isRegistering) {
-          // Guardar credenciales y datos de seguridad en localStorage
           localStorage.setItem(`clipstream_pass_${email}`, password);
           localStorage.setItem(`clipstream_q_${email}`, secretQuestion);
           localStorage.setItem(`clipstream_a_${email}`, secretAnswer.toLowerCase().trim());
           localStorage.setItem(`clipstream_name_${email}`, name);
         } else {
-          // Verificar si el usuario ya está registrado con contraseña
           const savedPass = localStorage.getItem(`clipstream_pass_${email}`);
           if (savedPass && savedPass !== password) {
             alert('Contraseña incorrecta. Si la olvidaste, usa la opción de recuperar contraseña.');
@@ -78,7 +89,7 @@ export default function LoginPage() {
       router.push('/dashboard/create');
     } catch (err) {
       console.error('Error en el proceso:', err);
-      alert('Error al acceder al panel. Verifica la conexión.');
+      alert('Error al acceder al panel.');
     } finally {
       setLoading(false);
     }
@@ -99,13 +110,8 @@ export default function LoginPage() {
     }
   };
 
-  // Lógica de recuperación de contraseña con Pregunta Secreta
   const handleCheckForgotEmail = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!forgotEmail || !isValidEmail(forgotEmail)) {
-      alert('Ingresa un correo válido.');
-      return;
-    }
     const q = localStorage.getItem(`clipstream_q_${forgotEmail}`);
     if (!q) {
       alert('No encontramos ninguna cuenta registrada con este correo.');
@@ -121,7 +127,7 @@ export default function LoginPage() {
     if (storedAnswer === userAnswerInput.toLowerCase().trim()) {
       setForgotStep(3);
     } else {
-      alert('La respuesta secreta es incorrecta. Inténtalo de nuevo.');
+      alert('La respuesta secreta es incorrecta.');
     }
   };
 
@@ -142,28 +148,9 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col relative overflow-hidden">
-      
-      {/* HEADER ESTÁTICO FIJO EN LA PARTE SUPERIOR */}
-      <header className="w-full sticky top-0 z-50 bg-slate-950/80 backdrop-blur-md border-b border-slate-800/80">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex justify-between items-center bg-slate-900/60 p-4 rounded-2xl border border-slate-800 backdrop-blur-md shadow-lg">
-            <div className="flex items-center gap-2">
-              <span className="text-xl">🚀</span>
-              <span className="font-extrabold text-white tracking-wide">ClipStream AI</span>
-            </div>
-            <nav className="flex items-center gap-6">
-              <Link href="/" className="text-sm font-medium text-purple-400 hover:text-purple-300 transition">Inicio</Link>
-              <Link href="/dashboard/create" className="text-sm font-medium text-slate-300 hover:text-white transition">Crear</Link>
-              <Link href="/pricing" className="text-sm font-medium text-slate-300 hover:text-white transition">Planes y Precios</Link>
-            </nav>
-          </div>
-        </div>
-      </header>
-
       <div className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-12 flex flex-col lg:flex-row items-center justify-between gap-12 relative z-10 my-auto">
         <div className="absolute top-1/2 left-1/4 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-purple-600/15 rounded-full blur-3xl pointer-events-none"></div>
 
-        {/* Columna Izquierda */}
         <div className="max-w-xl text-left space-y-6">
           <h1 className="text-4xl sm:text-6xl font-extrabold text-white tracking-tight leading-tight">
             ¡Maximiza tu <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">Contenido!</span>
@@ -200,7 +187,6 @@ export default function LoginPage() {
           </div>
         </div>
 
-        {/* Columna Derecha (Formulario Blindado con Preguntas Secretas) */}
         <div className="max-w-md w-full bg-slate-900/85 backdrop-blur-xl border border-slate-800 rounded-3xl p-8 shadow-2xl relative z-10">
           <div className="text-center mb-6">
             <div className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-purple-600/20 text-purple-400 mb-2 font-bold text-lg">
@@ -355,7 +341,6 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {/* MODAL DE RECUPERACIÓN DE CONTRASEÑA */}
       {showForgotModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in">
           <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl relative">
@@ -367,7 +352,7 @@ export default function LoginPage() {
             </button>
 
             <h3 className="text-xl font-extrabold text-white mb-2">Recuperar Contraseña</h3>
-            <p className="text-xs text-slate-400 mb-6">Sigue los pasos para restablecer tu acceso de forma segura.</p>
+            <p className="text-xs text-slate-400 mb-6">Sigue los pasos para restablecer tu acceso.</p>
 
             {forgotStep === 1 && (
               <form onSubmit={handleCheckForgotEmail} className="space-y-4">
@@ -441,7 +426,6 @@ export default function LoginPage() {
           </div>
         </div>
       )}
-
     </div>
   );
 }
