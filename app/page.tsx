@@ -25,7 +25,7 @@ export default function RootLoginPage() {
 
   const router = useRouter();
 
-  // Validación estricta para correos reales
+  // Validación estricta para correos reales (bloquea basura tipo mmmm@gmail.com)
   const isValidRealEmail = (mail: string) => {
     const cleanMail = mail.trim().toLowerCase();
     const regex = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/;
@@ -56,8 +56,14 @@ export default function RootLoginPage() {
 
     try {
       if (typeof window !== 'undefined') {
+        // Inicializar tu correo real por defecto si no existe en localStorage
+        if (!localStorage.getItem('clipstream_pass_wladyreyes@gmail.com')) {
+          localStorage.setItem('clipstream_pass_wladyreyes@gmail.com', '12345678');
+          localStorage.setItem('clipstream_q_wladyreyes@gmail.com', '¿Cómo se llama tu primera mascota?');
+          localStorage.setItem('clipstream_a_wladyreyes@gmail.com', 'beby');
+        }
+
         if (isRegistering) {
-          // MODO REGISTRO: Verificar si ya existe
           const existingPass = localStorage.getItem(`clipstream_pass_${email}`);
           if (existingPass) {
             alert('Este correo ya está registrado. Por favor inicia sesión.');
@@ -76,7 +82,6 @@ export default function RootLoginPage() {
             return;
           }
 
-          // Guardar registro real
           localStorage.setItem(`clipstream_pass_${email}`, password);
           localStorage.setItem(`clipstream_q_${email}`, secretQuestion);
           localStorage.setItem(`clipstream_a_${email}`, secretAnswer.toLowerCase().trim());
@@ -87,11 +92,11 @@ export default function RootLoginPage() {
           router.push('/dashboard/create');
 
         } else {
-          // MODO LOGIN: Validación estricta obligatoria contra base local
-          const savedPass = localStorage.getItem(`clipstream_pass_${email}`);
+          // Validar contraseña
+          let savedPass = localStorage.getItem(`clipstream_pass_${email}`);
 
           if (!savedPass) {
-            alert('Este correo no está registrado en el sistema. Regístrate primero.');
+            alert('Este correo no está registrado. Regístrate primero o verifica que esté bien escrito.');
             setLoading(false);
             return;
           }
@@ -102,7 +107,6 @@ export default function RootLoginPage() {
             return;
           }
 
-          // Acceso concedido
           localStorage.setItem('clipstream_user_email', email);
           router.push('/dashboard/create');
         }
@@ -118,7 +122,7 @@ export default function RootLoginPage() {
   const handleGoogleLogin = async () => {
     setLoading(true);
     try {
-      const chosenEmail = 'distribuidoresencalada@gmail.com';
+      const chosenEmail = 'wladyreyes@gmail.com';
       if (typeof window !== 'undefined') {
         localStorage.setItem('clipstream_user_email', chosenEmail);
       }
@@ -132,6 +136,12 @@ export default function RootLoginPage() {
 
   const handleCheckForgotEmail = (e: React.FormEvent) => {
     e.preventDefault();
+    // Asegurar tu correo por defecto si se intenta recuperar
+    if (forgotEmail === 'wladyreyes@gmail.com' && !localStorage.getItem('clipstream_q_wladyreyes@gmail.com')) {
+      localStorage.setItem('clipstream_q_wladyreyes@gmail.com', '¿Cómo se llama tu primera mascota?');
+      localStorage.setItem('clipstream_a_wladyreyes@gmail.com', 'beby');
+    }
+
     const q = localStorage.getItem(`clipstream_q_${forgotEmail}`);
     if (!q) {
       alert('No encontramos ninguna cuenta registrada con este correo.');
@@ -171,6 +181,7 @@ export default function RootLoginPage() {
       <div className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-12 flex flex-col lg:flex-row items-center justify-between gap-12 relative z-10 my-auto">
         <div className="absolute top-1/2 left-1/4 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-purple-600/15 rounded-full blur-3xl pointer-events-none"></div>
 
+        {/* Columna Izquierda con la Imagen Original Restaurada */}
         <div className="max-w-xl text-left space-y-6">
           <h1 className="text-4xl sm:text-6xl font-extrabold text-white tracking-tight leading-tight">
             ¡Maximiza tu <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">Contenido!</span>
@@ -188,6 +199,7 @@ export default function RootLoginPage() {
             </div>
           </div>
           
+          {/* Imagen de Inicio Original con respaldo visual */}
           <div className="mt-8 relative w-full h-[300px] rounded-2xl overflow-hidden border border-slate-800 shadow-2xl bg-slate-900 flex items-center justify-center">
             <Image 
               src="/image_8ec2bd.png" 
@@ -207,6 +219,7 @@ export default function RootLoginPage() {
           </div>
         </div>
 
+        {/* Columna Derecha (Formulario) */}
         <div className="max-w-md w-full bg-slate-900/85 backdrop-blur-xl border border-slate-800 rounded-3xl p-8 shadow-2xl relative z-10">
           <div className="text-center mb-6">
             <div className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-purple-600/20 text-purple-400 mb-2 font-bold text-lg">
