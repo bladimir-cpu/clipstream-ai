@@ -18,8 +18,14 @@ export default function Navbar() {
     }
   }, [pathname]);
 
-  // No mostrar la barra en la página de login
-  if (pathname === '/login') return null;
+  // Si estamos en la página de login (raíz), no mostramos la barra superior
+  if (pathname === '/' || pathname === '/login') return null;
+
+  // Si un usuario intenta entrar a otra sección (como precios) sin haber iniciado sesión, lo devolvemos al login
+  if (!userEmail && typeof window !== 'undefined') {
+    router.push('/');
+    return null;
+  }
 
   const handleLogout = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -60,9 +66,8 @@ export default function Navbar() {
           </div>
 
           <div className="flex items-center space-x-3">
-            {/* Indicador del usuario activo */}
             {userEmail && (
-              <span className="hidden lg:inline-flex text-xs text-purple-300 bg-purple-500/10 px-3 py-1.5 rounded-full border border-purple-500/20 font-medium">
+              <span className="hidden lg:inline-flex text-xs text-purple-300 bg-purple-500/10 px-3 py-1.5 rounded-full border border-purple-500/25 font-medium">
                 👤 {userEmail}
               </span>
             )}
