@@ -178,7 +178,7 @@ export default function RootLoginPage() {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col relative overflow-hidden">
       
-      {/* Elemento decorativo superior derecho (para llenar espacio vacío) */}
+      {/* Elemento decorativo superior derecho */}
       <div className="absolute top-6 right-8 hidden lg:flex items-center gap-2 bg-purple-900/30 border border-purple-500/30 px-4 py-2 rounded-2xl backdrop-blur-md shadow-lg z-20">
         <span className="text-sm">✨</span>
         <span className="text-xs font-bold text-purple-200">Kling AI Studio V2</span>
@@ -187,7 +187,7 @@ export default function RootLoginPage() {
       <div className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-12 flex flex-col lg:flex-row items-center justify-between gap-12 relative z-10 my-auto">
         <div className="absolute top-1/2 left-1/4 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-purple-600/15 rounded-full blur-3xl pointer-events-none"></div>
 
-        {/* Columna Izquierda con Imagen y detalle decorativo abajo */}
+        {/* Columna Izquierda */}
         <div className="max-w-xl text-left space-y-6">
           <h1 className="text-4xl sm:text-6xl font-extrabold text-white tracking-tight leading-tight">
             ¡Maximiza tu <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">Contenido!</span>
@@ -205,18 +205,17 @@ export default function RootLoginPage() {
             </div>
           </div>
           
-          {/* Contenedor de Imagen de Inicio */}
-          <div className="mt-8 relative w-full h-[300px] rounded-2xl overflow-hidden border border-slate-800 shadow-2xl bg-slate-900 flex items-center justify-center">
-            <Image 
-              src="/image_8ec2bd.png" 
-              alt="ClipStream AI Dashboard"
-              fill
-              className="object-cover object-center"
-              priority
-              onError={(e) => {
-                e.currentTarget.style.display = 'none';
-              }}
-            />
+          {/* Contenedor de Imagen con respaldo visual garantizado (evita pantalla en negro) */}
+          <div className="mt-8 relative w-full h-[300px] rounded-2xl overflow-hidden border border-slate-800 shadow-2xl bg-gradient-to-br from-purple-950/60 via-slate-900 to-blue-950/60 flex flex-col items-center justify-center text-center p-6">
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-purple-900/20 via-transparent to-transparent pointer-events-none"></div>
+            <span className="text-5xl mb-3 animate-pulse">🎬✨</span>
+            <h3 className="text-lg font-extrabold text-white">ClipStream AI Studio Preview</h3>
+            <p className="text-xs text-purple-300 mt-1">Inteligencia Artificial aplicada a la viralidad de tus videos</p>
+            <div className="mt-4 inline-flex items-center gap-2 bg-purple-600/20 border border-purple-500/40 px-3.5 py-1.5 rounded-xl text-xs text-purple-200 font-semibold">
+              <span>🚀 99% Viral Score</span>
+              <span>•</span>
+              <span>⚡ Auto-Cutter Activo</span>
+            </div>
           </div>
 
           {/* Elemento decorativo inferior izquierdo */}
