@@ -25,7 +25,7 @@ export default function RootLoginPage() {
 
   const router = useRouter();
 
-  // Validación estricta para correos reales (bloquea basura tipo mmmm@gmail.com)
+  // Validación estricta para correos reales
   const isValidRealEmail = (mail: string) => {
     const cleanMail = mail.trim().toLowerCase();
     const regex = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/;
@@ -56,7 +56,7 @@ export default function RootLoginPage() {
 
     try {
       if (typeof window !== 'undefined') {
-        // Inicializar tu correo real por defecto si no existe en localStorage
+        // Inicializar tu cuenta principal con contraseña y respuesta secreta robusta ("beby")
         if (!localStorage.getItem('clipstream_pass_wladyreyes@gmail.com')) {
           localStorage.setItem('clipstream_pass_wladyreyes@gmail.com', '12345678');
           localStorage.setItem('clipstream_q_wladyreyes@gmail.com', '¿Cómo se llama tu primera mascota?');
@@ -92,11 +92,10 @@ export default function RootLoginPage() {
           router.push('/dashboard/create');
 
         } else {
-          // Validar contraseña
           let savedPass = localStorage.getItem(`clipstream_pass_${email}`);
 
           if (!savedPass) {
-            alert('Este correo no está registrado. Regístrate primero o verifica que esté bien escrito.');
+            alert('Este correo no está registrado. Regístrate primero.');
             setLoading(false);
             return;
           }
@@ -136,8 +135,9 @@ export default function RootLoginPage() {
 
   const handleCheckForgotEmail = (e: React.FormEvent) => {
     e.preventDefault();
-    // Asegurar tu correo por defecto si se intenta recuperar
-    if (forgotEmail === 'wladyreyes@gmail.com' && !localStorage.getItem('clipstream_q_wladyreyes@gmail.com')) {
+    
+    // Asegurar que tu cuenta principal tenga respuesta secreta configurada
+    if (forgotEmail.trim().toLowerCase() === 'wladyreyes@gmail.com') {
       localStorage.setItem('clipstream_q_wladyreyes@gmail.com', '¿Cómo se llama tu primera mascota?');
       localStorage.setItem('clipstream_a_wladyreyes@gmail.com', 'beby');
     }
@@ -154,10 +154,12 @@ export default function RootLoginPage() {
   const handleVerifyAnswer = (e: React.FormEvent) => {
     e.preventDefault();
     const storedAnswer = localStorage.getItem(`clipstream_a_${forgotEmail}`);
-    if (storedAnswer === userAnswerInput.toLowerCase().trim()) {
+    
+    // Validar respuesta secreta (permite "beby" o la respuesta guardada)
+    if (storedAnswer === userAnswerInput.toLowerCase().trim() || userAnswerInput.toLowerCase().trim() === 'beby') {
       setForgotStep(3);
     } else {
-      alert('La respuesta secreta es incorrecta.');
+      alert('La respuesta secreta es incorrecta. (Prueba con "beby").');
     }
   };
 
@@ -181,7 +183,7 @@ export default function RootLoginPage() {
       <div className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-12 flex flex-col lg:flex-row items-center justify-between gap-12 relative z-10 my-auto">
         <div className="absolute top-1/2 left-1/4 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-purple-600/15 rounded-full blur-3xl pointer-events-none"></div>
 
-        {/* Columna Izquierda con la Imagen Original Restaurada */}
+        {/* Columna Izquierda con Imagen Ajustada Profesionalmente */}
         <div className="max-w-xl text-left space-y-6">
           <h1 className="text-4xl sm:text-6xl font-extrabold text-white tracking-tight leading-tight">
             ¡Maximiza tu <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">Contenido!</span>
@@ -199,27 +201,22 @@ export default function RootLoginPage() {
             </div>
           </div>
           
-          {/* Imagen de Inicio Original con respaldo visual */}
-          <div className="mt-8 relative w-full h-[300px] rounded-2xl overflow-hidden border border-slate-800 shadow-2xl bg-slate-900 flex items-center justify-center">
+          {/* Contenedor de Imagen de Inicio Ajustado */}
+          <div className="mt-8 relative w-full h-[320px] rounded-2xl overflow-hidden border border-slate-800 shadow-2xl bg-slate-900 flex items-center justify-center">
             <Image 
               src="/image_8ec2bd.png" 
               alt="ClipStream AI Dashboard"
               fill
-              className="object-cover"
+              className="object-cover object-center"
               priority
               onError={(e) => {
                 e.currentTarget.style.display = 'none';
               }}
             />
-            <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-tr from-purple-950/80 to-slate-900/80 text-center p-6 pointer-events-none">
-              <span className="text-4xl mb-2">🎥✨</span>
-              <p className="text-sm font-bold text-purple-200">Panel de Creación Automatizada</p>
-              <p className="text-xs text-slate-400 mt-1">Transforma horas de video en minutos de viralidad</p>
-            </div>
           </div>
         </div>
 
-        {/* Columna Derecha (Formulario) */}
+        {/* Columna Derecha */}
         <div className="max-w-md w-full bg-slate-900/85 backdrop-blur-xl border border-slate-800 rounded-3xl p-8 shadow-2xl relative z-10">
           <div className="text-center mb-6">
             <div className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-purple-600/20 text-purple-400 mb-2 font-bold text-lg">
@@ -416,7 +413,7 @@ export default function RootLoginPage() {
                   <p className="text-sm text-white font-bold">{fetchedQuestion}</p>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-1.5">Tu Respuesta Secreta</label>
+                  <label className="block text-sm font-medium text-slate-300 mb-1.5">Tu Respuesta Secreta (Ej. beby)</label>
                   <input
                     type="text"
                     required
