@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
 
 export default function RootLoginPage() {
   const [isRegistering, setIsRegistering] = useState(false);
@@ -187,7 +186,7 @@ export default function RootLoginPage() {
       <div className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-12 flex flex-col lg:flex-row items-center justify-between gap-12 relative z-10 my-auto">
         <div className="absolute top-1/2 left-1/4 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-purple-600/15 rounded-full blur-3xl pointer-events-none"></div>
 
-        {/* Columna Izquierda */}
+        {/* Columna Izquierda con Tarjeta Tecnológica Interactiva */}
         <div className="max-w-xl text-left space-y-6">
           <h1 className="text-4xl sm:text-6xl font-extrabold text-white tracking-tight leading-tight">
             ¡Maximiza tu <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">Contenido!</span>
@@ -205,16 +204,27 @@ export default function RootLoginPage() {
             </div>
           </div>
           
-          {/* Contenedor de Imagen con respaldo visual garantizado (evita pantalla en negro) */}
-          <div className="mt-8 relative w-full h-[300px] rounded-2xl overflow-hidden border border-slate-800 shadow-2xl bg-gradient-to-br from-purple-950/60 via-slate-900 to-blue-950/60 flex flex-col items-center justify-center text-center p-6">
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-purple-900/20 via-transparent to-transparent pointer-events-none"></div>
-            <span className="text-5xl mb-3 animate-pulse">🎬✨</span>
-            <h3 className="text-lg font-extrabold text-white">ClipStream AI Studio Preview</h3>
-            <p className="text-xs text-purple-300 mt-1">Inteligencia Artificial aplicada a la viralidad de tus videos</p>
-            <div className="mt-4 inline-flex items-center gap-2 bg-purple-600/20 border border-purple-500/40 px-3.5 py-1.5 rounded-xl text-xs text-purple-200 font-semibold">
-              <span>🚀 99% Viral Score</span>
-              <span>•</span>
-              <span>⚡ Auto-Cutter Activo</span>
+          {/* Panel Tecnológico Reemplazando el Cuadro Negro */}
+          <div className="mt-8 relative w-full rounded-3xl overflow-hidden border border-purple-500/30 shadow-2xl bg-gradient-to-br from-purple-950/40 via-slate-900 to-slate-950 p-8">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-purple-600/10 rounded-full blur-2xl pointer-events-none"></div>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-2xl bg-purple-600/20 border border-purple-500/30 flex items-center justify-center text-xl">
+                🚀
+              </div>
+              <div>
+                <h3 className="text-base font-extrabold text-white">ClipStream AI Studio</h3>
+                <p className="text-xs text-purple-300">Automatización inteligente para creadores</p>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3 mt-4">
+              <div className="bg-slate-950/80 border border-slate-800/80 p-3.5 rounded-2xl">
+                <p className="text-[11px] text-slate-400">Extracción de Clips</p>
+                <p className="text-sm font-bold text-white mt-0.5">100% Automatizada</p>
+              </div>
+              <div className="bg-slate-950/80 border border-slate-800/80 p-3.5 rounded-2xl">
+                <p className="text-[11px] text-slate-400">Motor Activo</p>
+                <p className="text-sm font-bold text-purple-400 mt-0.5">Kling AI V2</p>
+              </div>
             </div>
           </div>
 
