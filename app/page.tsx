@@ -1,53 +1,173 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
-export default function LandingLoginPage() {
+export default function RootLoginPage() {
   const [isRegistering, setIsRegistering] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
+  const [secretQuestion, setSecretQuestion] = useState('¿Cómo se llama tu primera mascota?');
+  const [secretAnswer, setSecretAnswer] = useState('');
+  
   const [showPassword, setShowPassword] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Estados para el Modal de Recuperación de Contraseña
+  const [showForgotModal, setShowForgotModal] = useState(false);
+  const [forgotStep, setForgotStep] = useState(1);
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [fetchedQuestion, setFetchedQuestion] = useState('');
+  const [userAnswerInput, setUserAnswerInput] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+
+  const router = useRouter();
+
+  // Validación estricta para correos reales
+  const isValidRealEmail = (mail: string) => {
+    const cleanMail = mail.trim().toLowerCase();
+    const regex = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/;
+    if (!regex.test(cleanMail)) return false;
+
+    const usernamePart = cleanMail.split('@')[0];
+    const isRepeatedChars = /^([a-z0-9])\1{3,}$/.test(usernamePart);
+    if (isRepeatedChars || usernamePart.length < 3) {
+      return false;
+    }
+    return true;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErrorMessage('');
-
-    if (!email || !email.includes('@')) {
-      setErrorMessage('Ingresa un correo electrónico válido.');
+    
+    if (!isValidRealEmail(email)) {
+      alert('Por favor ingresa un correo electrónico real y válido.');
       return;
     }
+
     if (!password || password.length < 6) {
-      setErrorMessage('La contraseña debe tener al menos 6 caracteres.');
+      alert('La contraseña debe tener al menos 6 caracteres.');
       return;
     }
 
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('clipstream_user_email', email);
-      if (isRegistering) {
-        localStorage.setItem(`clipstream_pass_${email}`, password);
+    setLoading(true);
+
+    try {
+      if (typeof window !== 'undefined') {
+        if (isRegistering) {
+          // MODO REGISTRO: Verificar si ya existe
+          const existingPass = localStorage.getItem(`clipstream_pass_${email}`);
+          if (existingPass) {
+            alert('Este correo ya está registrado. Por favor inicia sesión.');
+            setLoading(false);
+            return;
+          }
+
+          if (!name.trim()) {
+            alert('Por favor ingresa tu nombre completo.');
+            setLoading(false);
+            return;
+          }
+          if (!secretAnswer.trim()) {
+            alert('Por favor ingresa tu respuesta secreta.');
+            setLoading(false);
+            return;
+          }
+
+          // Guardar registro real
+          localStorage.setItem(`clipstream_pass_${email}`, password);
+          localStorage.setItem(`clipstream_q_${email}`, secretQuestion);
+          localStorage.setItem(`clipstream_a_${email}`, secretAnswer.toLowerCase().trim());
+          localStorage.setItem(`clipstream_name_${email}`, name);
+          localStorage.setItem('clipstream_user_email', email);
+          
+          alert('¡Cuenta creada con éxito!');
+          router.push('/dashboard/create');
+
+        } else {
+          // MODO LOGIN: Validación estricta obligatoria contra base local
+          const savedPass = localStorage.getItem(`clipstream_pass_${email}`);
+
+          if (!savedPass) {
+            alert('Este correo no está registrado en el sistema. Regístrate primero.');
+            setLoading(false);
+            return;
+          }
+
+          if (savedPass !== password) {
+            alert('Contraseña incorrecta. Acceso denegado.');
+            setLoading(false);
+            return;
+          }
+
+          // Acceso concedido
+          localStorage.setItem('clipstream_user_email', email);
+          router.push('/dashboard/create');
+        }
       }
-      window.location.replace('/dashboard/create');
+    } catch (err) {
+      console.error('Error:', err);
+      alert('Ocurrió un error en el acceso.');
+    } finally {
+      setLoading(false);
     }
+  };
+
+  const handleGoogleLogin = async () => {
+    setLoading(true);
+    try {
+      const chosenEmail = 'distribuidoresencalada@gmail.com';
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('clipstream_user_email', chosenEmail);
+      }
+      router.push('/dashboard/create');
+    } catch (err) {
+      console.error('Error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCheckForgotEmail = (e: React.FormEvent) => {
+    e.preventDefault();
+    const q = localStorage.getItem(`clipstream_q_${forgotEmail}`);
+    if (!q) {
+      alert('No encontramos ninguna cuenta registrada con este correo.');
+      return;
+    }
+    setFetchedQuestion(q);
+    setForgotStep(2);
+  };
+
+  const handleVerifyAnswer = (e: React.FormEvent) => {
+    e.preventDefault();
+    const storedAnswer = localStorage.getItem(`clipstream_a_${forgotEmail}`);
+    if (storedAnswer === userAnswerInput.toLowerCase().trim()) {
+      setForgotStep(3);
+    } else {
+      alert('La respuesta secreta es incorrecta.');
+    }
+  };
+
+  const handleResetPassword = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newPassword || newPassword.length < 6) {
+      alert('La nueva contraseña debe tener al menos 6 caracteres.');
+      return;
+    }
+    localStorage.setItem(`clipstream_pass_${forgotEmail}`, newPassword);
+    alert('¡Contraseña actualizada con éxito! Ya puedes iniciar sesión.');
+    setShowForgotModal(false);
+    setForgotStep(1);
+    setForgotEmail('');
+    setUserAnswerInput('');
+    setNewPassword('');
   };
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col relative overflow-hidden">
-      <header className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 relative z-20">
-        <div className="flex justify-between items-center bg-slate-900/60 p-4 rounded-2xl border border-slate-800 backdrop-blur-md">
-          <div className="flex items-center gap-2">
-            <span className="text-xl">🚀</span>
-            <span className="font-extrabold text-white tracking-wide">ClipStream AI</span>
-          </div>
-          <nav className="flex items-center gap-6">
-            <Link href="/" className="text-sm font-medium text-purple-400 hover:text-purple-300 transition">Inicio</Link>
-            <Link href="/dashboard/create" className="text-sm font-medium text-slate-300 hover:text-white transition">Crear</Link>
-            <Link href="/pricing" className="text-sm font-medium text-slate-300 hover:text-white transition">Planes y Precios</Link>
-          </nav>
-        </div>
-      </header>
-
       <div className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-12 flex flex-col lg:flex-row items-center justify-between gap-12 relative z-10 my-auto">
         <div className="absolute top-1/2 left-1/4 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-purple-600/15 rounded-full blur-3xl pointer-events-none"></div>
 
@@ -61,38 +181,28 @@ export default function LandingLoginPage() {
           <p className="text-slate-400 text-sm sm:text-base leading-relaxed">
             ClipStream AI utiliza tecnología de vanguardia para analizar tus vídeos largos, extraer automáticamente los momentos más impactantes y convertirlos en clips cortos y dinámicos para redes sociales.
           </p>
-          <div className="rounded-2xl overflow-hidden border border-slate-800 shadow-2xl bg-slate-900/50 p-3">
+          <div className="rounded-2xl overflow-hidden border border-slate-800 shadow-2xl bg-slate-900/50 p-2">
             <div className="bg-slate-950 rounded-xl p-4 text-xs text-slate-400 flex items-center justify-between">
               <span>⚡ Inteligencia Artificial Activa</span>
-              <span className="text-purple-400 font-bold">Kling AI Engine + 10 Créditos Gratis</span>
+              <span className="text-purple-400 font-bold">Kling AI Engine</span>
             </div>
           </div>
-
-          {/* IMAGEN / MOCKUP PROFESIONAL ESTILIZADO DE DISEÑO (Llena el espacio vacío con elegancia) */}
-          <div className="rounded-2xl border border-slate-800 bg-gradient-to-br from-slate-900/90 to-purple-950/40 p-4 shadow-2xl backdrop-blur-md relative overflow-hidden">
-            <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-purple-500/10 rounded-full blur-2xl pointer-events-none"></div>
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-bold text-purple-300 flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Studio Preview 9:16
-              </span>
-              <span className="text-[10px] bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded-full border border-purple-500/30 font-semibold">IA Auto-Cutter</span>
-            </div>
-            <div className="grid grid-cols-3 gap-2.5">
-              <div className="bg-slate-950/80 border border-slate-800/80 rounded-xl p-2.5 text-center space-y-1">
-                <div className="text-lg">🎬</div>
-                <p className="text-[10px] font-bold text-slate-200">TikTok / Reels</p>
-                <span className="text-[9px] text-emerald-400 font-semibold">99% Viral Score</span>
-              </div>
-              <div className="bg-slate-950/80 border border-slate-800/80 rounded-xl p-2.5 text-center space-y-1">
-                <div className="text-lg">⚡</div>
-                <p className="text-[10px] font-bold text-slate-200">Smart Crop</p>
-                <span className="text-[9px] text-purple-400 font-semibold">Tracking Activo</span>
-              </div>
-              <div className="bg-slate-950/80 border border-slate-800/80 rounded-xl p-2.5 text-center space-y-1">
-                <div className="text-lg">📥</div>
-                <p className="text-[10px] font-bold text-slate-200">1-Click Export</p>
-                <span className="text-[9px] text-blue-400 font-semibold">Alta Definición</span>
-              </div>
+          
+          <div className="mt-8 relative w-full h-[300px] rounded-2xl overflow-hidden border border-slate-800 shadow-2xl bg-slate-900 flex items-center justify-center">
+            <Image 
+              src="/image_8ec2bd.png" 
+              alt="ClipStream AI Dashboard"
+              fill
+              className="object-cover"
+              priority
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+              }}
+            />
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-tr from-purple-950/80 to-slate-900/80 text-center p-6 pointer-events-none">
+              <span className="text-4xl mb-2">🎥✨</span>
+              <p className="text-sm font-bold text-purple-200">Panel de Creación Automatizada</p>
+              <p className="text-xs text-slate-400 mt-1">Transforma horas de video en minutos de viralidad</p>
             </div>
           </div>
         </div>
@@ -103,28 +213,18 @@ export default function LandingLoginPage() {
               🎥
             </div>
             <h2 className="text-2xl font-extrabold text-white">
-              {isRegistering ? 'Crea tu Cuenta' : 'Panel de Acceso'}
+              {isRegistering ? 'Crear una Cuenta' : 'Iniciar Sesión'}
             </h2>
             <p className="text-xs text-slate-400 mt-1">
-              {isRegistering ? 'Regístrate para comenzar a crear clips virales' : 'Accede a tu estudio de creación viral'}
+              {isRegistering ? 'Empieza gratis con validación segura' : 'Accede a tu estudio de creación viral'}
             </p>
           </div>
 
-          {errorMessage && (
-            <div className="mb-4 p-3 bg-red-500/20 border border-red-500/50 rounded-xl text-red-300 text-xs font-medium text-center">
-              ⚠️ {errorMessage}
-            </div>
-          )}
-
           <button
             type="button"
-            onClick={() => {
-              if (typeof window !== 'undefined') {
-                localStorage.setItem('clipstream_user_email', 'distribuidoresencalada@gmail.com');
-                window.location.replace('/dashboard/create');
-              }
-            }}
-            className="w-full mb-6 bg-slate-950 hover:bg-slate-800 border border-slate-800 text-white font-medium py-3 px-4 rounded-xl transition flex items-center justify-center gap-3 cursor-pointer shadow-md"
+            onClick={handleGoogleLogin}
+            disabled={loading}
+            className="w-full mb-6 bg-slate-950 hover:bg-slate-800 border border-slate-800 text-white font-medium py-3 px-4 rounded-xl transition flex items-center justify-center gap-3 cursor-pointer shadow-md disabled:opacity-50"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/>
@@ -142,12 +242,53 @@ export default function LandingLoginPage() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
+            {isRegistering && (
+              <>
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-1.5">Nombre Completo</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Tu nombre"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition text-sm"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-1.5">Pregunta de Seguridad</label>
+                  <select
+                    value={secretQuestion}
+                    onChange={(e) => setSecretQuestion(e.target.value)}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-purple-500 transition text-sm mb-2"
+                  >
+                    <option value="¿Cómo se llama tu primera mascota?">¿Cómo se llama tu primera mascota?</option>
+                    <option value="¿Cuál es tu ciudad de nacimiento?">¿Cuál es tu ciudad de nacimiento?</option>
+                    <option value="¿Cuál es el nombre de tu película favorita?">¿Cuál es el nombre de tu película favorita?</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-1.5">Respuesta Secreta</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Ej. Beby"
+                    value={secretAnswer}
+                    onChange={(e) => setSecretAnswer(e.target.value)}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition text-sm"
+                  />
+                </div>
+              </>
+            )}
+
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1.5">Correo Electrónico</label>
+              <label className="block text-sm font-medium text-slate-300 mb-1.5">Correo Electrónico (Real)</label>
               <input
                 type="email"
                 required
-                placeholder="tu@correo.com"
+                placeholder="tu.correo@gmail.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition text-sm"
@@ -155,7 +296,18 @@ export default function LandingLoginPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1.5">Contraseña</label>
+              <div className="flex justify-between items-center mb-1.5">
+                <label className="block text-sm font-medium text-slate-300">Contraseña</label>
+                {!isRegistering && (
+                  <button
+                    type="button"
+                    onClick={() => setShowForgotModal(true)}
+                    className="text-xs text-purple-400 hover:text-purple-300 transition cursor-pointer"
+                  >
+                    ¿Olvidaste tu contraseña?
+                  </button>
+                )}
+              </div>
               <div className="relative">
                 <input
                   type={showPassword ? 'text' : 'password'}
@@ -177,9 +329,20 @@ export default function LandingLoginPage() {
 
             <button
               type="submit"
-              className="w-full mt-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-bold py-3.5 px-6 rounded-xl transition shadow-lg shadow-purple-500/25 flex items-center justify-center gap-2 cursor-pointer text-sm"
+              disabled={loading}
+              className="w-full mt-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-bold py-3.5 px-6 rounded-xl transition shadow-lg shadow-purple-500/25 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 text-sm"
             >
-              {isRegistering ? '✨ Registrarme Ahora' : '🚀 Entrar al Studio'}
+              {loading ? (
+                <>
+                  <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                  </svg>
+                  <span>Procesando...</span>
+                </>
+              ) : (
+                <>{isRegistering ? '🚀 Crear Cuenta Segura' : '🚀 Entrar al Studio'}</>
+              )}
             </button>
           </form>
 
@@ -189,14 +352,100 @@ export default function LandingLoginPage() {
               <button
                 type="button"
                 onClick={() => setIsRegistering(!isRegistering)}
-                className="text-purple-400 hover:text-purple-300 font-semibold transition underline cursor-pointer ml-1"
+                className="text-purple-400 hover:text-purple-300 font-semibold transition cursor-pointer ml-1"
               >
-                {isRegistering ? 'Inicia sesión aquí' : 'Regístrate gratis'}
+                {isRegistering ? 'Inicia sesión aquí' : 'Regístrate aquí'}
               </button>
             </p>
           </div>
         </div>
       </div>
+
+      {showForgotModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in">
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl relative">
+            <button
+              onClick={() => { setShowForgotModal(false); setForgotStep(1); setForgotEmail(''); setUserAnswerInput(''); }}
+              className="absolute top-4 right-4 text-slate-400 hover:text-white text-sm font-bold bg-slate-800 px-3 py-1 rounded-xl cursor-pointer"
+            >
+              ✕
+            </button>
+
+            <h3 className="text-xl font-extrabold text-white mb-2">Recuperar Contraseña</h3>
+            <p className="text-xs text-slate-400 mb-6">Sigue los pasos para restablecer tu acceso.</p>
+
+            {forgotStep === 1 && (
+              <form onSubmit={handleCheckForgotEmail} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-1.5">Tu Correo Electrónico</label>
+                  <input
+                    type="email"
+                    required
+                    placeholder="correo@gmail.com"
+                    value={forgotEmail}
+                    onChange={(e) => setForgotEmail(e.target.value)}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 text-sm"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 rounded-xl transition text-sm cursor-pointer shadow-lg"
+                >
+                  Siguiente ➔
+                </button>
+              </form>
+            )}
+
+            {forgotStep === 2 && (
+              <form onSubmit={handleVerifyAnswer} className="space-y-4">
+                <div className="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                  <p className="text-xs text-purple-300 font-semibold mb-1">Pregunta de Seguridad:</p>
+                  <p className="text-sm text-white font-bold">{fetchedQuestion}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-1.5">Tu Respuesta Secreta</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Escribe tu respuesta..."
+                    value={userAnswerInput}
+                    onChange={(e) => setUserAnswerInput(e.target.value)}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 text-sm"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 rounded-xl transition text-sm cursor-pointer shadow-lg"
+                >
+                  Verificar Respuesta ➔
+                </button>
+              </form>
+            )}
+
+            {forgotStep === 3 && (
+              <form onSubmit={handleResetPassword} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-1.5">Nueva Contraseña</label>
+                  <input
+                    type="password"
+                    required
+                    placeholder="Mínimo 6 caracteres"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 text-sm"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-bold py-3 rounded-xl transition text-sm cursor-pointer shadow-lg"
+                >
+                  ✨ Guardar Nueva Contraseña
+                </button>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
