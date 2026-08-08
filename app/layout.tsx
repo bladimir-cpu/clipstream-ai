@@ -1,4 +1,5 @@
 import './globals.css';
+import Navbar from './components/Navbar';
 
 export const metadata = {
   title: 'ClipStream AI - Generador de Videos con IA',
@@ -13,7 +14,8 @@ export default function RootLayout({
   return (
     <html lang="es" className="dark">
       <body className="bg-slate-950 text-slate-100 min-h-screen antialiased selection:bg-purple-600 selection:text-white">
-        {children}
+        <Navbar />
+        <main>{children}</main>
       </body>
     </html>
   );
