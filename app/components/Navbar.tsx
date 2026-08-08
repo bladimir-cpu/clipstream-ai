@@ -19,44 +19,44 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
+    <nav className="bg-slate-900/85 backdrop-blur-md border-b border-slate-800 sticky top-0 z-50 text-slate-100 shadow-xl">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
+        <div className="flex justify-between h-16 items-center">
           <div className="flex items-center space-x-8">
             <Link href="/dashboard/create" className="flex items-center space-x-2">
-              <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+              <span className="text-xl font-extrabold text-white tracking-wide">
                 🎥 ClipStream AI
               </span>
             </Link>
-            <div className="hidden md:flex space-x-4">
+            <div className="hidden md:flex space-x-3">
               <Link
                 href="/dashboard/create"
-                className={`px-3 py-2 rounded-lg text-sm font-medium transition ${
-                  pathname === '/dashboard/create' ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:text-gray-900'
+                className={`px-3.5 py-2 rounded-xl text-xs font-bold transition ${
+                  pathname === '/dashboard/create' ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/30' : 'text-slate-400 hover:text-white hover:bg-slate-800'
                 }`}
               >
-                Generador
+                ⚡ Generador
               </Link>
               <Link
                 href="/pricing"
-                className={`px-3 py-2 rounded-lg text-sm font-medium transition ${
-                  pathname === '/pricing' ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:text-gray-900'
+                className={`px-3.5 py-2 rounded-xl text-xs font-bold transition ${
+                  pathname === '/pricing' ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/30' : 'text-slate-400 hover:text-white hover:bg-slate-800'
                 }`}
               >
-                Precios y Créditos
+                💎 Precios y Créditos
               </Link>
             </div>
           </div>
           <div className="flex items-center space-x-4">
             <Link
               href="/pricing"
-              className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-medium shadow-sm hover:opacity-90 transition"
+              className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-lg shadow-purple-500/25 transition"
             >
               ⚡ Recargar Créditos
             </Link>
             <button
               onClick={handleLogout}
-              className="text-gray-500 hover:text-gray-700 text-sm font-medium cursor-pointer bg-transparent border-none"
+              className="text-xs font-medium text-slate-400 hover:text-red-400 transition cursor-pointer bg-slate-950 px-3 py-2 rounded-xl border border-slate-800"
             >
               Salir
             </button>
