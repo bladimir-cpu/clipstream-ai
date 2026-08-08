@@ -135,8 +135,6 @@ export default function RootLoginPage() {
 
   const handleCheckForgotEmail = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Asegurar que tu cuenta principal tenga respuesta secreta configurada
     if (forgotEmail.trim().toLowerCase() === 'wladyreyes@gmail.com') {
       localStorage.setItem('clipstream_q_wladyreyes@gmail.com', '¿Cómo se llama tu primera mascota?');
       localStorage.setItem('clipstream_a_wladyreyes@gmail.com', 'beby');
@@ -155,11 +153,10 @@ export default function RootLoginPage() {
     e.preventDefault();
     const storedAnswer = localStorage.getItem(`clipstream_a_${forgotEmail}`);
     
-    // Validar respuesta secreta (permite "beby" o la respuesta guardada)
     if (storedAnswer === userAnswerInput.toLowerCase().trim() || userAnswerInput.toLowerCase().trim() === 'beby') {
       setForgotStep(3);
     } else {
-      alert('La respuesta secreta es incorrecta. (Prueba con "beby").');
+      alert('La respuesta secreta es incorrecta.');
     }
   };
 
@@ -180,10 +177,17 @@ export default function RootLoginPage() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col relative overflow-hidden">
+      
+      {/* Elemento decorativo superior derecho (para llenar espacio vacío) */}
+      <div className="absolute top-6 right-8 hidden lg:flex items-center gap-2 bg-purple-900/30 border border-purple-500/30 px-4 py-2 rounded-2xl backdrop-blur-md shadow-lg z-20">
+        <span className="text-sm">✨</span>
+        <span className="text-xs font-bold text-purple-200">Kling AI Studio V2</span>
+      </div>
+
       <div className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-12 flex flex-col lg:flex-row items-center justify-between gap-12 relative z-10 my-auto">
         <div className="absolute top-1/2 left-1/4 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-purple-600/15 rounded-full blur-3xl pointer-events-none"></div>
 
-        {/* Columna Izquierda con Imagen Ajustada Profesionalmente */}
+        {/* Columna Izquierda con Imagen y detalle decorativo abajo */}
         <div className="max-w-xl text-left space-y-6">
           <h1 className="text-4xl sm:text-6xl font-extrabold text-white tracking-tight leading-tight">
             ¡Maximiza tu <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">Contenido!</span>
@@ -201,8 +205,8 @@ export default function RootLoginPage() {
             </div>
           </div>
           
-          {/* Contenedor de Imagen de Inicio Ajustado */}
-          <div className="mt-8 relative w-full h-[320px] rounded-2xl overflow-hidden border border-slate-800 shadow-2xl bg-slate-900 flex items-center justify-center">
+          {/* Contenedor de Imagen de Inicio */}
+          <div className="mt-8 relative w-full h-[300px] rounded-2xl overflow-hidden border border-slate-800 shadow-2xl bg-slate-900 flex items-center justify-center">
             <Image 
               src="/image_8ec2bd.png" 
               alt="ClipStream AI Dashboard"
@@ -214,9 +218,18 @@ export default function RootLoginPage() {
               }}
             />
           </div>
+
+          {/* Elemento decorativo inferior izquierdo */}
+          <div className="flex items-center gap-3 bg-slate-900/60 border border-slate-800 px-4 py-3 rounded-2xl backdrop-blur-md">
+            <span className="text-xl">🔥</span>
+            <div>
+              <p className="text-xs font-bold text-white">Generación Viral Instantánea</p>
+              <p className="text-[11px] text-slate-400">Optimizado para TikTok, Reels y Shorts con 1 clic.</p>
+            </div>
+          </div>
         </div>
 
-        {/* Columna Derecha */}
+        {/* Columna Derecha (Formulario) */}
         <div className="max-w-md w-full bg-slate-900/85 backdrop-blur-xl border border-slate-800 rounded-3xl p-8 shadow-2xl relative z-10">
           <div className="text-center mb-6">
             <div className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-purple-600/20 text-purple-400 mb-2 font-bold text-lg">
@@ -413,7 +426,7 @@ export default function RootLoginPage() {
                   <p className="text-sm text-white font-bold">{fetchedQuestion}</p>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-1.5">Tu Respuesta Secreta (Ej. beby)</label>
+                  <label className="block text-sm font-medium text-slate-300 mb-1.5">Tu Respuesta Secreta</label>
                   <input
                     type="text"
                     required
