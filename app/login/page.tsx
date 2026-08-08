@@ -26,20 +26,17 @@ export default function LoginPage() {
 
   const router = useRouter();
 
-  // Validación estricta y profesional para evitar correos falsos tipo mmmmm@gmail.com
+  // Validación estricta para evitar correos falsos o repetitivos
   const isValidRealEmail = (mail: string) => {
     const cleanMail = mail.trim().toLowerCase();
-    // Regex estándar de correo
     const regex = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/;
     if (!regex.test(cleanMail)) return false;
 
-    // Bloquear patrones repetitivos o falsos evidentes (ej. mmm@gmail.com, aaaa@gmail.com, 1111@gmail.com)
     const usernamePart = cleanMail.split('@')[0];
-    const isRepeatedChars = /^([a-z0-9])\1{3,}$/.test(usernamePart); // 4 o más caracteres iguales seguidos
+    const isRepeatedChars = /^([a-z0-9])\1{3,}$/.test(usernamePart);
     if (isRepeatedChars || usernamePart.length < 3) {
       return false;
     }
-
     return true;
   };
 
@@ -56,34 +53,52 @@ export default function LoginPage() {
       return;
     }
 
-    if (isRegistering) {
-      if (!name.trim()) {
-        alert('Por favor ingresa tu nombre completo.');
-        return;
-      }
-      if (!secretAnswer.trim() || secretAnswer.trim().length < 2) {
-        alert('Por favor ingresa una respuesta secreta válida.');
-        return;
-      }
-    }
-
     setLoading(true);
 
     try {
       if (typeof window !== 'undefined') {
         if (isRegistering) {
+          // Verificar si ya existe el usuario
+          const existingPass = localStorage.getItem(`clipstream_pass_${email}`);
+          if (existingPass) {
+            alert('Este correo ya está registrado. Por favor inicia sesión o recupera tu contraseña.');
+            setLoading(false);
+            return;
+          }
+
+          if (!name.trim()) {
+            alert('Por favor ingresa tu nombre completo.');
+            setLoading(false);
+            return;
+          }
+          if (!secretAnswer.trim() || secretAnswer.trim().length < 2) {
+            alert('Por favor ingresa una respuesta secreta válida.');
+            setLoading(false);
+            return;
+          }
+
+          // Guardar datos de registro reales
           localStorage.setItem(`clipstream_pass_${email}`, password);
           localStorage.setItem(`clipstream_q_${email}`, secretQuestion);
           localStorage.setItem(`clipstream_a_${email}`, secretAnswer.toLowerCase().trim());
           localStorage.setItem(`clipstream_name_${email}`, name);
         } else {
+          // MODO INICIO DE SESIÓN: Validar contra la clave guardada
           const savedPass = localStorage.getItem(`clipstream_pass_${email}`);
-          if (savedPass && savedPass !== password) {
-            alert('Contraseña incorrecta. Si la olvidaste, usa la opción de recuperar contraseña.');
+          
+          if (!savedPass) {
+            alert('Este correo no está registrado. Regístrate primero o verifica que esté bien escrito.');
+            setLoading(false);
+            return;
+          }
+
+          if (savedPass !== password) {
+            alert('Contraseña incorrecta. Si no la recuerdas, usa la opción "¿Olvidaste tu contraseña?".');
             setLoading(false);
             return;
           }
         }
+
         localStorage.setItem('clipstream_user_email', email);
       }
       router.push('/dashboard/create');
