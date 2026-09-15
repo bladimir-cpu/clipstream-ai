@@ -43,47 +43,53 @@ export default function DashboardCreatePage() {
     setResults([]);
 
     try {
-      // Petición real al servidor seguro que conecta con Kling AI
-      const res = await fetch('/api/generate', {
+      const startRes = await fetch('/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt: inputData || 'Generar clip viral', tab: activeTab }),
       });
+      const startData = await startRes.json();
+      if (!startRes.ok) throw new Error(startData.error || 'Error al iniciar la generación');
 
-      const data = await res.json();
+      const taskId = startData.taskId;
 
-      if (!res.ok) {
-        throw new Error(data.error || 'Error al procesar con el motor de Kling AI');
+      // Polling hasta que Kling termine (máx ~3 minutos)
+      let task = null;
+      for (let i = 0; i < 36; i++) {
+        await new Promise((r) => setTimeout(r, 5000));
+        const statusRes = await fetch(`/api/generate/status?taskId=${taskId}`);
+        const statusData = await statusRes.json();
+        if (!statusRes.ok) throw new Error(statusData.error || 'Error consultando el estado');
+
+        if (statusData.task_status === 'succeed') {
+          task = statusData;
+          break;
+        }
+        if (statusData.task_status === 'failed') {
+          throw new Error(statusData.task_status_msg || 'Kling AI no pudo generar el video');
+        }
       }
 
+      if (!task) throw new Error('El video está tardando más de lo esperado, intenta de nuevo.');
+
+      const videos = task.task_result?.videos || [];
       const newCredits = credits - 1;
       setCredits(newCredits);
       if (typeof window !== 'undefined' && userEmail) {
         localStorage.setItem(`clipstream_credits_${userEmail}`, newCredits.toString());
       }
-      
-      // Video real de alta calidad de prueba devuelto por el flujo exitoso
-      const realVideoOutput = 'https://www.w3schools.com/html/mov_bbb.mp4';
 
-      setResults([
-        { id: 1, title: 'Clip Corto Viral (9:16 - TikTok/Reels)', videoUrl: realVideoOutput, filename: 'clip-kling-viral-9-16.mp4' },
-        { id: 2, title: 'Clip Dinámico Extendido', videoUrl: realVideoOutput, filename: 'clip-kling-extendido.mp4' },
-        { id: 3, title: 'Clip Resumen Formato Original', videoUrl: realVideoOutput, filename: 'clip-kling-original.mp4' }
-      ]);
+      setResults(
+        videos.map((v: any, i: number) => ({
+          id: i + 1,
+          title: `Clip Kling AI #${i + 1}`,
+          videoUrl: v.url,
+          filename: `clip-kling-${i + 1}.mp4`,
+        }))
+      );
     } catch (error: any) {
-      console.warn('Aviso de API:', error.message);
-      // Fallback inteligente para asegurar que la app siempre responda fluidamente si hay un detalle con la llave
-      const newCredits = credits - 1;
-      setCredits(newCredits);
-      if (typeof window !== 'undefined' && userEmail) {
-        localStorage.setItem(`clipstream_credits_${userEmail}`, newCredits.toString());
-      }
-      const backupVideo = 'https://www.w3schools.com/html/mov_bbb.mp4';
-      setResults([
-        { id: 1, title: 'Clip Corto Viral (9:16 - TikTok/Reels)', videoUrl: backupVideo, filename: 'clip-viral-9-16.mp4' },
-        { id: 2, title: 'Clip Dinámico Extendido', videoUrl: backupVideo, filename: 'clip-dinamico-extendido.mp4' },
-        { id: 3, title: 'Clip Resumen Formato Original', videoUrl: backupVideo, filename: 'clip-resumen-original.mp4' }
-      ]);
+      console.error('Error al generar con Kling AI:', error);
+      alert(error.message || 'Ocurrió un error al generar el video. Intenta de nuevo.');
     } finally {
       setProcessing(false);
     }
@@ -316,21 +322,22 @@ export default function DashboardCreatePage() {
             </button>
           </form>
 
-          {/* BANDEJA DE LOS 3 CLIPS DE DESCARGA */}
+          {/* BANDEJA DE LOS CLIPS DE DESCARGA */}
           {results.length > 0 && (
             <div className="mt-10 pt-8 border-t border-slate-800 max-w-xl mx-auto animate-in fade-in duration-500">
-              <h3 className="text-center text-white font-bold mb-4 text-sm">🎉 ¡Tus 3 opciones de clips virales están listas para descargar!</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <h3 className="text-center text-white font-bold mb-4 text-sm">🎉 ¡Tu video generado con Kling AI está listo para descargar!</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-1 gap-4">
                 {results.map((clip) => (
                   <div key={clip.id} className="bg-slate-950 border border-slate-800 p-4 rounded-xl text-center space-y-3">
                     <div className="text-2xl">🎬</div>
                     <p className="text-xs font-medium text-slate-300">{clip.title}</p>
+                    <video controls src={clip.videoUrl} className="w-full rounded-lg max-h-60 object-cover my-2" />
                     <button
                       type="button"
                       onClick={() => handleDownload(clip.videoUrl, clip.filename)}
                       className="w-full bg-purple-600/20 hover:bg-purple-600 text-purple-300 hover:text-white py-2 rounded-lg text-xs font-bold transition border border-purple-500/30 cursor-pointer"
                     >
-                      📥 Descargar
+                      📥 Descargar Video
                     </button>
                   </div>
                 ))}
