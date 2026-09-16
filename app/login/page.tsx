@@ -2,29 +2,25 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import Image from 'next/image';
+import { createClient } from '@/lib/supabase/client';
 
 export default function LoginPage() {
   const [isRegistering, setIsRegistering] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
-  const [secretQuestion, setSecretQuestion] = useState('¿Cómo se llama tu primera mascota?');
-  const [secretAnswer, setSecretAnswer] = useState('');
-  
+
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // Estados para el Modal de Recuperación de Contraseña
+  // Estados para el Modal de Recuperación de Contraseña (flujo por enlace de correo)
   const [showForgotModal, setShowForgotModal] = useState(false);
-  const [forgotStep, setForgotStep] = useState(1);
   const [forgotEmail, setForgotEmail] = useState('');
-  const [fetchedQuestion, setFetchedQuestion] = useState('');
-  const [userAnswerInput, setUserAnswerInput] = useState('');
-  const [newPassword, setNewPassword] = useState('');
+  const [forgotSent, setForgotSent] = useState(false);
 
   const router = useRouter();
+  const supabase = createClient();
 
   // Validación estricta para correos reales
   const isValidRealEmail = (mail: string) => {
@@ -42,7 +38,7 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!isValidRealEmail(email)) {
       alert('Por favor ingresa un correo electrónico real y válido.');
       return;
@@ -56,115 +52,101 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      if (typeof window !== 'undefined') {
-        if (isRegistering) {
-          // MODO REGISTRO: Validar que no exista ya
-          const existingPass = localStorage.getItem(`clipstream_pass_${email}`);
-          if (existingPass) {
-            alert('Este correo ya está registrado. Por favor inicia sesión.');
-            setLoading(false);
-            return;
-          }
-
-          if (!name.trim()) {
-            alert('Por favor ingresa tu nombre completo.');
-            setLoading(false);
-            return;
-          }
-          if (!secretAnswer.trim()) {
-            alert('Por favor ingresa tu respuesta secreta.');
-            setLoading(false);
-            return;
-          }
-
-          // Guardar registro real
-          localStorage.setItem(`clipstream_pass_${email}`, password);
-          localStorage.setItem(`clipstream_q_${email}`, secretQuestion);
-          localStorage.setItem(`clipstream_a_${email}`, secretAnswer.toLowerCase().trim());
-          localStorage.setItem(`clipstream_name_${email}`, name);
-          localStorage.setItem('clipstream_user_email', email);
-          
-          alert('¡Cuenta creada con éxito!');
-          router.push('/dashboard/create');
-
-        } else {
-          // MODO LOGIN: Validación estricta obligatoria
-          const savedPass = localStorage.getItem(`clipstream_pass_${email}`);
-
-          if (!savedPass) {
-            alert('Este correo no está registrado. Regístrate primero.');
-            setLoading(false);
-            return;
-          }
-
-          if (savedPass !== password) {
-            alert('Contraseña incorrecta. Acceso denegado.');
-            setLoading(false);
-            return;
-          }
-
-          // Si todo es correcto, pasa al dashboard
-          localStorage.setItem('clipstream_user_email', email);
-          router.push('/dashboard/create');
+      if (isRegistering) {
+        if (!name.trim()) {
+          alert('Por favor ingresa tu nombre completo.');
+          setLoading(false);
+          return;
         }
+
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: { full_name: name },
+            emailRedirectTo: `${window.location.origin}/auth/callback`,
+          },
+        });
+
+        if (error) {
+          if (error.message.toLowerCase().includes('already registered')) {
+            alert('Este correo ya está registrado. Por favor inicia sesión.');
+          } else {
+            alert('Error al crear la cuenta: ' + error.message);
+          }
+          setLoading(false);
+          return;
+        }
+
+        // Si el proyecto tiene "Confirm email" activado, Supabase no devuelve sesión todavía
+        if (data.user && !data.session) {
+          alert('¡Cuenta creada! Revisa tu correo para confirmar tu cuenta antes de iniciar sesión.');
+          setIsRegistering(false);
+          setLoading(false);
+          return;
+        }
+
+        router.push('/dashboard/create');
+      } else {
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+
+        if (error) {
+          alert('Correo o contraseña incorrectos.');
+          setLoading(false);
+          return;
+        }
+
+        router.push('/dashboard/create');
       }
     } catch (err) {
       console.error('Error:', err);
       alert('Ocurrió un error en el acceso.');
-    } finally {
       setLoading(false);
     }
   };
 
   const handleGoogleLogin = async () => {
     setLoading(true);
-    try {
-      const chosenEmail = 'distribuidoresencalada@gmail.com';
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('clipstream_user_email', chosenEmail);
-      }
-      router.push('/dashboard/create');
-    } catch (err) {
-      console.error('Error:', err);
-    } finally {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+
+    if (error) {
+      alert('Error al iniciar sesión con Google: ' + error.message);
       setLoading(false);
     }
+    // Si no hay error, el navegador redirige a Google automáticamente.
   };
 
-  const handleCheckForgotEmail = (e: React.FormEvent) => {
+  const handleForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    const q = localStorage.getItem(`clipstream_q_${forgotEmail}`);
-    if (!q) {
-      alert('No encontramos ninguna cuenta registrada con este correo.');
+
+    if (!isValidRealEmail(forgotEmail)) {
+      alert('Ingresa un correo válido.');
       return;
     }
-    setFetchedQuestion(q);
-    setForgotStep(2);
-  };
 
-  const handleVerifyAnswer = (e: React.FormEvent) => {
-    e.preventDefault();
-    const storedAnswer = localStorage.getItem(`clipstream_a_${forgotEmail}`);
-    if (storedAnswer === userAnswerInput.toLowerCase().trim()) {
-      setForgotStep(3);
-    } else {
-      alert('La respuesta secreta es incorrecta.');
-    }
-  };
+    setLoading(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(forgotEmail, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    setLoading(false);
 
-  const handleResetPassword = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newPassword || newPassword.length < 6) {
-      alert('La nueva contraseña debe tener al menos 6 caracteres.');
+    if (error) {
+      alert('Error al enviar el enlace: ' + error.message);
       return;
     }
-    localStorage.setItem(`clipstream_pass_${forgotEmail}`, newPassword);
-    alert('¡Contraseña actualizada con éxito! Ya puedes iniciar sesión.');
+
+    setForgotSent(true);
+  };
+
+  const closeForgotModal = () => {
     setShowForgotModal(false);
-    setForgotStep(1);
     setForgotEmail('');
-    setUserAnswerInput('');
-    setNewPassword('');
+    setForgotSent(false);
   };
 
   return (
@@ -188,10 +170,10 @@ export default function LoginPage() {
               <span className="text-purple-400 font-bold">Kling AI Engine</span>
             </div>
           </div>
-          
+
           <div className="mt-8 relative w-full h-[300px] rounded-2xl overflow-hidden border border-slate-800 shadow-2xl bg-slate-900 flex items-center justify-center">
-            <Image 
-              src="/image_8ec2bd.png" 
+            <Image
+              src="/image_8ec2bd.png"
               alt="ClipStream AI Dashboard"
               fill
               className="object-cover"
@@ -244,44 +226,17 @@ export default function LoginPage() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {isRegistering && (
-              <>
-                <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-1.5">Nombre Completo</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="Tu nombre"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition text-sm"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-1.5">Pregunta de Seguridad</label>
-                  <select
-                    value={secretQuestion}
-                    onChange={(e) => setSecretQuestion(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-purple-500 transition text-sm mb-2"
-                  >
-                    <option value="¿Cómo se llama tu primera mascota?">¿Cómo se llama tu primera mascota?</option>
-                    <option value="¿Cuál es tu ciudad de nacimiento?">¿Cuál es tu ciudad de nacimiento?</option>
-                    <option value="¿Cuál es el nombre de tu película favorita?">¿Cuál es el nombre de tu película favorita?</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-1.5">Respuesta Secreta</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="Ej. Beby"
-                    value={secretAnswer}
-                    onChange={(e) => setSecretAnswer(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition text-sm"
-                  />
-                </div>
-              </>
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-1.5">Nombre Completo</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Tu nombre"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition text-sm"
+                />
+              </div>
             )}
 
             <div>
@@ -366,83 +321,48 @@ export default function LoginPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in">
           <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl relative">
             <button
-              onClick={() => { setShowForgotModal(false); setForgotStep(1); setForgotEmail(''); setUserAnswerInput(''); }}
+              onClick={closeForgotModal}
               className="absolute top-4 right-4 text-slate-400 hover:text-white text-sm font-bold bg-slate-800 px-3 py-1 rounded-xl cursor-pointer"
             >
               ✕
             </button>
 
             <h3 className="text-xl font-extrabold text-white mb-2">Recuperar Contraseña</h3>
-            <p className="text-xs text-slate-400 mb-6">Sigue los pasos para restablecer tu acceso.</p>
 
-            {forgotStep === 1 && (
-              <form onSubmit={handleCheckForgotEmail} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-1.5">Tu Correo Electrónico</label>
-                  <input
-                    type="email"
-                    required
-                    placeholder="correo@gmail.com"
-                    value={forgotEmail}
-                    onChange={(e) => setForgotEmail(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 text-sm"
-                  />
-                </div>
-                <button
-                  type="submit"
-                  className="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 rounded-xl transition text-sm cursor-pointer shadow-lg"
-                >
-                  Siguiente ➔
-                </button>
-              </form>
-            )}
-
-            {forgotStep === 2 && (
-              <form onSubmit={handleVerifyAnswer} className="space-y-4">
-                <div className="bg-slate-950 p-4 rounded-xl border border-slate-800">
-                  <p className="text-xs text-purple-300 font-semibold mb-1">Pregunta de Seguridad:</p>
-                  <p className="text-sm text-white font-bold">{fetchedQuestion}</p>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-1.5">Tu Respuesta Secreta</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="Escribe tu respuesta..."
-                    value={userAnswerInput}
-                    onChange={(e) => setUserAnswerInput(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 text-sm"
-                  />
-                </div>
-                <button
-                  type="submit"
-                  className="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 rounded-xl transition text-sm cursor-pointer shadow-lg"
-                >
-                  Verificar Respuesta ➔
-                </button>
-              </form>
-            )}
-
-            {forgotStep === 3 && (
-              <form onSubmit={handleResetPassword} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-1.5">Nueva Contraseña</label>
-                  <input
-                    type="password"
-                    required
-                    placeholder="Mínimo 6 caracteres"
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 text-sm"
-                  />
-                </div>
-                <button
-                  type="submit"
-                  className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-bold py-3 rounded-xl transition text-sm cursor-pointer shadow-lg"
-                >
-                  ✨ Guardar Nueva Contraseña
-                </button>
-              </form>
+            {!forgotSent ? (
+              <>
+                <p className="text-xs text-slate-400 mb-6">
+                  Escribe tu correo y te enviaremos un enlace para restablecer tu contraseña.
+                </p>
+                <form onSubmit={handleForgotPassword} className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-slate-300 mb-1.5">Tu Correo Electrónico</label>
+                    <input
+                      type="email"
+                      required
+                      placeholder="correo@gmail.com"
+                      value={forgotEmail}
+                      onChange={(e) => setForgotEmail(e.target.value)}
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 text-sm"
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 rounded-xl transition text-sm cursor-pointer shadow-lg disabled:opacity-50"
+                  >
+                    {loading ? 'Enviando...' : 'Enviar Enlace de Recuperación ➔'}
+                  </button>
+                </form>
+              </>
+            ) : (
+              <div className="text-center py-4">
+                <p className="text-4xl mb-3">📬</p>
+                <p className="text-sm text-white font-semibold mb-1">¡Revisa tu correo!</p>
+                <p className="text-xs text-slate-400">
+                  Te enviamos un enlace a <span className="text-purple-300">{forgotEmail}</span> para restablecer tu contraseña.
+                </p>
+              </div>
             )}
           </div>
         </div>
